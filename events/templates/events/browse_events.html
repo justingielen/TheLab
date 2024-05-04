@@ -1,0 +1,61 @@
+{% extends "main/toolbar.html" %}
+{% block content %}
+{% load static %}
+<body>
+    <small>
+        (Priority 1)
+    </small>
+    <h1>SEARCH for Events by...</h1>
+    <p>
+        (all optional, the default Events shown are LevelUp's)
+    </p>
+    <h4>
+        Name/Title: (text)
+    </h4>
+    <p>
+        (of the Event)
+    </p>
+    <h4>
+        Sport: (drop-down menu)
+    </h4>
+    <p>
+        Sport options are populated by Team Approvals (i.e., the sports played or coached by the Coaches in The Lab), Profiles have access to sports for which they have an approved Approval
+    </p>
+    <h4>
+        Type: (drop-down menu)
+    </h4>
+    <p>
+        (as in camp, training or clinic... so far)
+    </p>
+    <h4>
+        Coach account: (search by username)
+    </h4>
+    <p>including an account in any search will solidify their name in the search bar and enable the user to search for another username. Clicking on a solidified username will direct you to their page)</p>
+    <h4>
+        Date/s (optional):
+    </h4>
+    <p>
+        If dates are entered, then results will be displayed by event, like below. If dates are not entered, then results will be displayed in a calendar that shows a month at a time
+    </p>
+</body>
+<h1>FEED</h1><p>(That match the search conditions).</p>
+
+<body>
+    {% for event in events %}
+        <article class ='media content-section'>
+            <div class = 'media-body'>
+                <h2><a class="article-title" href="{% url 'view_event' pk=event.pk %}"> {{ event.title }}</a></h2>
+                <div class ='article-metadata'>
+                    <img class= "rounded-circle" src ='{{ event.creator.user.image.url }}' width="40" height="40"> <!-- Rounded circle is from the Profile Editing interface-->
+                    <a class = "mr-2" href = '#'> @{{ event.creator }} </a>
+                    <small class = "text-muted" > ({{ event.location }}) </small>
+                    <small class = "text-muted" > {{ event.start | date:"F d, Y"}} -- </small>
+                    <small class = "text-muted" > {{ event.end_recurring_period | date:"F d, Y"}} </small>
+                </div>
+                <p class="article-content"> {{ event.description }}</p>
+            </div>
+            </div>
+        </article>'
+    {% endfor %}
+</body>
+{% endblock content %}

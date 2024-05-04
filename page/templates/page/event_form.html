@@ -1,0 +1,22 @@
+{% extends "main/toolbar.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="content-section">
+        <h2><i>Create an Event!</i></h2>
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class ="form-group">
+                <legend class="border-bottom mb-4">Details</legend>
+                {{ sports|crispy }}
+                {{ details|crispy }}
+                <legend class="border-bottom mb-4">Timeline <small><i>(For day 1 only if Event is recurring)</i></small></legend>
+                {{ timeline|crispy }}
+                <legend class="border-bottom mb-4">Recurrence <small><i>(Ignore for one-time only Events)</i></small></legend>
+                {{ recurrence|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Create Event</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

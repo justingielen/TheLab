@@ -1,0 +1,10 @@
+{% extends "main/toolbar.html" %}
+{% block content %}
+
+{% for notification in notifications %}
+<div class="content-section">
+    {{ notification.message }}
+</div>
+{% endfor %}
+
+{% endblock %}

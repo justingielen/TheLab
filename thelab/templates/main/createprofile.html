@@ -1,0 +1,68 @@
+{% extends "main/toolbar.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<head>
+    <div class ="content-section"> <!-- This is a CSS class described in the main.css static file, used for styling-->
+        <form method="POST" action="{% url 'createprofile' %}">
+            {% csrf_token %}<!-- "Cross Site Request Forgery", added security for forms that Django requires-->
+            <fieldset class="form-group"><!-- Bootstrap class-->
+                <legend class="border-bottom mb-4">Create a Profile!<!-- Gives form a little bit more detail, mb = margin bottom--></legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class = "form-group">
+                <button class="btn btn-outline-info" type="submit">Create Account</button><!-- btn = button-->
+            </div>
+        </form>
+        <form>
+            <legend class="border-bottom mb-8"><i>About Lab Profiles</i></legend>
+            <p>
+                Profiles in The Lab exist at one of two levels: Athlete or Coach.
+            </p>
+            <p>
+                <small>*A Profile begins as an Athlete (i.e., a non-Coach) and can be upgraded to Coach by submitting a Team Application. Team Applications are used to verify playing or coaching history, and are manually reviewed by LevelUp Sports. A Profile's status as Coach (or not) is automatically updated upon Approval (or Denial) of a submitted Team Application.</small>    
+            </p>
+            <p>
+                Athletes (and Coaches) can:
+            <div>
+                <small>-search & register for Events,</small>
+            </div>
+            <div>
+                <small>-view upcoming Events on their Home page</small>
+            </div>
+            <div>
+                <small>-search & save Drills (very under development), and</small>
+            </div>
+            <div>
+                <small>-complete a Workout (also very under development) using Drills.</small>
+            </div>
+            </p>
+            <p>
+                But, Coaches can also: 
+            <div>
+                <small>-host Events (i.e., create Events & recieve payment (or not) for them),</small>
+            </div> 
+            <div>
+                <small>-post Drills (see above regarding development), and</small>
+            </div>
+            <div>
+                <small>-create business accounts (in addition to their personal accounts-- under development).</small>
+            </div>
+            </p>
+            <p>
+                <p>
+                    <i>
+                        ** Profiles are not necessary to join Events. Event attendees simply have to be named, and they don't have to be the user who's actually signing up (i.e., paying/or not). But, every user who registers any attendees for an Event, whether paid or free, must be at least 18 years old. If you have an account, you will only have to verify your age/identity once.
+                    </i>
+                </p>
+            </p>
+        </form>
+        <div class = "border-top pt-3"><!-- "padding top"-->
+            <small class = "text-muted">
+                Already have an account? <a class = "ml-2" href="{% url 'login' %}">Log In</a><!-- ml = margin left-->
+        </div>
+    </div>
+</head>
+<body>
+   
+</body>
+{% endblock %}

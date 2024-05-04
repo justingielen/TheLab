@@ -1,0 +1,52 @@
+{% extends "main/toolbar.html" %}
+{% block content %}
+<title>
+    {{ title }}
+</title>
+<body>
+    <center>
+        <h4>
+            The Lab aims to be an all-in-one skill development platform where aspiring athletes can connect with and learn from successful players and coaches to upgrade their game!
+        </h4>
+    </center>    
+        <p>
+            This platform started with a simple realization:
+        </p>
+        <i>
+        <p>
+            <small>
+                Players & Coaches with experience at high levels often have quite a bit of untapped value. 
+                The value is not just in their knowledge of the best ways of training for a sport and then playing (or coaching) it at a high level (or levels). It's also in their experience in recruitment and preparation for the higher level(s) at which they've played or coached.
+            </small> 
+        </p>
+        <p>
+            <small>
+                As a result, they’ve got both knowledge (about how to get better) and wisdom (about how to make it to the next level) for the millions of youth athletes who themselves aspire to make it to a higher level.
+            </small>  
+        </p>
+        </i>
+    </p>
+    <p>
+        If you're an athlete (or the parent of an athlete), you've come to the right place!
+    </p>
+    <p>
+        The Lab exists to help aspiring athletes learn and grow from successful players and coaches. Whether that means coordinating in-person events (priority 1), or facilitating remote workouts through Coach-posted drills (priority 2), our goal is to help athletes get better by getting in The Lab!
+    </p>
+</body>
+<body>
+    <p>
+        If you've played or coached a college (or professional) sport, you've also come to the right place!
+    </p>
+    <p>
+        The mission of LevelUp Sports is to help you help the next generation of athletes. The Lab is our operating system for doing just that. But, it can also be your operating system to do it yourself!
+    </p>
+</body>    
+<i>
+    <h4>
+        Do you wanna get in The Lab? 
+        <small>
+            <a class = "ml-2" href="{% url 'createprofile' %}">Create a Profile Today!</a><!-- ml = margin left-->
+        </small>
+    </h4>
+</i>
+    {% endblock %}

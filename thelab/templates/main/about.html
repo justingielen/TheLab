@@ -1,0 +1,135 @@
+{% extends "main/toolbar.html" %}
+{% block content %}
+{% load static %}
+<title>
+    {{ title }}
+</title>
+<ul class="list-group">
+    <a class="btn" href="https://docs.google.com/document/d/14L_OrB-HW_aPxU3NcNQjkxsulFgatUJWmHmWRuS7oxw/edit?usp=sharing" target="_blank">Concept Outline</a> <!-- target = blank opens it in a new tab-->
+    <img src="{% static 'main/images/page_browsing.png' %}">
+</ul>
+{% endblock %}
+
+<!-- KEEPING THIS HERE SO IT DOESN'T COME UP IN DEMOS -->
+<head>
+    <div>
+        <h2>
+            LevelUp Sports: Organizational Structure
+        </h2>
+    </div>
+</head>
+<body>
+    <h4>
+        -Justin Gielen: CEO/CIO (Founder, currently owns all equity)
+    </h4>
+</body>
+<body>
+    <p>
+        <small>
+            -"LevelUp Hoops"
+        </small>    
+    </p>
+    <p>
+        <small>
+            -“LevelUp Lax”
+        </small>
+    </p>
+    <p>
+        <small>
+            -“LevelUp Soccer”
+        </small>    
+    </p>
+    <small>
+        ...all part of LevelUp Sports (start with these three sports primarily in Maryland, and then expand)
+    </small>
+</body>
+<body>
+    <h4>
+        -Arthur Jackson: COO (partial owner, (potential board member?) if role accepted)
+    </h4>
+</body>
+<body>
+    <h4>
+        <i>-Could use a different CEO-- focused on networking Marketed Directors for LevelUp Sports Camps
+    </h4>
+    <small>
+        (Ty Lenhart?)
+    </small></i>
+</body>
+<p>
+
+</p>
+<body>
+    <h3>
+        Overall strategy: Focus on Events with part-time workers (Summer camps & hopefully After School Programs)
+    </h3>
+</body>
+<p>
+
+</p>
+<h3>
+    Summer Camp Expansion Strategy:
+</h3>
+<p>
+    Use “marketed director(s)” for advertising individual camps. Marketed Directors can be one or multiple of the following:
+    <div>
+        <p>
+            <small>
+                -High-profile college-minimum athletes and coaches in LevelUp’s network (which again is mine and Arthur Jackson’s hopefully) who are capable and would like to “host” a camp
+            </small>
+        </p>
+        <p>
+            <small>
+                -College sports programs (in LevelUp’s network) who would like to “host” a camp
+            </small>
+        <small>
+            <i>(More about Marketed Directors is under "Summer Camp Broad Ideas")</i>
+        </small>
+    </p>
+    </div>
+</p>
+<p>
+    Initial locations:
+    <div>
+        <small>
+            -Public high schools in the counties near the area of residency or operations for the marketed director(s)
+        </small>
+    </div>
+</p>
+<p>
+    Target audience:
+    <div>
+        <small>
+            -Families with children in the local middle-to-high school system
+        </small>    
+    </div>
+</p> 
+<ul class="list-group">
+    <a class="btn btn-primary" href="{% url 'camp-overheadideas' %}">Summer Camp Broad Ideas</a>
+    <a class="btn btn-primary" href="{% url 'camp-mondayoutline' %}">Summer Camp Monday Outline</a>
+</ul>
+<p>
+
+</p>
+<h6>
+    <i>
+        ****Leverage school connections from summer camps for after school programs in non-summer months
+    </i>
+</h6>
+<h4>
+    Skill Tag(s): (tag field)
+</h4>
+<p>(constructed from skill nodes-- e.g., "Basketball", "Shooting", "3-point")</p>
+<p>One or several skill nodes comprise a skill tag (e.g., "Basketball", "Basketball>Shooting", "Basketball>Shooting>3pt")</p>
+<img src = "{% static 'main/images/skilltag_construct.png' %}" width*=2 height *=4/>
+<p>
+    <small class = "text-muted"> 
+        (this is the step-by-step completion of the following skill tag: Basketball > Dribbling) 
+    </small>
+</p>
+<p>
+    <small class = "text-muted"> 
+        Skill tags can be one or several skill nodes. The skill tag above is constructed from two nodes: one root node (Basketball), and a skill node one level below the root node (Dribbling) 
+    </small>
+</p>
+

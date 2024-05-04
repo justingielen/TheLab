@@ -1,0 +1,29 @@
+{% extends "main/toolbar.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<form method="GET" action="{% url 'location_search' %}">
+    <input type="text" name="query" placeholder="Search for a location...">
+    <button type="submit">Search</button>
+</form>
+<h4>
+    Existing Locations:
+</h4>
+<ul>
+    {% for location in locations %}
+        <li>
+            {{ location.location_name }} ({{ location.location_city}})
+            <a href="{% url 'add_location' location_name=location.location_name %}">Select</a>
+        </li>
+    {% empty %}
+        <li>No locations found.</li>
+    {% endfor %}
+</ul>
+<!-- Add content section directing to New Location form -->
+    <p>
+        <p>
+
+        </p>
+        Don't see your spot? We may not have it in our files.
+        <a class="btn" href="{% url 'location_form' %}">Add it here!</a>
+    </p>
+{% endblock %}

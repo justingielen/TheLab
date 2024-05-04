@@ -1,0 +1,17 @@
+{% extends "main/toolbar.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="content-section">
+        <h2><i>Add a New Location!</i></h2>
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class ="form-group">
+                <legend class="border-bottom mb-4">Location Details</legend>
+                {{ location_form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Add Location</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,23 @@
+<!-- Probably Extend main toolbar, this interface will be used to name the Event attendee(s) and initialize the payment interface (if the Event requires it) -->
+<head>
+    
+    {% if age < 18 %} 
+        <title>REQUEST TO SIGN UP</title>
+        <h1>REQUEST TO SIGN UP</h1>
+        <body>
+            <h2>Parent/Guardian</h2>
+            <h3>Name:</h3>
+            <h3>Email:</h3>
+            <h3>Phone:</h3>
+            <button>Send Request</button>
+        </body>
+    {% else %}
+        <title>SIGN UP</title>
+        <h1>SIGN UP</h1>
+        <p>
+            {{ event.name }}
+        </p>
+        <button>Sign Up</button>
+    {% endif %}
+</head>
+

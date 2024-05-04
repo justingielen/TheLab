@@ -1,0 +1,86 @@
+{% extends "main/toolbar.html" %}
+{% block content %}
+<!-- A user is logged in -->
+{% if profile.coach %} <!-- This will need to change (Home -> Viewing) to whether the user is the owner of the Page-->
+<head>
+    <h1>
+        Hey Coach, welcome to your Page Home!
+    </h1>
+    <body>
+        <div class="content-section">
+            <div class="media">
+                <img class="rounded-circle account-img" src= "{{ user.image.url }}">
+                <div class="media-body">
+                    <h5 class="account-heading">@{{ user.username }}</h5>
+                    <p class="text-secondary">{{ user.email }}</p>
+                    <p class="text-secondary">Profile: {{ profile.first_name}} {{ profile.last_name }}</p>
+                    <a class="edit-btn" href="{% url 'profile_edit' %}">Edit</a>
+                </div>
+            </div>
+        </div>
+    </body>
+    <p>
+        <i>(This is your hub for creating and managing content, as well as getting a preview of what your Page looks like to other users who are viewing it.)</i>
+    </p>
+        <p>
+            Your Locations:
+            <ul>
+                {% for coach_location in coach_locations %}
+                    <li>
+                        {{ coach_location.location.location_name }}
+                        <a href="{% url 'remove_location' location_name=coach_location.location.location_name %}"><small>(Remove)</small></a>
+                    </li>
+                {% endfor %}
+                {% if coach_locations.count == 0 %}
+                    <p>
+                        You don't have any associated locations! Add some to your profile so you can host Events!
+                    </p>
+                {% endif %}
+            </ul>
+            <ul>
+                <li>
+                    <a href="{% url 'location_search' %}">Add Location</a>
+                </li>
+            </ul>
+        </p>
+    <body>
+        <div class="content-section">
+            <p>CREATE</p>
+            <ul class="list-group">
+                <a class="list-group-item list-link" href="{% url 'event_form' %}">Event</a>
+            </ul>
+        </div>
+    </body>
+</head>
+{% endif %}
+
+
+<body>
+    <h3>
+        Upcoming Hosted Events:
+    </h3>
+    <body>
+        {% for event in coach_events %}
+            <article class ='media content-section'>
+                <div class = 'media-body'>
+                    <h2><a class="article-title" href="{% url 'view_event' pk=event.pk %}"> {{ event.title }}</a></h2>
+                    <div class ='article-metadata'>
+                        <img class= "rounded-circle" src ='{{ event.creator.user.image.url }}' width="40" height="40"> <!-- Rounded circle is from the Profile Editing interface-->
+                        <a class = "mr-2" href = '#'> @{{ event.creator }} </a>
+                        <small class = "text-muted" > ({{ event.location }}) </small>
+                        <small class = "text-muted" > {{ event.start | date:"F d, Y"}} -- </small>
+                        <small class = "text-muted" > {{ event.end_recurring_period | date:"F d, Y"}} </small>
+                    </div>
+                    <p class="article-content"> {{ event.description }}</p>
+                </div>
+                </div>
+            </article>
+        {% endfor %}
+    </body>
+    <p>
+        <i>
+            (Listed Events should be replaced by Drills once they become part of the platform -- Events (and availability) will be accessible through a calendar on the page display)
+        </i>
+    </p>
+</body>
+{% endblock content %}

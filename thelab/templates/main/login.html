@@ -1,0 +1,20 @@
+{% extends "main/toolbar.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class ="content-section"> <!-- This is a CSS class described in the main.css static file, used for styling-->
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}<!-- "Cross Site Request Forgery", added security for forms that Django requires-->
+        <fieldset class="form-group"><!-- Bootstrap class-->
+            <legend class="border-bottom mb-4">Log In<!-- Gives form a little bit more detail, mb = margin bottom--></legend>
+            {{ form|crispy }}
+        </fieldset>
+        <div class = "form-group">
+            <button class="btn btn-outline-info" type="submit">Log In</button><!-- btn = button-->
+        </div>
+    </form>
+    <div class = "border-top pt-3"><!-- "padding top"-->
+        <small class = "text-muted">
+            Don't have an account? <a class = "ml-2" href="{% url 'createprofile' %}">Create A Profile!</a><!-- ml = margin left-->
+    </div>
+</div>
+{% endblock %}

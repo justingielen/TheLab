@@ -1,0 +1,20 @@
+{% extends "main/toolbar.html" %}
+{% block content %}
+    <article class ='media content-section'>
+        <div class = 'media-body'>
+            <h2 class = "article-title"> {{ event.title }}</h2>
+            <div class ='article-metadata'>
+                <img class= "rounded-circle" src ='{{ event.creator.user.image.url }}' width="40" height="40"> <!-- Rounded circle is from the Profile Editing interface-->
+                <a class = "mr-2" href = '#'> @{{ event.creator }} </a>
+                <small class = "text-muted" > ({{ event.location }}) </small>
+                <small class = "text-muted" > {{ event.start | date:"F d, Y"}} - </small>
+                <small class = "text-muted" > {{ event.end_recurring_period | date:"F d, Y"}} </small>
+            </div>
+            <p class="article-content"> {{ event.description }}</p>
+            <ul class="list-group" width="200">
+                <a class="list-group-item list-link" href="{% url 'attendee_form' pk=event.pk %}" width = "200">SIGN UP</a>
+            </ul>
+        </div>
+        </div>
+    </article>
+{% endblock content %}
