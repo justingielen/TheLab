@@ -151,7 +151,7 @@ USE_TZ = False
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "thelab/static"
+    BASE_DIR / "thelab/static/main"
 ]
 
 # Define the directory where collectstatic will copy static files for deployment
