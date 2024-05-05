@@ -105,7 +105,7 @@ WSGI_APPLICATION = 'thelab.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': BASE_DIR / 'justingielen$default',
+        'NAME': str(BASE_DIR / 'justingielen$default'), # got an error: TypeError: connect() argument 4 must be str, not WindowsPath... so that's why it's a string 
         'USER': 'justingielen',
         'PASSWORD':'pretty!!good55password...',
         'HOST':'justingielen.mysql.pythonanywhere-services.com',
@@ -153,6 +153,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "thelab/static"
 ]
+
+# Define the directory where collectstatic will copy static files for deployment
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Django-scheduler (from github) section -----------------------
 # STATICFILES_FINDERS = [ # this was causing static file problems
