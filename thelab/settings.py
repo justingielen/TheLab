@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-co*2qcbgji0o(hc-2(5=bjch%-s_0q)dk$%m5r0l++=%s2d#1g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['justingielen.pythonanywhere.com']
+ALLOWED_HOSTS = ['justingielen.pythonanywhere.com','127.0.0.1']
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.history.HistoryPanel',
@@ -104,12 +104,14 @@ WSGI_APPLICATION = 'thelab.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': str(BASE_DIR / 'justingielen$default'), # got an error: TypeError: connect() argument 4 must be str, not WindowsPath... so that's why it's a string 
-        'USER': 'justingielen',
-        'PASSWORD':'pretty!!good55password...',
-        'HOST':'justingielen.mysql.pythonanywhere-services.com',
-        'PORT':'3306',
+        'ENGINE':'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        #'ENGINE': 'django.db.backends.mysql',
+        #'NAME': str(BASE_DIR / 'justingielen$default'), # got an error: TypeError: connect() argument 4 must be str, not WindowsPath... so that's why it's a string 
+        #'USER': 'justingielen',
+        #'PASSWORD':'pretty!!good55password...',
+        #'HOST':'justingielen.mysql.pythonanywhere-services.com',
+        #'PORT':'3306',
     }
 }
 
