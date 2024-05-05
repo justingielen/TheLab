@@ -73,6 +73,7 @@ def sc_mo(request):
 
 # FIRST VIEW THAT CALLS A TEMPLATE W/ A FORM
 def createprofile(request):
+    context = {'user': request.user}
     if request.method == "POST":
         form = UserRegistrationForm(request.POST) # passes in data from form when the POST request was sent
         if form.is_valid():
@@ -84,7 +85,8 @@ def createprofile(request):
             print(form.errors) # for debugging
     else:
         form = UserRegistrationForm()
-    return render(request, 'main/createprofile.html',{'form':form})
+    context.update({'form':form})
+    return render(request, 'main/createprofile.html',context)
 
 # defining a Home screen function
 @login_required
