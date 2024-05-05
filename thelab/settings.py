@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-co*2qcbgji0o(hc-2(5=bjch%-s_0q)dk$%m5r0l++=%s2d#1g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['justingielen.pythonanywhere.com']
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.history.HistoryPanel',
@@ -104,8 +104,12 @@ WSGI_APPLICATION = 'thelab.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': BASE_DIR / 'justingielen$default',
+        'USER': 'justingielen',
+        'PASSWORD':'pretty!!good55password...',
+        'HOST':'justingielen.mysql.pythonanywhere-services.com',
+        'PORT':'3306',
     }
 }
 
