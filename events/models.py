@@ -5,8 +5,10 @@ from page.models import Event
 # This needs to change, User will be an optional field in the Attendee model, to allow parents to sign up their kids without necessarily making User accounts for them
 # Event Attendee will still exist
 class EventAttendee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    event = models.OneToOneField(Event, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=50, default="(first name)")
+    first_name = models.CharField(max_length=100, default = "(last name)")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, )
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.user}'
