@@ -106,6 +106,9 @@ DATABASES = {
     'default': {
         'ENGINE':'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+
+        # for production, these will probably be the details (should probably get a new stripe account too, because info has been on github)
+        
         #'ENGINE': 'django.db.backends.mysql',
         #'NAME': str(BASE_DIR / 'justingielen$default'), # got an error: TypeError: connect() argument 4 must be str, not WindowsPath... so that's why it's a string 
         #'USER': 'justingielen',
