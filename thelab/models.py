@@ -125,7 +125,7 @@ class Application(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     sport = models.CharField(max_length=20,help_text="(Just the sport- leave out Men's or Women's & whether College or Professional)")
     team = models.CharField(max_length=50,blank=True)
-    record = models.TextField(help_text='(Ideally, a copy-and-pasted link to the roster of the team on which you are or were a player or a coach)')
+    record = models.TextField(help_text='(Ideally, a copy-and-pasted link to the roster of the team on which you are or were a player or a coach)') # unique = True (can't submit same record twice)
     approved = models.BooleanField(null=True)
 
     def __str__(self):
