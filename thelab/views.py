@@ -9,22 +9,30 @@ from django.contrib.auth.decorators import login_required # Decorator-- adds fun
 
 title = 'The Lab - '
 
+def get_profile_user(request):
+    try:
+        profile_user = ProfileUser.objects.get(user=request.user,control_type='personal')
+        profile = profile_user.profile
+        user = profile_user.user
+    except:
+        profile= None
+        user=None
+    return profile, user
+
 # Stuff mainly for aesthetics (don't worry about this at this stage)
 def discover_drills(request):
+    profile, user = get_profile_user(request)
+
     context = {
-        'title': title+ 'Discover Drills'
+        'title': title+ 'Discover Drills',
+        'profile':profile,
+        'user':user,
     }
     return render(request, 'main/discover_drills.html',context)
 
 # --- 
 def welcome(request):
-    try:
-        profile_user = ProfileUser.objects.get(user=request.user)
-        profile = profile_user.profile
-        user = profile_user.user
-    except:
-        profile = None
-        user = None
+    profile, user = get_profile_user(request)
 
     context = {
         'title': title + "Welcome!",
@@ -34,13 +42,7 @@ def welcome(request):
     return render(request,'main/welcome.html',context)
 
 def whatisthelab(request):
-    try:
-        profile_user = ProfileUser.objects.get(user=request.user)
-        profile = profile_user.profile
-        user = profile_user.user
-    except:
-        profile = None
-        user = None
+    profile, user = get_profile_user(request)
 
     context = {
         'title': title + "What is it?",
@@ -50,13 +52,7 @@ def whatisthelab(request):
     return render(request, 'main/whatisthelab.html',context)
 
 def about(request):
-    try:
-        profile_user = ProfileUser.objects.get(user=request.user)
-        profile = profile_user.profile
-        user = profile_user.user
-    except:
-        profile = None
-        user = None
+    profile, user = get_profile_user(request)
 
     context = {
         'title': "About LevelUp Sports",
@@ -65,15 +61,16 @@ def about(request):
     }
     return render(request, 'main/about.html',context)
 
-def sc_oi(request):
-    return render(request, 'main/camp_overheadideas.html')
-
-def sc_mo(request):
-    return render(request, 'main/camp_mondayoutline.html')
-
 # FIRST VIEW THAT CALLS A TEMPLATE W/ A FORM
 def createprofile(request):
-    context = {'user': request.user}
+    profile, user = get_profile_user(request)
+
+    context = {
+        'title': "Create Profile",
+        'profile':profile,
+        'user':user
+    }
+
     if request.method == "POST":
         form = UserRegistrationForm(request.POST) # passes in data from form when the POST request was sent
         if form.is_valid():
@@ -91,12 +88,7 @@ def createprofile(request):
 # defining a Home screen function
 @login_required
 def home(request):
-    try:
-        profile_user = ProfileUser.objects.get(user=request.user,control_type='personal')
-        profile = profile_user.profile
-        user = profile_user.user
-    except:
-        profile = None
+    profile, user = get_profile_user(request)
 
     context = {
         'title': title + 'Home',

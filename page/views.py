@@ -8,32 +8,39 @@ from .forms import LocationForm, EventSportForm, EventDetailsForm, EventTimeline
 from datetime import datetime
 from .signals import coach_location
 
-# Page home
-@login_required
-def page_home(request):
+def get_profile_user(request):
     try:
         profile_user = ProfileUser.objects.get(user=request.user,control_type='personal')
         profile = profile_user.profile
         user = profile_user.user
     except:
         profile= None
+        user=None
+    context = {
+        'profile':profile,
+        'user':user
+    }
+    return profile, user, context
+
+# Page home
+@login_required
+def page_home(request):
+    profile, user, context = get_profile_user(request)
 
     coach_events = Event.objects.filter(creator=request.user) # This will become expensive, probably much better to go through Calendars rather than searching through the entire Event table
     coach_locations = CoachLocation.objects.filter(coach=user)
 
-    context = {
-        'profile':profile,
-        'user':user,
+    context.update({
         'coach_locations':coach_locations,
         'coach_events':coach_events
-    }
+    })
     return render(request, 'page/home.html',context=context)
 
 
 
 @login_required
 def create_location(request):
-    user = request.user
+    profile, user, context = get_profile_user(request)
 
     if request.method == 'POST':
         location_form = LocationForm(request.POST)
@@ -57,18 +64,22 @@ def create_location(request):
     else:
         location_form = LocationForm()
 
-    context = {
+    context.update({
         'location_form':location_form,
-    }
+    })
 
     return render(request, 'page/location_form.html',context)
 
 def search_location(request):
+    profile, user, context = get_profile_user(request)
+
     # Don't know the details here
     query = request.GET.get('query', '')
     locations = Location.objects.filter(location_name__icontains=query)
     
-    return render(request, 'page/location_search.html', {'locations': locations, 'query': query})
+    context.update({'locations': locations, 'query': query})
+    
+    return render(request, 'page/location_search.html', context)
 
 def add_location(request, location_name):
     location = get_object_or_404(Location, location_name=location_name)
@@ -88,6 +99,7 @@ def remove_location(request, location_name):
 
 @login_required
 def create_event(request):
+    profile, user, context = get_profile_user(request)
 
     if request.method == 'POST':
         event_details = EventDetailsForm(request.POST)
@@ -137,12 +149,12 @@ def create_event(request):
         event_timeline = EventTimelineForm()
         event_recurrence = EventRecurrenceForm()
 
-    context = {
+    context.update({
             'sports':event_sports,
             'details':event_details,
             'timeline':event_timeline,
             'recurrence':event_recurrence
-        }
+        })
 
     return render(request, 'page/event_form.html', context)
 
