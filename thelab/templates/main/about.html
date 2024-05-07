@@ -8,6 +8,7 @@
     <a class="btn" href="https://docs.google.com/document/d/1R8ZhdC0OpdPK2qZao3QLM30T4PlA-0PusGyUL4gqUgo/edit?usp=sharing" target="_blank">Concept (IT530 Final Report)</a> <!-- target = blank opens it in a new tab-->
     <img src="{% static 'main/images/page_browsing.png' %}">
 </ul>
+{% endblock %}
 
 <!-- KEEPING THIS HERE SO IT DOESN'T COME UP IN DEMOS -->
 <head>
@@ -120,7 +121,6 @@
 </h4>
 <p>(constructed from skill nodes-- e.g., "Basketball", "Shooting", "3-point")</p>
 <p>One or several skill nodes comprise a skill tag (e.g., "Basketball", "Basketball>Shooting", "Basketball>Shooting>3pt")</p>
-<img src = "{% static 'main/images/skilltag_construct.png' %}" width*=2 height *=4/>
 <p>
     <small class = "text-muted"> 
         (this is the step-by-step completion of the following skill tag: Basketball > Dribbling) 
@@ -131,5 +131,3 @@
         Skill tags can be one or several skill nodes. The skill tag above is constructed from two nodes: one root node (Basketball), and a skill node one level below the root node (Dribbling) 
     </small>
 </p>
-
-{% endblock %}
