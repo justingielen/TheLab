@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-co*2qcbgji0o(hc-2(5=bjch%-s_0q)dk$%m5r0l++=%s2d#1g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['justingielen.pythonanywhere.com','127.0.0.1']
+ALLOWED_HOSTS = ['justingielen.pythonanywhere.com','127.0.0.1','localhost']
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.history.HistoryPanel',

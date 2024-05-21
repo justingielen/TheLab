@@ -15,7 +15,7 @@ def create_personal_profile(sender, instance, created, **kwargs):
 
         # Create a notification for the user
         user = instance.user
-        message = "Welcome to your personal profile in the Lab!! The Lab aims to be a platform where aspiring athletes can connect with and learn from successful players and coaches. Explore Coach-created Events in the 'Events' button on your main navigation bar."
+        message = "Welcome to your personal profile in the Lab!! The Lab aims to be a platform where aspiring athletes can connect with and learn from successful players and coaches. You can look for a Coach that suits your (or your child's) aspirations in the 'Coaches' tab of your main navigation bar. You can also find upcoming developmental sports Events in the 'Events' tab. Or, you can discover Drills to fill your Workout at home! (under the 'Drills' tab)."
         Notification.objects.create(user=user,message=message)
 
         # Create a home calendar for the user
