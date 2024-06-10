@@ -55,7 +55,7 @@ def create_attendee(request, pk):
             for instance in instances:
                 instance.event = event
                 instance.save()
-            formset.save_m2m()
+            formset.save_m2m() #Many2Many
             messages.success(request, f'Attendee(s) created!')
             return redirect('browse_events') # Redirect to a success page
     else:

@@ -1,11 +1,12 @@
 {% extends "events/view_event.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
+<div class="content-section">
+<h3>Add Attendee(s)</h3>
+<legend class="border-bottom mb-2"><small><i>{{ event }}</i></small></legend>
 <form method="POST">
     {% csrf_token %}
     <fieldset class ="form-group">
-        <h3>Add Attendee(s)</h3>
-        <legend class="border-bottom mb-2"><small><i>{{ event }}</i></small></legend>
         {{ formset.management_form }}
         <div id="formset-container">
         {% for form in formset.forms %}
@@ -21,6 +22,7 @@
         <button class="btn btn-outline-info" type="submit">Register!</button>
     </div>
 </form>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

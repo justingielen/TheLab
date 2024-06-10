@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required # Decorator-- adds functionality to an existing function
 from django.contrib import messages
 from django.utils import timezone
-from thelab.models import ProfileUser
+from thelab.models import ProfileUser, User
 from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Event
 from .forms import LocationForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
 from datetime import datetime
@@ -22,19 +22,37 @@ def get_profile_user(request):
     }
     return profile, user, context
 
-# Page home
+# Page Viewing ------
 @login_required
-def page_home(request):
-    profile, user, context = get_profile_user(request)
+def page_viewing(request, pk):
+    # if the viewer is the owener of the page,
+    is_owner = request.user.pk == int(pk)
+    if is_owner:
+        # assign profile/user data based on the requesting user
+        profile, user, context = get_profile_user(request)
+        context.update({
+            'coach':profile,
+        })
+    # if not,
+    else:
+        # assign profile/user data based on the private key (id) of the Page's owner, which is defined when the view is called
+        user = User.objects.get(pk=pk)
+        profile_user = ProfileUser.objects.get(user=user, control_type='personal')
+        profile = profile_user.profile
+        context = {
+            'user':user,
+            'coach':profile,
+        }
 
-    coach_events = Event.objects.filter(creator=request.user) # This will become expensive, probably much better to go through Calendars rather than searching through the entire Event table
+    coach_events = Event.objects.filter(creator=user) # This will become expensive, probably much better to go through Calendars rather than searching through the entire Event table
     coach_locations = CoachLocation.objects.filter(coach=user)
 
     context.update({
+        'is_owner':is_owner,
         'coach_locations':coach_locations,
         'coach_events':coach_events
     })
-    return render(request, 'page/home.html',context=context)
+    return render(request, 'page/viewing.html',context=context)
 
 
 
@@ -60,7 +78,7 @@ def create_location(request):
             # Sending the save request's User to the CoachLocation creation signal
             coach_location(sender=Location, instance=location, location=location, user=request.user)
             ## ^^ PRETTY COOL!! This is using a signal as a function inside of a view. 
-            return redirect('page_home')
+            return redirect('page_viewing')
     else:
         location_form = LocationForm()
 
@@ -129,7 +147,7 @@ def create_event(request):
 
             event.save()
             messages.success(request, 'Event created!')
-            return redirect('page_home')
+            return redirect('page_viewing')
         
     else:
         # Get applicable locations

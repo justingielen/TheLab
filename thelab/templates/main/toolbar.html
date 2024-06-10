@@ -50,7 +50,7 @@
               {% if user.is_authenticated %}
                 <!-- Check if user is a coach -->
                 {% if profile.coach %}
-                  <a class="nav-item nav-link" href="{% url 'page_home' %}">Page</a>
+                  <a class="nav-item nav-link" href="{% url 'page_viewing' pk=request.user.pk %}">Page</a>
                 {% endif %}
                 <a class="nav-item nav-link" href="{% url 'home' %}">Home</a>
                 <a class="nav-item nav-link" href="{% url 'alerts' %}">Alerts</a>
@@ -76,7 +76,7 @@
                           <h3>The Lab-- by LevelUp Sports</h3>
                           <p>
                             <small>
-                              The Lab and LevelUp Sports are both about connecting current and aspiring athletes with successful players and coaches (generalized to "Coaches" in The Lab) who have the right knowledge and wisdom to help an athlete LEVEL UP their game!
+                              The Lab and LevelUp Sports are both about connecting aspiring athletes with successful players and coaches who have the right knowledge and wisdom to help an athlete LEVEL UP their game!
                             </small>
                           </p>
                           <ul class="list-group">

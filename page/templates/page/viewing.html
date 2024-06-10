@@ -1,10 +1,10 @@
 {% extends "main/toolbar.html" %}
 {% block content %}
-<!-- A user is logged in -->
-{% if profile.coach %} <!-- This will need to change (Home -> Viewing) to whether the user is the owner of the Page-->
+<!-- Checking if the viewing user is the owner of the page-->
+{% if is_owner %}
 <head>
     <h1>
-        Hey Coach, welcome to your Page Home!
+        Hey Coach, welcome to your Page!
     </h1>
     <body>
         <div class="content-section">
@@ -50,11 +50,27 @@
                 <a class="list-group-item list-link" href="{% url 'event_form' %}">Event</a>
             </ul>
         </div>
+        <p>
+            <i>
+                ----------------------------- Page preview -------------------------------
+            </i>
+        </p>
+
     </body>
 </head>
 {% endif %}
-
-
+<body>
+    <div class="content-section">
+        <div class="media">
+            <img class="rounded-circle account-img" src= "{{ user.image.url }}">
+            <div class="media-body">
+                <h5 class="account-heading">@{{ user.username }}</h5>
+                <p class="text-secondary">{{ user.email }}</p>
+                <p class="text-secondary">Profile: {{ coach.first_name}} {{ coach.last_name }}</p>
+            </div>
+        </div>
+    </div>
+</body>
 <body>
     <h3>
         Upcoming Hosted Events:
