@@ -20,11 +20,11 @@ class EventAttendee(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.first_name} {self.last_name} -- {self.event.title}'
     
 class AttendeeParent(models.Model):
     attendee = models.ForeignKey(EventAttendee, on_delete=models.CASCADE)
     parent_first_name = models.CharField(max_length=50, default="(first name)")
     parent_last_name = models.CharField(max_length=50, default="(last name)")
     parent_email = models.CharField(max_length=50)
-    # add phone number
+    # still need to add phone number
