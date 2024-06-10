@@ -2,72 +2,46 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="content-section">
-<h3>Add Attendee(s)</h3>
-<legend class="border-bottom mb-2"><small><i>{{ event }}</i></small></legend>
-<form method="POST">
-    {% csrf_token %}
-    <fieldset class ="form-group">
-        {{ formset.management_form }}
-        <div id="formset-container">
-        {% for form in formset.forms %}
-            {{ formset|crispy }}
-            {% if not forloop.first %}
-                <button type="button" class="btn btn-danger delete-attendee">Delete Attendee</button>
-            {% endif %}
-        {% endfor %}
-        </div>
+    <h3>Add Attendee(s)</h3>
+    <legend class="border-bottom mb-2"><small><i>{{ event }}</i></small></legend>
+    <form method="POST">
+        {% csrf_token %}
+        <fieldset class ="form-group">
+            {{ formset.management_form }}
+            <div id="formset-container">
+                {% for form in formset.forms %}
+                <div class="attendee-form">
+                    {{ form|crispy }}
+                    {% if not forloop.first %}
+                        <button type="button" class="btn btn-danger delete-attendee">Delete Attendee</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            </div>
+        </fieldset>
         <button type="button" class="btn btn-info" id="add-attendee">Add Another Attendee</button>
-    </fieldset>
-    <div class="form-group">
-        <button class="btn btn-outline-info" type="submit">Register!</button>
-    </div>
-</form>
+        <div class="form-group">
+            <button class="btn btn-outline-info" type="submit">Register!</button>
+        </div>
+    </form>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('add-attendee').addEventListener('click', function () {
         const formsetContainer = document.getElementById('formset-container');
-        const addAttendeeButton = document.getElementById('add-attendee');
-    
-        addAttendeeButton.addEventListener('click', function () {
-            const formIndex = formsetContainer.childElementCount;
-            const formPrefix = 'form-' + formIndex;
-    
-            const formHtml = '{{ formset.empty_form|crispy|escapejs }}'.replace(/__prefix__/g, formIndex);
-            const formNode = document.createElement('div');
-            formNode.className = 'attendee-form';
-            formNode.innerHTML = formHtml;
-    
-            // Add delete button only if it's not the first form
-            if (formIndex > 0) {
-                const deleteButton = document.createElement('button');
-                deleteButton.type = 'button';
-                deleteButton.className = 'btn btn-danger delete-attendee';
-                deleteButton.textContent = 'Delete Attendee';
-    
-                deleteButton.addEventListener('click', function () {
-                    formNode.remove();
-                });
-    
-                formNode.appendChild(deleteButton);
-            }
-    
-            formsetContainer.appendChild(formNode);
-    
-            // Update form IDs and names
-            const formElements = formNode.querySelectorAll('[id^="id_form-"][name^="form-"]');
-            formElements.forEach(function (element) {
-                element.id = element.id.replace('id_form-', 'id_' + formPrefix + '-');
-                element.name = element.name.replace('form-', formPrefix + '-');
-            });
-        });
-    
-        // Event delegation for dynamically added delete buttons
-        formsetContainer.addEventListener('click', function (event) {
-            if (event.target.classList.contains('delete-attendee')) {
-                event.target.closest('.attendee-form').remove();
-            }
-        });
+        const formIndex = formsetContainer.querySelectorAll('.attendee-form').length;
+        const formPrefix = 'form-' + formIndex;
+        const emptyFormHtml = '{{ formset.empty_form|crispy|escapejs }}'.replace(/__prefix__/g, formIndex);
+        const formNode = document.createElement('div');
+        formNode.className = 'attendee-form';
+        formNode.innerHTML = emptyFormHtml;
+        formsetContainer.appendChild(formNode);
+    });
+
+    document.getElementById('formset-container').addEventListener('click', function (event) {
+        if (event.target.classList.contains('delete-attendee')) {
+            event.target.closest('.attendee-form').remove();
+        }
     });
 </script>
 {% endblock %}

@@ -55,7 +55,9 @@ def create_attendee(request, pk):
             for instance in instances:
                 instance.event = event
                 instance.save()
-            formset.save_m2m() #Many2Many
+            print(instances)
+            formset.save_m2m()  # Include this for completeness
+            print(formset.errors)
             messages.success(request, f'Attendee(s) created!')
             return redirect('browse_events') # Redirect to a success page
     else:
@@ -63,7 +65,7 @@ def create_attendee(request, pk):
 
     return render(request, 'events/attendee_form.html',{'formset':formset, 'event':event})
 
-# regular view function // is going to have to be modified // this is the precursor to the Stripe integration (step 1 is to make the Event a Stripe Product, step 2 is to make the Attendee model the input for shopping cart quantity)
+# regular view function // is going to have to be modified // this is the precursor to the Stripe integration (step 1 is to make the EventAttendee a Stripe Product, step 2 is to make the Attendee model the input for shopping cart quantity)
 def signup(request):
     context = {
         'event' : Event.objects.all()
