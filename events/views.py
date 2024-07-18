@@ -48,6 +48,7 @@ def create_attendee(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.method == 'POST':
         # Current handling of registration --> save attendee(s) and redirect to event browsing
+        
         formset = forms.AttendeeFormSet(request.POST, queryset=EventAttendee.objects.none())
         if formset.is_valid():
             # Process the formset data (create, update, or delete attendees)
@@ -57,7 +58,6 @@ def create_attendee(request, pk):
                 instance.save()
             print(instances)
             formset.save_m2m()  # Include this for completeness
-            print(formset.errors)
             messages.success(request, f'Attendee(s) created!')
             return redirect('browse_events') # Redirect to a success page
     else:
