@@ -5,6 +5,7 @@ from schedule.models import Event as BaseEvent
 from schedule.models import Calendar as BaseCalendar
 from schedule.models import Occurrence as BaseOccurrence
 from thelab.models import Profile
+from datetime import timedelta
     
 
 class Sport(models.Model):
@@ -44,10 +45,27 @@ class CoachLocation(models.Model):
 
     def __str__(self):
         return f"{self.coach} - {self.location}"
+    
+class Package(models.Model):
+    event_types = {
+        ('Private Training','Private Training'),
+        ('P(r)ep Talk','P(r)ep Talk'),
+        ('Clinic','Clinic')
+    }
+    event = models.CharField(max_length=20, choices=event_types)
+    price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+    duration = models.DurationField(default=timedelta(minutes=60))
+    number_of_sessions = models.IntegerField(default=1)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in an Event)", blank=True, null=True)
+    description = models.TextField(blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"@{self.owner} - {self.event}"
 
 class Event(BaseEvent):
     '''''
-    From django-scheduler:
+    From django-scheduler (Lib > schedule > models > events.py):
 
     start, end, title, description, creator (fk --> django_settings.AUTH_USER_MODEL), created_on, updated_on, rule (fk), end_recurring_period, calendar (fk), 
     '''''

@@ -1,0 +1,60 @@
+{% extends "main/toolbar.html" %}
+{% block content %}
+{% load static %}
+{% load custom_filters %}
+<body>
+    <small>
+        (Priority 1)
+    </small>
+    <h1>SEARCH for Coaches by...</h1>
+    <p>
+        (all optional)
+    </p>
+    <h4>
+        Username:
+    </h4>
+    <h4>
+        Sport: (drop-down menu)
+    </h4>
+    <h4>
+        Location:
+    </h4>
+</body>
+<h1>FEED</h1><p><i>(That match the search conditions)</i></p>
+
+<body>
+    {% for coach, packages in packages_by_coach.items %}
+    <article class ='media content-section'>
+        <div class = 'media-body'>
+            <img class= "rounded-circle" src ='{{ coach.image.url }}' width="40" height="40"> <!-- Rounded circle is from the Profile Editing interface-->
+            <a class = "mr-2" href = "{% url 'page_viewing' pk=coach.pk %}"> {{ coach }} </a>
+            <ul>
+                {% for package in packages %}
+                    <li>{{ package.event }} - ${{ package.price }} ({{ package.duration|format_duration }} / {{ package.number_of_sessions }} session(s))</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </article>
+    {% endfor %}
+</body>
+<P>
+<!-- just a bit of white space on the bottom -->
+</P>
+{% endblock content %}
+
+
+<!-- Carry-over from event browsing-->
+<article class ='media content-section'>
+    <div class = 'media-body'>
+        <h2><a class="article-title" href="{% url 'view_event' pk=event.pk %}"> {{ event.title }}</a></h2>
+        <div class ='article-metadata'>
+            <img class= "rounded-circle" src ='{{ event.creator.user.image.url }}' width="40" height="40"> <!-- Rounded circle is from the Profile Editing interface-->
+            <a class = "mr-2" href = "{% url 'page_viewing' pk=event.creator.user.pk %}"> @{{ event.creator }} </a>
+            <small class = "text-muted" > ({{ event.location }}) </small>
+            <small class = "text-muted" > {{ event.start | date:"F d, Y"}} -- </small>
+            <small class = "text-muted" > {{ event.end_recurring_period | date:"F d, Y"}} </small>
+        </div>
+        <p class="article-content"> {{ event.description }}</p>
+    </div>
+    </div>
+</article>'

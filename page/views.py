@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required # Decorator-- adds functionality to an existing function
 from django.contrib import messages
 from django.utils import timezone
-from thelab.models import ProfileUser, User
-from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Event
-from .forms import LocationForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
+from thelab.models import Profile, ProfileUser, User
+from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Package, Event
+from .forms import LocationForm, PackageForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
 from datetime import datetime
 from .signals import coach_location
 
@@ -22,10 +22,27 @@ def get_profile_user(request):
     }
     return profile, user, context
 
+def page_browsing(request):
+    # Find all coach profiles
+    coach_profiles = Profile.objects.filter(coach=True)
+    # Find all ProfileUser objects associated with those coaches
+    coach_profile_users = ProfileUser.objects.filter(profile__in=coach_profiles)
+    # Create list of just the Coach User accounts
+    coaches = [cpu.user for cpu in coach_profile_users]
+    # Create a dictionary that maps all packages to their (owner) User accounts
+    packages_by_coach = {coach: Package.objects.filter(owner=coach) for coach in coaches}
+
+    context = {
+        'coaches': coaches,
+        'packages_by_coach': packages_by_coach,
+    }
+
+    return render(request, 'page/browsing.html', context)
+
 # Page Viewing ------
 @login_required
 def page_viewing(request, pk):
-    # if the viewer is the owener of the page,
+    # if the viewer is the owner of the page,
     is_owner = request.user.pk == int(pk)
     if is_owner:
         # assign profile/user data based on the requesting user
@@ -78,7 +95,7 @@ def create_location(request):
             # Sending the save request's User to the CoachLocation creation signal
             coach_location(sender=Location, instance=location, location=location, user=request.user)
             ## ^^ PRETTY COOL!! This is using a signal as a function inside of a view. 
-            return redirect('page_viewing')
+            return redirect('page_viewing', pk=request.user.pk)
     else:
         location_form = LocationForm()
 
@@ -105,15 +122,39 @@ def add_location(request, location_name):
     coach_location(sender=Location, instance=location, location=location, user=request.user)
 
     messages.success(request, 'Location added!')
-    return redirect('page_home')
+    return redirect('page_viewing', pk=request.user.pk)
 
 def remove_location(request, location_name):
     location = Location.objects.filter(location_name=location_name).get()
     coach_location = CoachLocation.objects.filter(location=location, coach=request.user)
     coach_location.delete()
     messages.success(request, 'Location removed!')
-    return redirect('page_home')
+    return redirect('page_viewing', pk=request.user.pk)
 
+@login_required
+def create_package(request):
+    profile, user, context = get_profile_user(request)
+
+    if request.method == 'POST':
+        # handle form info
+        package_form = PackageForm(request.POST)
+        if package_form.is_valid:
+            package = Package()
+            package = package_form.save(commit=False)
+            package.owner = request.user
+            package.save()
+
+            messages.success(request, 'Package added!')
+            return redirect('page_viewing', pk=request.user.pk)
+    
+    else:
+        package_form = PackageForm()
+
+    context.update({
+        'package':package_form
+    })
+
+    return render(request, 'page/package_form.html', context)
 
 @login_required
 def create_event(request):

@@ -1,13 +1,19 @@
 from datetime import datetime, time
 from django import forms
 from django.contrib.auth.models import User
-from .models import Event, EventSport, Location
+from .models import Event, EventSport, Location, Package
 
 class LocationForm(forms.ModelForm):
 
     class Meta:
         model = Location
         fields = ['location_name','location_type','hyperlink','street_address','location_city','location_state','location_zip']
+
+class PackageForm(forms.ModelForm):
+
+    class Meta:
+        model = Package
+        fields = ['event', 'price', 'duration', 'number_of_sessions', 'location', 'description']
 
 class EventSportForm(forms.ModelForm):
 
@@ -23,7 +29,7 @@ class EventSportForm(forms.ModelForm):
 
 class EventDetailsForm(forms.ModelForm):
     
-    #Restrict the available locations to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
+    # Restricting the available locations to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
     def __init__(self, *args, **kwargs):
         locations = kwargs.pop('locations', None)
         super().__init__(*args, **kwargs)

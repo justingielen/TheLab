@@ -47,7 +47,7 @@
                 <h2><a class="article-title" href="{% url 'view_event' pk=event.pk %}"> {{ event.title }}</a></h2>
                 <div class ='article-metadata'>
                     <img class= "rounded-circle" src ='{{ event.creator.user.image.url }}' width="40" height="40"> <!-- Rounded circle is from the Profile Editing interface-->
-                    <a class = "mr-2" href = '#'> @{{ event.creator }} </a>
+                    <a class = "mr-2" href = "{% url 'page_viewing' pk=event.creator.user.pk %}"> @{{ event.creator }} </a>
                     <small class = "text-muted" > ({{ event.location }}) </small>
                     <small class = "text-muted" > {{ event.start | date:"F d, Y"}} -- </small>
                     <small class = "text-muted" > {{ event.end_recurring_period | date:"F d, Y"}} </small>
