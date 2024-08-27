@@ -40,7 +40,6 @@ def page_browsing(request):
     return render(request, 'page/browsing.html', context)
 
 # Page Viewing ------
-@login_required
 def page_viewing(request, pk):
     # if the viewer is the owner of the page,
     is_owner = request.user.pk == int(pk)
