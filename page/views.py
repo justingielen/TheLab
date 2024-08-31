@@ -56,8 +56,6 @@ def page_viewing(request, pk):
     })
     return render(request, 'page/viewing.html',context=context)
 
-
-
 @login_required
 def create_location(request):
     if request.method == 'POST':
