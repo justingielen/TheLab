@@ -47,8 +47,8 @@
             
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
-              {% if user.is_authenticated %}
-                <!-- Check if user is a coach -->
+              {% if request.user.is_authenticated %}
+                <!-- Check if user's profile is a coach -->
                 {% if profile.coach %}
                   <a class="nav-item nav-link" href="{% url 'page_viewing' pk=request.user.pk %}">Page</a>
                 {% endif %}

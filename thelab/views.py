@@ -9,66 +9,40 @@ from django.contrib.auth.decorators import login_required # Decorator-- adds fun
 
 title = 'The Lab - '
 
-def get_profile_user(request):
-    try:
-        profile_user = ProfileUser.objects.get(user=request.user,control_type='personal')
-        profile = profile_user.profile
-        user = profile_user.user
-    except:
-        profile= None
-        user=None
-    return profile, user
-
-# Stuff mainly for aesthetics (don't worry about this at this stage)
+# Mainly for aesthetics (don't worry about this at this stage)
 def discover_drills(request):
-    profile, user = get_profile_user(request)
-
     context = {
         'title': title+ 'Discover Drills',
-        'profile':profile,
-        'user':user,
     }
+
     return render(request, 'main/discover_drills.html',context)
 
-# --- 
+# Page shown when you click 'The Lab' on the main toolbar
 def welcome(request):
-    profile, user = get_profile_user(request)
-
     context = {
         'title': title + "Welcome!",
-        'profile':profile,
-        'user':user
     }
+
     return render(request,'main/welcome.html',context)
 
 def whatisthelab(request):
-    profile, user = get_profile_user(request)
-
     context = {
         'title': title + "What is it?",
-        'profile':profile,
-        'user':user
     }
+
     return render(request, 'main/whatisthelab.html',context)
 
 def about(request):
-    profile, user = get_profile_user(request)
-
     context = {
         'title': "About LevelUp Sports",
-        'profile':profile,
-        'user':user
     }
+
     return render(request, 'main/about.html',context)
 
 # FIRST VIEW THAT CALLS A TEMPLATE W/ A FORM
 def createprofile(request):
-    profile, user = get_profile_user(request)
-
     context = {
         'title': "Create Profile",
-        'profile':profile,
-        'user':user
     }
 
     if request.method == "POST":
@@ -88,15 +62,13 @@ def createprofile(request):
 # defining a Home screen function
 @login_required
 def home(request):
-    profile, user = get_profile_user(request)
 
     context = {
         'title': title + 'Home',
-        'profile':profile,
-        'user':user
     }
     return render(request, 'main/home.html', context)
 
+@login_required
 def alerts(request):
     notifications = Notification.objects.filter(user=request.user)
     try:
@@ -147,7 +119,7 @@ def profile_edit(request):
 #class TeamApprovalListView(ListView):
 
 # ---------------------------------------------------------------------------------------------------------------------------
-
+@login_required
 def team_application(request):
     if request.method == "POST":
         application = TeamApplicationForm(request.POST)
@@ -164,4 +136,3 @@ def team_application(request):
         application = TeamApplicationForm()
 
     return render(request, 'main/team_application.html',{'application':application})
-

@@ -8,20 +8,6 @@ from .forms import LocationForm, PackageForm, EventSportForm, EventDetailsForm, 
 from datetime import datetime
 from .signals import coach_location
 
-def get_profile_user(request):
-    try:
-        profile_user = ProfileUser.objects.get(user=request.user,control_type='personal')
-        profile = profile_user.profile
-        user = profile_user.user
-    except:
-        profile= None
-        user=None
-    context = {
-        'profile':profile,
-        'user':user
-    }
-    return profile, user, context
-
 def page_browsing(request):
     # Find all coach profiles
     coach_profiles = Profile.objects.filter(coach=True)
@@ -45,10 +31,9 @@ def page_viewing(request, pk):
     is_owner = request.user.pk == int(pk)
     if is_owner:
         # assign profile/user data based on the requesting user
-        profile, user, context = get_profile_user(request)
-        context.update({
-            'coach':profile,
-        })
+        context = {
+            'is_owner':is_owner,
+        }
     # if not,
     else:
         # assign profile/user data based on the private key (id) of the Page's owner, which is defined when the view is called
@@ -60,8 +45,9 @@ def page_viewing(request, pk):
             'coach':profile,
         }
 
-    coach_events = Event.objects.filter(creator=user) # This will become expensive, probably much better to go through Calendars rather than searching through the entire Event table
-    coach_locations = CoachLocation.objects.filter(coach=user)
+    coach = User.objects.get(pk=pk)
+    coach_events = Event.objects.filter(creator=coach) # This will become expensive, probably much better to go through Calendars rather than searching through the entire Event table
+    coach_locations = CoachLocation.objects.filter(coach=coach)
 
     context.update({
         'is_owner':is_owner,
@@ -74,8 +60,6 @@ def page_viewing(request, pk):
 
 @login_required
 def create_location(request):
-    profile, user, context = get_profile_user(request)
-
     if request.method == 'POST':
         location_form = LocationForm(request.POST)
         if location_form.is_valid():
@@ -98,20 +82,18 @@ def create_location(request):
     else:
         location_form = LocationForm()
 
-    context.update({
+    context = {
         'location_form':location_form,
-    })
+    }
 
     return render(request, 'page/location_form.html',context)
 
 def search_location(request):
-    profile, user, context = get_profile_user(request)
-
     # Don't know the details here
     query = request.GET.get('query', '')
     locations = Location.objects.filter(location_name__icontains=query)
     
-    context.update({'locations': locations, 'query': query})
+    context = {'locations': locations, 'query': query}
     
     return render(request, 'page/location_search.html', context)
 
@@ -132,8 +114,6 @@ def remove_location(request, location_name):
 
 @login_required
 def create_package(request):
-    profile, user, context = get_profile_user(request)
-
     if request.method == 'POST':
         # handle form info
         package_form = PackageForm(request.POST)
@@ -149,16 +129,14 @@ def create_package(request):
     else:
         package_form = PackageForm()
 
-    context.update({
+    context = {
         'package':package_form
-    })
+    }
 
     return render(request, 'page/package_form.html', context)
 
 @login_required
 def create_event(request):
-    profile, user, context = get_profile_user(request)
-
     if request.method == 'POST':
         event_details = EventDetailsForm(request.POST)
         event_timeline = EventTimelineForm(request.POST)
@@ -207,12 +185,12 @@ def create_event(request):
         event_timeline = EventTimelineForm()
         event_recurrence = EventRecurrenceForm()
 
-    context.update({
+    context= {
             'sports':event_sports,
             'details':event_details,
             'timeline':event_timeline,
             'recurrence':event_recurrence
-        })
+        }
 
     return render(request, 'page/event_form.html', context)
 
