@@ -19,6 +19,13 @@ Welcome to **The Lab**—a dynamic social development platform designed to conne
 
 ---
 
+## 🌐 Live Demo
+
+Check out the project in its current state at [The Lab Website](https://justingielen.pythonanywhere.com).
+
+---
+
+
 ## 🌟 Features in Progress
 
 ### Current:
@@ -47,12 +54,6 @@ Welcome to **The Lab**—a dynamic social development platform designed to conne
 - **Hosting**: PythonAnywhere.
 - **Database**: SQLite (for now).
 - **Future Integrations**: AI/ML for video recommendation, analysis, and feedback.
-
----
-
-## 🌐 Live Demo
-
-Check out the project in its current state at [The Lab Website](https://justingielen.pythonanywhere.com).
 
 ---
 
