@@ -2,7 +2,7 @@
 
 # The Lab
 
-Welcome to **The Lab**—a dynamic social platform designed for athletes and coaches to enhance sports skills through collaborative training, tailored drills, and interactive events. The Lab bridges the gap between in-person sports coaching and modern technology, empowering athletes to train smarter and coaches to share their expertise effectively.
+Welcome to **The Lab**—a dynamic social development platform designed to connect athletes and coaches and enhance sports skill development through collaborative training, tailored drills and feedback, and interactive events. The Lab bridges the gap between sports coaching and modern technology, empowering athletes to train smarter, and enabling coaches to share their expertise effectively and with a wider audience.
 
 Explore the live project here: [The Lab Website](https://justingielen.pythonanywhere.com)
 
@@ -10,15 +10,16 @@ Explore the live project here: [The Lab Website](https://justingielen.pythonanyw
 
 ## 🚀 Project Overview
 
-**The Lab** offers a unique space for:
+**The Lab** hopes to offer a unique space for:
 
-- **Athletes**: Participate in personalized training sessions, sign up for events, and practice with expertly designed drills.
-- **Coaches**: Share knowledge through packages, host events, and review athlete performance to provide valuable feedback.
+- **Athletes**: Participate in personalized training sessions with successful players and coaches, sign up for group events, and practice with expertly designed drills, receiving expert feedback.
+- **Coaches**: Share knowledge through in-person or remote events, as well as instructive video content, and review athlete performance to provide valuable feedback.
 
-Key features include:
-- **Profiles**: Athletes can upgrade to Coach status upon verification of their experience.
-- **Packages & Events**: Coaches create training packages and schedule events for athletes to join.
-- **Drills & Reviews**: Athletes practice drills shared by coaches, and optionally submit performance videos for manual review—laying the groundwork for future AI automation.
+and offer key features like:
+
+- **Profiles & Accounts**: Athletes can upgrade to Coach status upon verification of their experience. Profiles with Coach-verified accounts can also create Business Accounts
+- **Packages & Events**: Coaches create training packages that Athletes purchase (e.g., $80/hr private training) and subsequently schedule one or events with the coach, either 1-on-1 or as a group. Alternatively, coaches can simply create an Event and the athlete(s) can sign up directly! 
+- **Drills & Reviews**: Athletes practice drills shared by coaches, and optionally submit performance videos for manual review—laying the groundwork for future AI automation (of the drill review process).
 
 ---
 
@@ -26,8 +27,9 @@ Key features include:
 
 ### Current:
 - Basic profile creation and upgrades (Athlete → Coach).
-- Creation and management of packages and events.
-- Athlete interaction with packages (purchase, request events) and events (sign-up).
+- Creation and management of packages, events and calendars.
+- Athlete interaction with packages (purchasing and requesting an event) and events (signing up).
+- Coach interaction with their own packages (creation, editing, tailoring, )
 
 ### Coming Soon:
 - Drill Library for athletes to save and practice activities.
