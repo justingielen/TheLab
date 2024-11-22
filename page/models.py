@@ -110,3 +110,7 @@ class PageCalendar(BaseCalendar):
               
     def __str__(self):
         return self.name
+    
+class EventCoach(models.Model):
+    event = models.OneToOneField(Event, on_delete=models.CASCADE)
+    coach = models.OneToOneField(User, on_delete=models.CASCADE)

@@ -6,7 +6,7 @@ from page.models import Event
 from . import forms
 from .models import EventAttendee
 
-# not sure how to define the request on a List based view, so I'll stop here
+# not sure how to define the request on a List based view
 def get_profile_user(request):
     try:
         profile_user = ProfileUser.objects.get(user=request.user,control_type='personal')

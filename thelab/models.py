@@ -93,7 +93,8 @@ class Notification(models.Model):
 control_types = {
     'personal':'personal',
     'parent':'parent',
-    'business':'business'
+    'business':'business',
+    'boss':'boss'
 }
 class ProfileUser(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
