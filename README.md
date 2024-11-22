@@ -1,6 +1,6 @@
 # The Lab
 
-Welcome to **The Lab**—a dynamic social development platform designed to connect athletes and coaches to enhance sports skill development through collaborative & interactive events, and tailored remote drills and feedback. **The Lab** bridges the gap between sports coaching and modern technology, empowering athletes to train smarter and more enjoyably while enabling coaches to share their expertise more effectively and with a wider audience.
+Welcome to **The Lab**—a dynamic social development platform designed to connect athletes and coaches to enhance sports skill development through collaborative and interactive events, as well as tailored remote drills and feedback. **The Lab** bridges the gap between sports coaching and modern technology, empowering athletes to train smarter and more enjoyably while enabling coaches to share their expertise more effectively and with a wider audience.
 
 ---
 
