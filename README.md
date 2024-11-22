@@ -1,5 +1,4 @@
 "# TheLab" 
-Certainly! Here's an updated version of your README, incorporating a section on protecting your ownership:
 
 The Lab
 Welcome to The Lab—a dynamic social platform designed for athletes and coaches to enhance sports skills through collaborative training, tailored drills, and interactive events. The Lab bridges the gap between in-person sports coaching and modern technology, empowering athletes to train smarter and coaches to share their expertise effectively.
