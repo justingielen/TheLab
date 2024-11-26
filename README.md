@@ -94,17 +94,27 @@ Check out the project in its current state at [The Lab Website](https://justingi
 
 Want to help build **The Lab**? Contributions are welcome! Here’s how you can get involved:
 
-1. Fork the repository.
-2. Clone your fork:
+1. **Fork the repository**.
+2. **Clone your fork**:
    ```bash
    git clone <your-fork-url>
    cd the-lab
+3. **Create a new branch for your changes**:
+   git checkout -b your-feature-name
+4. **Make your edits, stage, and commit them**:
+   git add .
+   git commit -m "Describe your changes here"
+5. **Push your changes to your forked repository**:
+   git push origin your-feature-name
+6. **Open a pull request** on the main repository. Include a clear description of your changes and why they should be merged.
+   
+
 
 ## 🔒 Ownership & Copyright Protection
-The Lab is a proprietary project. By contributing or using the platform, you acknowledge the following:
+**The Lab** is a proprietary project. By contributing or using the platform, you acknowledge the following:
 
-Ownership: All content, design, and code within The Lab are owned by Justin Gielen (the project creator), unless otherwise specified.
-Licensing: All rights to the source code, content, and other intellectual property are reserved. Redistribution, modification, or use of the content without explicit permission is prohibited.
-No Commercial Use: You are not allowed to use this project for commercial purposes without prior written consent from Justin Gielen.
+**Ownership**: All content, design, and code within The Lab are owned by Justin Gielen (the project creator), unless otherwise specified.
+**Licensing**: All rights to the source code, content, and other intellectual property are reserved. Redistribution, modification, or use of the content without explicit permission is prohibited.
+**No Commercial Use**: You are not allowed to use this project for commercial purposes without prior written consent from Justin Gielen.
 
 "# TheLab" 
