@@ -94,7 +94,7 @@ Check out the project in its current state at [The Lab Website](https://justingi
 
 Want to help build **The Lab**? Contributions are welcome! Here’s how you can get involved:
 
-1. **Fork the repository**.
+1. **Fork the repository**. Click the "Fork" button at the top right of this page to create your own copy of the repository. 
 2. **Clone your fork**:
    ```bash
    git clone <your-fork-url>
