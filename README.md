@@ -100,13 +100,16 @@ Want to help build **The Lab**? Contributions are welcome! Here’s how you can 
    git clone <your-fork-url>
    cd the-lab
 3. **Create a new branch for your changes**:
+   ```bash
    git checkout -b your-feature-name
-4. **Make your edits, stage, and commit them**:
+5. **Make your edits, stage, and commit them**:
+   ```bash
    git add .
    git commit -m "Describe your changes here"
-5. **Push your changes to your forked repository**:
+7. **Push your changes to your forked repository**:
+   ```bash
    git push origin your-feature-name
-6. **Open a pull request** on the main repository. Include a clear description of your changes and why they should be merged.
+9. **Open a pull request** on the main repository. Include a clear description of your changes and why they should be merged.
    
 
 
