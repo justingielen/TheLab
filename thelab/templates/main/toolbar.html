@@ -16,6 +16,12 @@
     <header class="site-header">
       <nav class="navbar navbar-expand-md navbar-dark bg-success fixed-top">
         <div class="container">
+          <!-- Logo Image -->
+          <div class="navbar-brand mx-auto">
+              <a href="#" class="logo-wrapper d-flex justify-content-center">
+                <img src = "{% static 'main/images/logo_white_png.png' %}" alt="Button Image" width="50" height="50"/>
+              </a> 
+          </div>
           <!-- The Lab button (Welcome screen)-->
           <div class = "navbar-brand-wrapper d-flex align-items-center">
             <a class="navbar-brand mr-4" href="/">The Lab</a>
@@ -33,16 +39,6 @@
               <a class="nav-item nav-link" href="{% url 'page_browsing' %}">Coaches</a>
               <a class="nav-item nav-link" href="{% url 'browse_events' %}">Events</a>
               <a class="nav-item nav-link" href="{% url 'discover_drills' %}">Drills</a>
-              <a class="nav-item nav-link" href="#">Community</a>
-            </div>
-
-            <!-- Logo Image -->
-            <div class="navbar-brand mx-auto">
-              <div style="margin-right: 200px;">
-                <a href="#" class="logo-wrapper d-flex justify-content-center">
-                  <img src = "{% static 'main/images/logo_white_png.png' %}" alt="Button Image" width="50" height="50"/>
-                </a> 
-              </div>
             </div>
             
             <!-- Navbar Right Side -->

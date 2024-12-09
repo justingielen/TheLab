@@ -20,11 +20,7 @@ def create_personal_profile(sender, instance, created, **kwargs):
 
         # Create a home calendar for the user
         HomeCalendar.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_home_calendar(sender, instance, **kwargs):
-    instance.homecalendar.save()
-
+    
 
 @receiver(post_save,sender=Application) 
 def application_notification(sender, instance, **kwargs):
