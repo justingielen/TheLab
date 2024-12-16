@@ -22,8 +22,8 @@ class ProfileUpdateForm(forms.ModelForm):
         model = Profile
         fields = ['first_name','last_name','city','state','birthday']
 
-# Submitting a Team Approval (TeamApplication is staging grounds for manual approval in TheLab admin)
-class TeamApplicationForm(forms.ModelForm):
+# Applications are manually approved/denied in Admin
+class ApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields  = ['sport','team','record']
+        fields  = ['sport','team','roster']

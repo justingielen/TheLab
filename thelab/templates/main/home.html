@@ -1,36 +1,28 @@
-{% extends "main/toolbar.html" %}
-{% block content %}
+{% extends "main/toolbar.html" %} {% block content %}
 <!-- A user is logged in -->
 <title>{{ title }}</title>
 <head>
-    <h1>
-        Hello @{{ user.username }}, welcome to your Home Page!
-    </h1>
-    <p>
-        This is where you can view and edit your profile:
-    </p>
+  <h1>Hey {{ profile.first_name }}, welcome to your Home Page!</h1>
 </head>
 <body>
-    <div class="content-section">
-        <div class="media">
-            <img class="rounded-circle account-img" src= "{{ user.image.url }}">
-            <div class="media-body">
-                <h5 class="account-heading">@{{ user.username }}</h5>
-                <p class="text-secondary">{{ user.email }}</p>
-                <p class="text-secondary">Profile: {{ profile.first_name }} {{ profile.last_name }}</p>
-                <a class="edit-btn" href="{% url 'profile_edit' %}">Edit</a>
-            </div>
-        </div>
+  <div class="content-section row">
+    <img class="rounded-circle account-img" src="{{ user.image.url }}" />
+    <div class="media-body">
+      <h5 class="account-heading">
+        {{ profile.first_name }} {{ profile.last_name }}
+      </h5>
+      <p class="text-secondary">@{{ user.username }}</p>
+      <p class="text-secondary">Email: {{ user.email }}</p>
+      <a class="edit-btn" href="{% url 'profile_edit' %}">Edit</a>
     </div>
+  </div>
 </body>
+<p>You can also access upcoming events and drills you've saved.</p>
+<p>Once they're done being developed.</p>
 <p>
-    You can also access upcoming events and drills you've saved.
-</p>
-<p>
-    Once they're done being developed.
-</p>
-<p>
-    There will be a 'Start a Workout' button on a profiled user's home screen that enables them to assemble drills (whether saved or new) into Workouts-- and then either carry out those Workouts with the assembled drills as reference, or save the Workout for later.
+  There will be a 'Start a Workout' button on a profiled user's home screen that
+  enables them to assemble drills (whether saved or new) into Workouts-- and
+  then either carry out those Workouts with the assembled drills as reference,
+  or save the Workout for later.
 </p>
 {% endblock content %}
-

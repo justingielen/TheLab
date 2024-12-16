@@ -13,7 +13,7 @@ class PackageForm(forms.ModelForm):
 
     class Meta:
         model = Package
-        fields = ['event', 'price', 'duration', 'number_of_sessions', 'location', 'description']
+        fields = ['type', 'price', 'duration', 'number_of_sessions', 'location', 'description']
 
 class EventSportForm(forms.ModelForm):
 

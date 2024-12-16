@@ -63,7 +63,7 @@ states = {
 class Profile(models.Model):
     first_name = models.CharField(max_length=30, blank=True, null=True)
     last_name = models.CharField(max_length=30, blank=True, null=True, default="(last name)")
-    birthday = models.DateField(help_text="Format: YYYY-MM-DD (Include the dashes, I want to alter this field to go to its own interface with rolodex scrolling for the birthday (https://www.youtube.com/watch?v=zM5_vZlEcUo) with years | months | days. Then, there would be a button that says Enter or something. If the user clicks enter and the calculated age is at least 18, two required fields appear for camera-uploaded pictures of the front and back of the user's driver's license. Lot of functionality I'd have to be, not a high priority because I'll probably be creating most of the initial profiles.)", blank=True, null=True)
+    birthday = models.DateField(help_text="Format: YYYY-MM-DD (include the dashes)", blank=True, null=True)
     city = models.CharField(max_length=40,blank=True)
     state = models.CharField(max_length=25,choices=states,blank=True)
     coach = models.BooleanField(default=False)
@@ -126,7 +126,7 @@ class Application(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     sport = models.CharField(max_length=20,help_text="(Just the sport- leave out Men's or Women's & whether College or Professional)")
     team = models.CharField(max_length=50,blank=True, help_text="(i.e., the school or professional organization)")
-    record = models.TextField(help_text='(Ideally, a copy-and-pasted link to the roster of the team on which you are or were a player or a coach)') # unique = True (can't submit same record twice)
+    roster = models.TextField(help_text='(Ideally, a copy-and-pasted link to the roster of the team on which you are or were a player or a coach)') # unique = True (can't submit same record twice)
     approved = models.BooleanField(null=True)
 
     def __str__(self):

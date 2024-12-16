@@ -46,7 +46,7 @@ def page_viewing(request, pk):
         }
 
     coach = User.objects.get(pk=pk)
-    coach_events = Event.objects.filter(creator=coach) # This will become expensive, probably much better to go through Calendars rather than searching through the entire Event table
+    coach_events = Event.objects.filter(creator=coach) # I feel like this will become expensive with more events, probably much better to go through Calendars rather than searching through the entire Event table
     coach_locations = CoachLocation.objects.filter(coach=coach)
 
     context.update({
@@ -163,7 +163,7 @@ def create_event(request):
 
             event.save()
             messages.success(request, 'Event created!')
-            return redirect('page_viewing')
+            return redirect('page_viewing', pk=request.user.pk)
         
     else:
         # Get applicable locations

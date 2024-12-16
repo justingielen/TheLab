@@ -1,106 +1,274 @@
 /* This is how to comment in css */
 /* styling for main toolbar (and sidebar) */
 
+.bg-steel {
+  background-color: #5f788a;
+}
+
+.site-header .navbar-nav .nav-link.active {
+  font-weight: 500;
+}
+
+.content-section {
+  background: #c0cbc2d1;
+  padding: 10px 20px;
+  border-radius: 30px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+/* Old content-section color: #a1cba4 */
+
+.article-title {
+  color: #313131;
+}
+
+a.article-title:hover {
+  color: #b7bbb9;
+  text-decoration: none;
+}
+
+.article-content {
+  white-space: pre-line;
+}
+
+.article-img {
+  height: 65px;
+  width: 65px;
+  margin-right: 16px;
+}
+
+.article-metadata {
+  padding-bottom: 1px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e3e3e3
+}
+
+.article-metadata a:hover {
+  color: #333;
+  text-decoration: none;
+}
+
+.article-svg {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+}
+
+.account-img {
+  height: 125px;
+  width: 125px;
+  margin-right: 20px;
+  margin-bottom: 16px;
+}
+
+.account-heading {
+  font-size: 2.5rem;
+}
+
+/* styling for Edit button in Home page */
+
+.edit-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  background-color: #7a7e7b;
+  color: rgb(238, 238, 244);
+  border-radius: 1px;
+}
+
+.media-body {
+  position: relative;
+}
+
+.btn-outline-info {
+  background-color: rgb(95, 160, 99);
+  color: #040404;
+  border-color: #1eb300;
+}
+
+.btn:hover {
+  background-color: #1eb300;
+  border-color: #f2f5f2;
+}
+
+/* */ /* */ /* */
+/* The Lab 1_1 */
+/* */ /* */ /* */
+
 body {
-    background: #fafafa;
-    color: #333333;
-    margin-top: 5rem;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    color: #444444;
-  }
-  
-  ul {
-    margin: 0;
-  }
-  
-  .bg-steel {
-    background-color: #5f788a;
-  }
-  
-  .site-header .navbar-nav .nav-link {
-    color: #166d9f;
-  }
-  
-  .site-header .navbar-nav .nav-link:hover {
-    color: #56aced;
-  }
-  
-  .site-header .navbar-nav .nav-link.active {
-    font-weight: 500;
-  }
-  
-  .content-section {
-    background: #8ca791;
-    padding: 10px 20px;
-    border: 5px solid #dddddd;
-    border-radius: 3px;
-    margin-bottom: 20px;
-  }
-  
-  .article-title {
-    color: #313131;
-  }
-  
-  a.article-title:hover {
-    color: #b7bbb9;
-    text-decoration: none;
-  }
-  
-  .article-content {
-    white-space: pre-line;
-  }
-  
-  .article-img {
-    height: 65px;
-    width: 65px;
-    margin-right: 16px;
-  }
-  
-  .article-metadata {
-    padding-bottom: 1px;
-    margin-bottom: 4px;
-    border-bottom: 1px solid #e3e3e3
-  }
-  
-  .article-metadata a:hover {
-    color: #333;
-    text-decoration: none;
-  }
-  
-  .article-svg {
-    width: 25px;
-    height: 25px;
-    vertical-align: middle;
-  }
-  
-  .account-img {
-    height: 125px;
-    width: 125px;
-    margin-right: 20px;
-    margin-bottom: 16px;
-  }
-  
-  .account-heading {
-    font-size: 2.5rem;
-  }
+  background: #fafafa;
+  color: #333333;
+  margin-top: 5rem;
+}
 
-  /* styling for Edit button in Home page */
+h1, h2, h3, h4, h5, h6 {
+color: #444444;
+}
 
-  .edit-btn {
-    position: absolute;
-    bottom: 5px;
-    right: 10px;
-    background-color: #7a7e7b;
-    color: rgb(238, 238, 244);
-    border-radius: 1px;
-  }
+ul {
+margin: 0;
+}
 
-  .media-body {
-    position: relative;
-  }
+.sidebar-wrapper {
+  position: relative; /* Ensure the sidebar moves based on its container */
+  margin-left: -40px; /* Adjust left spacing */
+  margin-top: 35px; /* Adjust down spacing */
+  background-color: #c0cbc2d1; /* Optional: Add a light background for clarity */
+  padding: 25px; /* Add internal padding */
+  border: 2px;
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 15px 30px rgba(1, 1, 1, 0.1); /* Add a subtle shadow */
+}
 
-  .btn-outline-info {
-    background-color: cadetblue;
-  }
+
+ul {
+  margin: 0;
+}
+
+/* Remove default list bullets */
+ul.list-group {
+  list-style-type: none;
+  padding-left: 0; /* Removes the left padding for the list items */
+}
+
+.list-group-item {
+  color: #040404;
+  border-radius: 5px;
+
+}
+
+.list-group-item:hover {
+  color: #0c7f06;
+}
+
+.site-header .navbar-nav .nav-link {
+  color: #cdf1d7;
+}
+
+.site-header .navbar {
+  background-color: #0c7f06;
+}
+
+.site-header .navbar-nav .nav-link:hover {
+  color: #0a6605;
+}
+
+/* Parent flex container for Coach Dashboard */
+.coach-dashboard {
+  display: flex;
+  justify-content: space-between; /* Space between main content and form-container */
+  align-items: flex-start; /* Aligns items at the top */
+  margin: 10px; /* Adds space around the container */
+}
+
+/* Main content (left side) */
+.main-content {
+  flex: 3; /* Adjust width ratio of the main content */
+  padding-right: 20px;
+}
+
+/* Create section (right side) */
+.page-create {
+  max-width: 300px; /* Optional: Control the width */
+  /* Optionally, override any form-container styles if needed */
+}
+
+/* Form styling */
+.form-container {
+  background-color: #f3f0f0;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 3rem auto;
+}
+
+.form-header {
+  color: #333;
+  font-size: 1.8rem;
+  border-bottom: 1px solid #d8d2d2; /* Adjust color and thickness as needed */
+  padding-bottom: 1px; /* Optional: Add spacing for better visual effect */
+  margin-bottom: 16px; /* Optional: Control spacing below the line */
+}
+
+.form-fields-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.input-group input {
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fafafa;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #a1cba4;
+}
+
+/* Submit button */
+.submit-btn {
+  background-color: #779677;
+  color: #fff;
+  padding: 0.8rem;
+  font-size: 1.3rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #54c465;
+  color: #1e2b21
+}
+
+
+
+/* What Is The Lab */
+/* Container for the whole WhatIsTheLab section */
+.what-is-the-lab {
+  line-height: 1.6; /* Increases the line height for better readability */
+}
+
+/* Styling for headings (h3 and h4) within the section */
+.what-is-the-lab h3, .what-is-the-lab h4 {
+  font-weight: 600; /* Makes the headings bold for better emphasis */
+}
+
+/* Styling for the blockquote element */
+blockquote {
+  padding: 1rem; /* Adds padding inside the blockquote for spacing */
+  background: #f2f2f2; /* Sets a light gray background for contrast */
+  font-style: italic; /* Makes the text italic to signify a quote or reflective thought */
+}
+
+/* Button style for primary call-to-action button */
+.btn-primary {
+  background-color: #089819; /* Sets the background color to blue */
+  color: rgb(255, 255, 255); /* Sets the text color to white for better contrast */
+  text-transform: uppercase; /* Converts the button text to uppercase for better emphasis */
+  padding: 10px 20px; /* Adds padding to make the button larger and easier to click */
+  border-radius: 20px; /* Rounds the corners of the button */
+  text-decoration: none; /* Removes any underline if the link style is applied */
+}
+
+/* Button hover effect */
+.btn-primary:hover {
+  background-color: #1eb300; /* Darker blue on hover for a nice visual feedback */
+}

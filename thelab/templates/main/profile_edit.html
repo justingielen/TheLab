@@ -1,46 +1,66 @@
-{% extends "main/toolbar.html" %}
-{% load crispy_forms_tags %}
-{% block content %}
-{% load static %}
-    <div class="content-section">
-        <div class="media">
-            <img class="rounded-circle account-img" src= "{{ user.image.url }}">
-            <div class="media-body">
-                <h2 class="account-heading">@{{ user.username }}</h2>
-                <p class="text-secondary">{{ user.email }}</p>
-                <p class="text-secondary">Profile: {{ profile.first_name}} {{ profile.last_name }}</p>
-            </div>
-        </div>
-        <form>
-            <fieldset class="form-group">
-                <legend class="border-bottom mb-7">Become a Coach!!!</legend>
-            </fieldset>
-            <p>
-                Played or coached a college sport? Upgrade your profile to Coach by submitting a Team Application!
-                <small> (include information about the team for and time period in which you played or coached for a college-minimum team)</small>
-            </p>
-            <div class="form-group">
-                <ul class="list-group">
-                    <a class="list-group-item list-link" href="{% url 'team_application' %}">Submit Team Application</a>
-                </ul>
-            </div>
-        </form>
-        <form method="POST" enctype="multipart/form-data"> <!-- Encoding type necessary to pass image data properly-->
-            {% csrf_token %}<!-- "Cross Site Request Forgery", added security for forms that Django requires-->
-            <fieldset class="form-group"><!-- Bootstrap class-->
-                <legend class="border-bottom mb-4">Profile Editing<!-- Gives form a little bit more detail, mb = margin bottom--></legend>
-                {{ u_form|crispy }}
-                {{ p_form|crispy }}
-            </fieldset>
-            <div class = "form-group">
-                <button class="btn btn-outline-info" type="submit">Update Profile</button><!-- btn = button-->
-            </div>
-        </form>
-        <div class="text-right"> <!-- Added this div for left alignment -->
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log Out</a>
-        </div>
-        <form id = "logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
-            {% csrf_token %}
-        </form>
+{% extends "main/toolbar.html" %} {% load crispy_forms_tags %}
+<!-- prettier ignore -->
+{% block content %} {% load static %}
+<div class="form-container">
+  <legend class="border-bottom">
+    <h2>{{ profile.first_name }} {{ profile.last_name }}'s Profile</h2>
+  </legend>
+  <div class="content-section row">
+    <img class="rounded-circle account-img" src="{{ user.image.url }}" />
+    <div class="media-body">
+      <h5 class="account-heading">
+        {{ profile.first_name }} {{ profile.last_name }}
+      </h5>
+      <p class="text-secondary">@{{ user.username }}</p>
+      <p class="text-secondary">Email: {{ user.email }}</p>
     </div>
+  </div>
+  <form class="border-bottom" method="POST" enctype="multipart/form-data">
+    <!-- Encoding type necessary to pass image data properly-->
+    {% csrf_token %}<!-- "Cross Site Request Forgery", added security for forms that Django requires-->
+    <fieldset class="form-group">
+      <!-- Bootstrap class-->
+      <legend class="border-bottom mb-4">Profile Editing</legend>
+      {{ u_form|crispy }} {{ p_form|crispy }}
+    </fieldset>
+    <div class="form-group">
+      <button class="btn btn-outline-info" type="submit">Update Profile</button>
+    </div>
+  </form>
+  <form
+    id="logout-form"
+    action="{% url 'logout' %}"
+    method="POST"
+    style="display: none"
+  >
+    {% csrf_token %}
+  </form>
+  <form class="border-bottom">
+    <fieldset class="form-group">
+      <legend class="mb-7">Become a Coach!</legend>
+    </fieldset>
+    <p>
+      Have you played or coached a college (or pro) sport?
+      <strong>Start making money!!!</strong>
+    </p>
+    <div class="form-group">
+      <ul class="list-group">
+        <a class="list-group-item list-link" href="{% url 'application' %}"
+          >Submit an Application</a
+        >
+      </ul>
+      <p class="mt-2">
+        <i> Upgrade your profile to Coach by submitting an Application </i>
+      </p>
+    </div>
+  </form>
+  <div class="text-right">
+    <!-- Added this div for left alignment -->
+    <a
+      href="#"
+      onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+      >Log Out</a
+    >
+  </div>
+</div>
 {% endblock %}

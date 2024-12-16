@@ -20,6 +20,27 @@ class ProfileSport(models.Model):
 
     def __str__(self):
         return f"{self.profile} - {self.sport}"
+    
+days_of_week = {
+    'saturday':'Saturday',
+    'sunday':'Sunday',
+    'monday':'Monday',
+    'tuesday':'Tuesday',
+    'wednesday':'Wednesday',
+    'thursday':'Thursday',
+    'friday':'Friday',
+}
+
+class WorkingHours(models.Model):
+    coach = models.ForeignKey(User, on_delete=models.CASCADE)
+    day = models.CharField(max_length=10, choices=days_of_week)
+    start = models.TimeField()
+    end = models.TimeField()
+
+
+class Availability(BaseEvent):
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
 
 class Location(models.Model):
     location_name = models.CharField(max_length=255, unique=True)
@@ -47,12 +68,12 @@ class CoachLocation(models.Model):
         return f"{self.coach} - {self.location}"
     
 class Package(models.Model):
-    event_types = {
+    package_types = {
         ('Private Training','Private Training'),
         ('P(r)ep Talk','P(r)ep Talk'),
         ('Clinic','Clinic')
     }
-    event = models.CharField(max_length=20, choices=event_types)
+    type = models.CharField(max_length=20, choices=package_types)
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
     duration = models.DurationField(default=timedelta(minutes=60))
     number_of_sessions = models.IntegerField(default=1)
@@ -61,11 +82,11 @@ class Package(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"@{self.owner} - {self.event}"
+        return f"@{self.owner} - {self.type}"
 
 class Event(BaseEvent):
     '''''
-    From django-scheduler (Lib > schedule > models > events.py):
+    From django-scheduler (thelab > lib > schedule > models > events.py):
 
     start, end, title, description, creator (fk --> django_settings.AUTH_USER_MODEL), created_on, updated_on, rule (fk), end_recurring_period, calendar (fk), 
     '''''
@@ -76,7 +97,7 @@ class Event(BaseEvent):
     )
     event_type = models.CharField(max_length=255, choices=EVENT_TYPES)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in an Event)")
-    location_notes = models.CharField(max_length=255,blank=True, help_text="(e.g., 'Field 11', or 'Auxiliary Gym')")
+    location_notes = models.CharField(max_length=255,blank=True, help_text="(e.g., 'Field 3', or 'Auxiliary Gym')")
     # price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True,help_text='(optional)') # maybe IntegerField(1000),null=True,blank=True... in order to deal with Stripe's API better
 
     def __str__(self):

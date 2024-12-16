@@ -1,39 +1,37 @@
-{% extends "main/toolbar.html" %}
-{% block content %}
-{% load static %}
-<small>
-    (Priority 2)
-</small>
-<h1>
-    SEARCH for drills by:
-</h1>
-    <p>
-        Title (of the drill): (text)
-    </p>
-    <p>
-        Skill Tag(s)-- this is where I think the more complex skill tags will be constructed. Here's an example of a tag field in use:
-    </p>
-<img src = "{% static 'main/images/skilltag_construct.png' %}" width*=2 height *=4/>
+{% extends "main/toolbar.html" %} {% block content %} {% load static %}
+<small> (Priority 2) </small>
+<h1>SEARCH for drills by:</h1>
+<p>Title (of the drill): (text)</p>
 <p>
-    <small class = "text-muted"> 
-        (this is the step-by-step completion of the following skill tag: Basketball > Dribbling) 
-    </small>
+  Skill Tag(s)-- this is where I think the more complex skill tags will be
+  constructed. Here's an example of a tag field in use:
+</p>
+<img
+  src="{% static 'images/skilltag_construct.png' %}"
+  width*="2"
+  height
+  *="4"
+/>
+<p>
+  <small class="text-muted">
+    (this is the step-by-step completion of the following skill tag: Basketball
+    > Dribbling)
+  </small>
 </p>
 <p>
-    <small class = "text-muted"> 
-        Skill tags can be one or several skill nodes. The skill tag above is constructed from two nodes: one root node (Basketball), and a skill node one level below the root node (Dribbling) 
-    </small>
+  <small class="text-muted">
+    Skill tags can be one or several skill nodes. The skill tag above is
+    constructed from two nodes: one root node (Basketball), and a skill node one
+    level below the root node (Dribbling)
+  </small>
 </p>
 <p>
-    Coach (or business, or, eventually, team) account: (search by username-- including an account in any search will solidify their name in the search bar and enable the user to search for another username. Clicking on a solidified username will direct you to their page)
+  Coach (or business, or, eventually, team) account: (search by username--
+  including an account in any search will solidify their name in the search bar
+  and enable the user to search for another username. Clicking on a solidified
+  username will direct you to their page)
 </p>
-<h1>
-    FEED:
-</h1>
-<p>
-    (Drills that match search specifications)
-</p>
-<p>
-    (Very under development)
-</p>
+<h1>FEED:</h1>
+<p>(Drills that match search specifications)</p>
+<p>(Very under development)</p>
 {% endblock %}

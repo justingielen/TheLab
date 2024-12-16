@@ -1,27 +1,21 @@
 {% extends "main/toolbar.html" %}
 {% block content %}
+{% load static %}
 <!-- Checking if the viewing user is the owner of the page-->
 {% if is_owner %}
-<head>
-    <h1>
-        Hey Coach, welcome to your Page!
-    </h1>
-    <body>
-        <div class="content-section">
-            <div class="media">
-                <img class="rounded-circle account-img" src= "{{ user.image.url }}">
-                <div class="media-body">
-                    <h5 class="account-heading">@{{ user.username }}</h5>
-                    <p class="text-secondary">{{ user.email }}</p>
-                    <p class="text-secondary">Profile: {{ profile.first_name}} {{ profile.last_name }}</p>
-                    <a class="edit-btn" href="{% url 'profile_edit' %}">Edit</a>
-                </div>
-            </div>
-        </div>
-    </body>
-    <p>
-        <i>(This is your hub for creating and managing content, as well as getting a preview of what your Page looks like to other users who are viewing it.)</i>
-    </p>
+<!-- Coach Hub -->
+ <div class="coach-dashboard">
+    <div class="main-content">
+        <h1>
+            Hey Coach, welcome to your Page!
+        </h1>
+        <p>
+            <i>(This is your hub for creating and managing your stuff, and for getting a preview of what your Page looks like to other users who are viewing it.)</i>
+        </p>
+        <!-- Availability -->
+
+
+        <!-- Locations -->
         <p>
             Your Locations:
             <ul>
@@ -43,35 +37,43 @@
                 </li>
             </ul>
         </p>
-    <body>
-        <div class="content-section">
-            <p>CREATE</p>
-            <ul class="list-group">
-                <a class="list-group-item list-link" href="{% url 'event_form' %}">Event</a>
-                <a class="list-group-item list-link" href="{% url 'package_form' %}">Package</a>
-            </ul>
-        </div>
-        <p>
-            <i>
-                ----------------------------- Page preview -------------------------------
-            </i>
-        </p>
-
-    </body>
-</head>
+    </div>
+    <!-- Create -->
+    <div class="form-container page-create">
+        <center>
+            <h4 class="form-header">CREATE</h4>
+        </center>
+        <ul class="list-group">
+            <a class="list-group-item list-link" href="{% url 'package_form' %}">Package</a>
+            <a class="list-group-item list-link" href="{% url 'event_form' %}">Event</a>
+        </ul>
+    </div>
+</div>
+<!-- Midline -->
+<p>
+    <i>
+        ------------------------------------------------ Page preview --------------------------------------------------
+    </i>
+</p>
 {% endif %}
+<!-- Page View -->
+<!-- User View -->
 <body>
     <div class="content-section">
         <div class="media">
             <img class="rounded-circle account-img" src= "{{ user.image.url }}">
             <div class="media-body">
-                <h5 class="account-heading">@{{ user.username }}</h5>
-                <p class="text-secondary">{{ user.email }}</p>
-                <p class="text-secondary">Profile: {{ coach.first_name}} {{ coach.last_name }}</p>
+                {% if is_owner %}
+                    <h5 class="account-heading">{{ profile.first_name }} {{ profile.last_name }}</h5>
+                {% endif %}
+                <h5 class="account-heading">{{ coach.first_name }} {{ coach.last_name }}</h5>
+                <p class="text-secondary">@{{ user.username }}</p>
+                <p class="text-secondary">Email: {{ user.email }}</p>
             </div>
         </div>
     </div>
 </body>
+<!-- Events -->
 <body>
     <h3>
         Upcoming Hosted Events:

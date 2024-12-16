@@ -2,7 +2,7 @@ from typing import Any
 from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, TeamApplicationForm
+from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, ApplicationForm
 from page.models import Event
 from .models import ProfileUser, Profile, Notification
 from django.contrib.auth.decorators import login_required # Decorator-- adds functionality to an existing function
@@ -120,9 +120,9 @@ def profile_edit(request):
 
 # ---------------------------------------------------------------------------------------------------------------------------
 @login_required
-def team_application(request):
+def application(request):
     if request.method == "POST":
-        application = TeamApplicationForm(request.POST)
+        application = ApplicationForm(request.POST)
         if application.is_valid():
             profile_user = ProfileUser.objects.get(user=request.user,control_type='personal')
             profile = profile_user.profile
@@ -130,9 +130,9 @@ def team_application(request):
             application_instance = application.save(commit=False)
             application_instance.profile = profile
             application_instance.save()
-            messages.success(request, 'Team Application submitted! You should get an Alert once a decision is reached.')
+            messages.success(request, 'Coach Application submitted! You should get an Alert once a decision is reached.')
             return redirect('profile_edit')
     else:
-        application = TeamApplicationForm()
+        application = ApplicationForm()
 
-    return render(request, 'main/team_application.html',{'application':application})
+    return render(request, 'main/application.html',{'application':application})

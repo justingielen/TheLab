@@ -4,7 +4,7 @@ from .models import User, Profile, ProfileUser, HomeCalendar, Notification, Appl
 from page.models import Sport, ProfileSport
 
 @receiver(post_save, sender=User)
-def create_personal_profile(sender, instance, created, **kwargs):
+def create_profile(sender, instance, created, **kwargs):
     if created:
         # Create a profile for the user
         Profile.objects.create(first_name=instance.username)
@@ -15,11 +15,18 @@ def create_personal_profile(sender, instance, created, **kwargs):
 
         # Create a notification for the user
         user = instance.user
-        message = "Welcome to your personal profile in the Lab!! The Lab aims to be a platform where aspiring athletes can connect with and learn from successful players and coaches. You can look for a Coach that suits your (or your child's) aspirations in the 'Coaches' tab of your main navigation bar. You can also find upcoming developmental sports Events in the 'Events' tab. Or, you can discover Drills to fill your Workout at home! (under the 'Drills' tab)."
+        message = "Welcome to your personal profile in the Lab!! You can look for a Coach that suits your (or your child's) aspirations using the 'Coaches' tab. You can also find upcoming developmental sports Events in the 'Events' tab. And, you can discover drills to inspire your workout at home! (under the 'Drills' tab)."
         Notification.objects.create(user=user,message=message)
 
         # Create a home calendar for the user
         HomeCalendar.objects.create(user=instance)
+
+# Delete profile if personal User account is deleted
+@receiver(post_delete, sender=ProfileUser)
+def delete_profile(sender, instance, **kwargs):
+    if instance.control_type == 'personal':
+        profile = instance.profile
+        profile.delete()
     
 
 @receiver(post_save,sender=Application) 

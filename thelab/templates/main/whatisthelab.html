@@ -1,52 +1,46 @@
-{% extends "main/toolbar.html" %}
-{% block content %}
-<title>
-    {{ title }}
-</title>
+{% extends "main/toolbar.html" %} {% block content %}
+<title>{{ title }}</title>
 <body>
-    <center>
-        <h4>
-            The Lab aims to be an all-in-one skill development platform where aspiring athletes can connect with and learn from successful players and coaches to upgrade their game!
-        </h4>
-    </center>    
-        <p>
-            This platform started with a simple realization:
-        </p>
-        <i>
-        <p>
-            <small>
-                Players & Coaches with experience at high levels often have quite a bit of untapped value. 
-                The value is not just in their knowledge of the best ways of training for a sport and then playing (or coaching) it at a high level (or levels). It's also in their experience in recruitment and preparation for the higher level(s) at which they've played or coached.
-            </small> 
-        </p>
-        <p>
-            <small>
-                As a result, they’ve got both knowledge (about how to get better) and wisdom (about how to make it to the next level) for the millions of youth athletes who themselves aspire to make it to a higher level.
-            </small>  
-        </p>
-        </i>
-    </p>
+  <div class="what-is-the-lab">
+    <!-- Header Section -->
+    <div class="text-center mb-4">
+      <h3>
+        The Lab: Your all-in-one platform to level up your game! Connect with
+        top players and coaches to develop your skills and achieve your goals.
+      </h3>
+    </div>
+
+    <!-- Introduction -->
+    <p><strong>Why The Lab?</strong></p>
     <p>
-        If you're an athlete (or the parent of an athlete), you've come to the right place!
+      High-level athletes and coaches hold untapped value in their expertise and
+      experience. From skill training to recruitment insights, they bring the
+      knowledge and wisdom necessary to help youth athletes succeed.
     </p>
-    <p>
-        The Lab exists to help aspiring athletes learn and grow from successful players and coaches. Whether that means coordinating in-person events (priority 1), or facilitating remote workouts through Coach-posted drills (priority 2), our goal is to help athletes get better by getting in The Lab!
-    </p>
+
+    <blockquote class="text-muted">
+      <!-- For Athletes -->
+      <p>
+        <strong>For Athletes (and Parents):</strong> Grow your skills and learn
+        directly from experienced players and coaches. Whether through in-person
+        events or remote drills, The Lab is here to help you reach the next
+        level.
+      </p>
+
+      <!-- For Coaches -->
+      <p>
+        <strong>For Coaches:</strong> Empower the next generation by sharing
+        your expertise. The Lab is your operating system to mentor aspiring
+        athletes and make a lasting impact.
+      </p>
+    </blockquote>
+
+    <div class="text-center mt-4 mb-4">
+      <h4>Do You Want to Get in The Lab?</h4>
+      <a class="btn btn-primary" href="{% url 'createprofile' %}"
+        >Create Your Profile Today!</a
+      >
+    </div>
+  </div>
 </body>
-<body>
-    <p>
-        If you've played or coached a college (or professional) sport, you've also come to the right place!
-    </p>
-    <p>
-        The mission of LevelUp Sports is to help you help the next generation of athletes. The Lab is our operating system for doing just that. But, it can also be your operating system to do it yourself!
-    </p>
-</body>    
-<i>
-    <h4>
-        Do you wanna get in The Lab? 
-        <small>
-            <a class = "ml-2" href="{% url 'createprofile' %}">Create a Profile Today!</a><!-- ml = margin left-->
-        </small>
-    </h4>
-</i>
-    {% endblock %}
+{% endblock %}
