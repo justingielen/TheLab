@@ -15,7 +15,7 @@
       <p class="text-secondary">Email: {{ user.email }}</p>
     </div>
   </div>
-  <form class="border-bottom" method="POST" enctype="multipart/form-data">
+  <form method="POST" enctype="multipart/form-data">
     <!-- Encoding type necessary to pass image data properly-->
     {% csrf_token %}<!-- "Cross Site Request Forgery", added security for forms that Django requires-->
     <fieldset class="form-group">
@@ -36,8 +36,8 @@
     {% csrf_token %}
   </form>
   <form class="border-bottom">
-    <fieldset class="form-group">
-      <legend class="mb-7">Become a Coach!</legend>
+    <fieldset class="form-group border-bottom">
+      <legend class="mb-7">Become a Coach!!</legend>
     </fieldset>
     <p>
       Have you played or coached a college (or pro) sport?
