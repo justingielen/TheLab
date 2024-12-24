@@ -9,10 +9,9 @@ from django.contrib.auth.decorators import login_required # Decorator-- adds fun
 
 title = 'The Lab - '
 
-# Mainly for aesthetics (don't worry about this at this stage)
 def discover_drills(request):
     context = {
-        'title': title+ 'Discover Drills',
+        'title': title + 'Discover Drills',
     }
 
     return render(request, 'main/discover_drills.html',context)
@@ -70,17 +69,12 @@ def home(request):
 
 @login_required
 def alerts(request):
-    notifications = Notification.objects.filter(user=request.user)
-    try:
-        profile_user = ProfileUser.objects.get(user=request.user)
-        profile = profile_user.profile
-    except:
-        profile = None
-
+    print(request.user)
+    notifications = request.user.notifications.all()
+    
     context = {
         'title': title + 'Alerts',
         'notifications': notifications,
-        'profile':profile
     }
     return render(request, 'main/alerts.html', context)
 

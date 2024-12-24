@@ -1,0 +1,97 @@
+{% load crispy_forms_tags %}
+
+<!-- Formset header -->
+<div class="form-container">
+  <h3>Add Attendee(s)</h3>
+  <legend class="border-bottom mb-2">
+    <small><i>{{ event }}</i></small>
+  </legend>
+
+  <!-- Formset -->
+  <form method="POST">
+    {% csrf_token %}
+    <fieldset class="form-group">
+      {{ formset.management_form }}
+      <div id="formset-container">
+        {% for form in formset.forms %}
+
+        <!-- Form(s) -->
+        <div class="attendee-form">
+          {{ form|crispy }}
+          <!-- Delete Attendee button -->
+          <button
+            type="button"
+            class="btn btn-danger"
+            onClick="deleteForm(this)"
+          >
+            <small>Remove</small>
+          </button>
+        </div>
+
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <!-- Add Attendee button -->
+    <button
+      type="button"
+      class="btn btn-outline-info"
+      hx-get="{% url 'add_attendee' pk=event.pk %}"
+      hx-target="#formset-container"
+      hx-swap="beforeend"
+      hx-trigger="click"
+      hx-vals="js:{'form_count' : document.querySelectorAll('.attendee-form').length}"
+      onclick="incrementTotalForms()"
+    >
+      <!-- ( "click" is the default trigger for buttons, so that is technically unnecessary)-->
+      Add Another Attendee
+    </button>
+
+    <!-- submitting the formset -->
+    <div class="text-right form-group mt-2">
+      <button
+        class="btn btn-primary"
+        hx-post="{% url 'attendee_formset' pk=event.pk %}"
+      >
+        Register!
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Function to update the management form's total forms count (management form : formset, table of contents : book {we just added a new chapter to the book})
+  function incrementTotalForms() {
+    // Retrieving the field that stores how many forms are in a formset
+    const totalFormsInput = document.querySelector('[name="form-TOTAL_FORMS"]');
+    // Converting that field to an integer because it's naturally stored as a string
+    const currentCount = parseInt(totalFormsInput.value);
+    // Increment the form count by 1 and return it back to the field it came form
+    totalFormsInput.value = currentCount + 1;
+  }
+
+  // Function to decrement management form's total forms count (basically the same as above)
+  function decrementTotalForms() {
+    const totalFormsInput = document.querySelector('[name="form-TOTAL_FORMS"]');
+    const currentCount = parseInt(totalFormsInput.value);
+    totalFormsInput.value = currentCount - 1;
+  }
+
+  // Function to handle form deletion
+  function deleteForm(button) {
+    // Find nearest attendee form (which will be the parent of the delete button)
+    const formContainer = button.closest(".attendee-form");
+    // Remove the form from the DOM
+    formContainer.remove();
+    // Decrement the management form's total forms count
+    decrementTotalForms();
+
+    // Check if there are no forms left
+    const remainingForms = document.querySelectorAll(".attendee-form").length;
+    if (remainingForms === 0) {
+      // Redirect to the view_event page if so (makes the sign up button re-appear)
+      const url = "{% url 'view_event' pk=event.pk %}";
+      window.location.href = url;
+    }
+  }
+</script>

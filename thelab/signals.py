@@ -21,6 +21,19 @@ def create_profile(sender, instance, created, **kwargs):
         # Create a home calendar for the user
         HomeCalendar.objects.create(user=instance)
 
+@receiver(post_save, sender=Profile)
+def user_name(sender, instance, **kwargs):
+    profile = instance
+    try:
+        user = ProfileUser.objects.get(profile=profile, control_type='personal').user
+        if profile.first_name is not None:
+            user.first_name = profile.first_name
+            user.last_name = profile.last_name
+            user.save()
+    except ProfileUser.DoesNotExist:
+        pass
+
+
 # Delete profile if personal User account is deleted
 @receiver(post_delete, sender=ProfileUser)
 def delete_profile(sender, instance, **kwargs):

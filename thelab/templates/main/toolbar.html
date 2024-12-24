@@ -1,6 +1,5 @@
-{% load static %}
-<!-- loading the css files-->
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
   <head>
     <!-- Required meta tags -->
@@ -17,6 +16,9 @@
       integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
       crossorigin="anonymous"
     />
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org"></script>
 
     <link
       rel="stylesheet"
@@ -98,8 +100,8 @@
       </nav>
     </header>
 
-    <!-- Side Bar -->
-    <main role="main" class="container">
+    <!-- Side Bar & Main Content -->
+    <main role="main" class="container flex-grow-1">
       <div class="row">
         <div class="col-md-3">
           <div class="sidebar-wrapper">
@@ -107,8 +109,8 @@
             <p>
               <small>
                 The Lab and LevelUp Sports are both about connecting aspiring
-                athletes with successful players and coaches who have the right
-                knowledge and wisdom to help an athlete LEVEL UP their game!
+                athletes with successful players and coaches who have the
+                knowledge and wisdom to help athletes LEVEL UP their game!
               </small>
             </p>
             <ul class="list-group">
@@ -136,23 +138,60 @@
         </div>
       </div>
     </main>
-  </body>
 
-  <!-- Optional JavaScript -->
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script
-    src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"
-  ></script>
-  <script
-    src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"
-  ></script>
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"
-  ></script>
+    <!-- Footer -->
+    <footer class="site-footer text-white">
+      <div class="container py-3">
+        <div class="row">
+          <!-- About Section -->
+          <div class="col-md-4">
+            <h5>About The Lab</h5>
+            <p>
+              The Lab helps athletes connect with coaches to level up their
+              game. Get in The Lab today and let's get better, together!!
+            </p>
+          </div>
+
+          <!-- Quick Links Section -->
+          <div class="col-md-4">
+            <h5>Quick Links</h5>
+            <ul class="list-unstyled">
+              <li>
+                <a class="text-white" href="{% url 'whatis-thelab' %}"
+                  >What is The Lab?</a
+                >
+              </li>
+              <li>
+                <a class="text-white" href="{% url 'about' %}"
+                  >About LevelUp Sports</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact Section -->
+          <div class="col-md-4">
+            <h5>Contact</h5>
+            <p>
+              Email:
+              <a class="text-white" href="mailto:justingielen@comcast.net"
+                >justingielen@comcast.net</a
+              >
+            </p>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <img
+            src="{% static 'images/logo_white.png' %}"
+            alt="Button Image"
+            width="30"
+            height="30"
+          />
+          <small
+            >&copy; 2024 The Lab by LevelUp Sports. All rights reserved.</small
+          >
+        </div>
+      </div>
+    </footer>
+  </body>
 </html>

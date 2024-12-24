@@ -2,37 +2,39 @@
 {% block content %}
 {% load static %}
 {% load custom_filters %}
-<body>
-    <small>
-        (Priority 1)
-    </small>
-    <h1>SEARCH for Coaches by...</h1>
+<div class="border-bottom mb-2 mt-4">
+    <strong><h1>Find a Coach!</h1></strong>
+</div>
+<blockquote class="text-muted">
     <p>
-        (all optional)
+    Every Coach in The Lab is required to verify <strong><i>college-minimum</i></strong> coaching or playing experience in their sport. 
+    This way, we hope to provide peace of mind about the quality of coaching offered on the platform.
     </p>
-    <h4>
-        Username:
-    </h4>
-    <h4>
-        Sport: (drop-down menu)
-    </h4>
-    <h4>
-        Location:
-    </h4>
-</body>
-<h1>FEED</h1><p><i>(That match the search conditions)</i></p>
-
+</blockquote>
 <body>
-    {% for coach, packages in packages_by_coach.items %}
-    <article class ='media content-section'>
-        <div class = 'media-body'>
-            <img class= "rounded-circle" src ='{{ coach.image.url }}' width="40" height="40"> <!-- Rounded circle is from the Profile Editing interface-->
-            <a class = "mr-2" href = "{% url 'page_viewing' pk=coach.pk %}"> {{ coach }} </a>
-            <ul>
-                {% for package in packages %}
-                    <li>{{ package.event }} - ${{ package.price }} ({{ package.duration|format_duration }} / {{ package.number_of_sessions }} session(s))</li>
-                {% endfor %}
-            </ul>
+    <h3 class="border-bottom">Lab Coaches:</h3>
+    {% for coach, sport, price in coach_data %}
+    <article class ='content-section'>
+        <a class="book-now-label btn-primary" href={% url 'page_viewing' pk=coach.pk%}><center>BOOK NOW !!</center>
+            <p>
+                <small>Starting at <strong>${{ price }}</strong></small>
+            </p>
+        </a>
+        <img class="rounded-circle" src='{{ coach.image.url }}' width="65" height="80"> <!-- Rounded circle is from the Profile Editing interface-->
+        <div class="coach-info">
+            <div class='coach-name ml-2'>
+                {% if coach.first_name %}
+                    <a class="green-link" href="{% url 'page_viewing' pk=coach.pk %}"> {{ coach.first_name }} {{ coach.last_name }}</a>
+                {% else %}
+                    <a class="green-link" href="{% url 'page_viewing' pk=coach.pk %}"> {{ coach }}</a>
+                {% endif %}
+                <div class="sport-cred">
+                    {{ sport }}
+                </div>
+            </div>
+            <div class='ml-2'>
+                <i>*Insert bio*</i>
+            </div>
         </div>
     </article>
     {% endfor %}
@@ -48,7 +50,7 @@
     <div class = 'media-body'>
         <h2><a class="article-title" href="{% url 'view_event' pk=event.pk %}"> {{ event.title }}</a></h2>
         <div class ='article-metadata'>
-            <img class= "rounded-circle" src ='{{ event.creator.user.image.url }}' width="40" height="40"> <!-- Rounded circle is from the Profile Editing interface-->
+            <img class= "rounded-circle" src ='{{ event.creator.user.image.url }}' width="40" height="40">
             <a class = "mr-2" href = "{% url 'page_viewing' pk=event.creator.user.pk %}"> @{{ event.creator }} </a>
             <small class = "text-muted" > ({{ event.location }}) </small>
             <small class = "text-muted" > {{ event.start | date:"F d, Y"}} -- </small>

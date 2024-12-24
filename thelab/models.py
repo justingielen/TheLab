@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User as DjangoUser
+from django.conf import settings
 from PIL import Image # for re-sizing profile pictures
 from schedule.models import Calendar as BaseCalendar
 
@@ -74,17 +75,17 @@ class Profile(models.Model):
 
 # Notifications -------------------------------------------------------------------------------------
 notif_types = {
-    'personal_profile_creation':'personal_profile_creation',
-    'team_approval':'team_approval'
+    'profile_creation':'profile_creation',
+    'coach_approval':'coach_approval'
 }
 
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
-    type = models.CharField(max_length=50, choices=notif_types, default='personal_profile_creation')
+    type = models.CharField(max_length=50, choices=notif_types, default='profile_creation')
 
     def __str__(self):
         return f"@{self.user.username} - {self.type}"
@@ -107,7 +108,7 @@ class ProfileUser(models.Model):
 
 # Home Calendar automatically created for Profiles
 class HomeCalendar(BaseCalendar):
-    user = models.OneToOneField(User, on_delete=models.CASCADE) 
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
     def save(self, *args, **kwargs):
         self.name = f"Home Calendar for {self.user.username}"
         # Customize slug generation to ensure uniqueness
@@ -125,7 +126,7 @@ class HomeCalendar(BaseCalendar):
 class Application(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     sport = models.CharField(max_length=20,help_text="(Just the sport- leave out Men's or Women's & whether College or Professional)")
-    team = models.CharField(max_length=50,blank=True, help_text="(i.e., the school or professional organization)")
+    team = models.CharField(max_length=50,blank=True, help_text="(i.e., the college/university or professional organization)")
     roster = models.TextField(help_text='(Ideally, a copy-and-pasted link to the roster of the team on which you are or were a player or a coach)') # unique = True (can't submit same record twice)
     approved = models.BooleanField(null=True)
 

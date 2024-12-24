@@ -1,0 +1,22 @@
+{% extends "main/toolbar.html" %}
+<!-- prettier ignore -->
+{% load crispy_forms_tags %}
+<!-- prettier ignore -->
+{% block content %}
+<!-- prettier ignore -->
+{% load static %}
+<div class="form-container">
+  <legend class="border-bottom mb-4">
+    <h2><i>Set Your Hours!</i></h2>
+  </legend>
+  <form method="POST">
+    {% csrf_token %}
+    <fieldset class="form-group">{{ availability|crispy }}</fieldset>
+    <div class="form-group">
+      <button class="btn btn-outline-info" type="submit">
+        Set Availability
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

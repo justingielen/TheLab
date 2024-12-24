@@ -1,7 +1,9 @@
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
+import calendar
 from django import forms
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from .models import Event, EventSport, Location, Package
+from .models import Event, EventSport, Location, Availability, Package
 
 class LocationForm(forms.ModelForm):
 
@@ -9,14 +11,69 @@ class LocationForm(forms.ModelForm):
         model = Location
         fields = ['location_name','location_type','hyperlink','street_address','location_city','location_state','location_zip']
 
+class AvailabilityForm(forms.ModelForm):
+    start_time = forms.TimeField(widget=forms.TimeInput(attrs={'type':'time'}))
+    end_time = forms.TimeField(widget=forms.TimeInput(attrs={'type':'time'}))
+
+    # Restricting the available locations to those associated with the Coach (passed to this Form through the coach_locations variable in the set_availability view)
+    def __init__(self, *args, **kwargs):
+        locations = kwargs.pop('locations', None)
+        super().__init__(*args, **kwargs)
+        if locations:
+            self.fields['location'].queryset = locations
+
+    class Meta:
+        model = Availability
+        fields = ['day','location','start_time','end_time']
+
+    # Changing the fields into datetime objects
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # get cleaned fields
+        day_string = cleaned_data.get('day')
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
+
+        # convert the day string into day-of-week integer
+        target_weekday = list(calendar.day_name).index(day_string)
+
+        # get today's date and weekday
+        today = datetime.now().date()
+        today_weekday = today.weekday() # Monday = 0, ..., Sunday = 6
+
+        # calculate difference in days to the target weekday
+        days_until_target = (target_weekday - today_weekday + 7) % 7
+        if days_until_target == 0:
+            days_until_target = 7 # If today is the target day, use the next occurence
+
+        # Calculate target date
+        target_date = today + timedelta(days=days_until_target)
+
+        
+        # Combine target_date with start_time and end_time to create datetime objects
+        start_datetime = datetime.combine(target_date, start_time)
+        end_datetime = datetime.combine(target_date, end_time)
+
+        # Ensure start_time is before end_time
+        if start_datetime >= end_datetime:
+          raise ValidationError("'start_time' must be earlier than 'end_time'.")
+
+        # Here
+        cleaned_data['start_time'] = start_datetime
+        cleaned_data['end_time'] = end_datetime
+
+        return cleaned_data
+
+
 class PackageForm(forms.ModelForm):
 
     class Meta:
         model = Package
-        fields = ['type', 'price', 'duration', 'number_of_sessions', 'location', 'description']
+        fields = ['type', 'price', 'duration', 'athletes', 'location', 'description']
 
 class EventSportForm(forms.ModelForm):
-
+    # Restricting the available locations to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
     def __init__(self, *args, **kwargs):
         sports = kwargs.pop('sports', None)
         super().__init__(*args, **kwargs)

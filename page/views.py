@@ -3,9 +3,11 @@ from django.contrib.auth.decorators import login_required # Decorator-- adds fun
 from django.contrib import messages
 from django.utils import timezone
 from thelab.models import Profile, ProfileUser, User
-from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Package, Event
-from .forms import LocationForm, PackageForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
-from datetime import datetime
+from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Availability, Package, Event
+from .forms import LocationForm, PackageForm, AvailabilityForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
+from datetime import datetime, timedelta
+import calendar
+from schedule.models import Rule
 from .signals import coach_location
 
 def page_browsing(request):
@@ -15,12 +17,21 @@ def page_browsing(request):
     coach_profile_users = ProfileUser.objects.filter(profile__in=coach_profiles)
     # Create list of just the Coach User accounts
     coaches = [cpu.user for cpu in coach_profile_users]
-    # Create a dictionary that maps all packages to their (owner) User accounts
-    packages_by_coach = {coach: Package.objects.filter(owner=coach) for coach in coaches}
+    # Create a list of tuples containing coach's information
+    coach_data = []
+    for coach in coaches:
+        profile = ProfileUser.objects.get(user=coach, control_type='personal').profile
+        sport = ProfileSport.objects.get(profile=profile).sport
+        
+        packages = Package.objects.filter(owner=coach)
+        prices = [package.price for package in packages]
+        lowest_price = min(prices)
+
+        if lowest_price and sport:
+            coach_data.append((coach, sport, lowest_price))
 
     context = {
-        'coaches': coaches,
-        'packages_by_coach': packages_by_coach,
+        'coach_data': coach_data,
     }
 
     return render(request, 'page/browsing.html', context)
@@ -34,26 +45,30 @@ def page_viewing(request, pk):
         context = {
             'is_owner':is_owner,
         }
-    # if not,
-    else:
-        # assign profile/user data based on the private key (id) of the Page's owner, which is defined when the view is called
-        user = User.objects.get(pk=pk)
-        profile_user = ProfileUser.objects.get(user=user, control_type='personal')
-        profile = profile_user.profile
-        context = {
-            'user':user,
-            'coach':profile,
-        }
-
     coach = User.objects.get(pk=pk)
-    coach_events = Event.objects.filter(creator=coach) # I feel like this will become expensive with more events, probably much better to go through Calendars rather than searching through the entire Event table
     coach_locations = CoachLocation.objects.filter(coach=coach)
+    coach_availability = Availability.objects.filter(creator=coach)
+    coach_packages = Package.objects.filter(owner=coach)
 
-    context.update({
+    coach_profile = ProfileUser.objects.filter(user=coach, control_type='personal').first().profile
+    coach_sport = ProfileSport.objects.filter(profile=coach_profile).first().sport
+
+    # Add calculated fields for group pricing
+    for package in coach_packages:
+        if package.type == "Training":
+            if package.athletes == 2:
+                package.price_per_athlete_2 = package.price // 2
+            elif package.athletes == 3:
+                package.price_per_athlete_3 = package.price // 3
+
+    context = {
         'is_owner':is_owner,
-        'coach_locations':coach_locations,
-        'coach_events':coach_events
-    })
+        'coach':coach,
+        'locations':coach_locations,
+        'availabilities':coach_availability,
+        'packages':coach_packages,
+        'sport':coach_sport,
+    }
     return render(request, 'page/viewing.html',context=context)
 
 @login_required
@@ -73,7 +88,7 @@ def create_location(request):
             
             location.save()
             messages.success(request, 'Location added!')
-            # Sending the save request's User to the CoachLocation creation signal
+            # Sending the save request's User to the CoachLocation creation signal (because Coaches adding a location will always want that to be one of their locations)
             coach_location(sender=Location, instance=location, location=location, user=request.user)
             ## ^^ PRETTY COOL!! This is using a signal as a function inside of a view. 
             return redirect('page_viewing', pk=request.user.pk)
@@ -86,6 +101,7 @@ def create_location(request):
 
     return render(request, 'page/location_form.html',context)
 
+@login_required
 def search_location(request):
     # Don't know the details here
     query = request.GET.get('query', '')
@@ -95,6 +111,7 @@ def search_location(request):
     
     return render(request, 'page/location_search.html', context)
 
+@login_required
 def add_location(request, location_name):
     location = get_object_or_404(Location, location_name=location_name)
 
@@ -103,12 +120,60 @@ def add_location(request, location_name):
     messages.success(request, 'Location added!')
     return redirect('page_viewing', pk=request.user.pk)
 
+@login_required
 def remove_location(request, location_name):
     location = Location.objects.filter(location_name=location_name).get()
     coach_location = CoachLocation.objects.filter(location=location, coach=request.user)
     coach_location.delete()
     messages.success(request, 'Location removed!')
     return redirect('page_viewing', pk=request.user.pk)
+
+@login_required
+def set_availability(request):
+    if request.method == "POST":
+        availability_form = AvailabilityForm(request.POST)
+        if availability_form.is_valid():
+            # Straightforward inputs
+            availability = Availability()
+            availability.day = availability_form.cleaned_data['day']
+            availability.creator = request.user
+            availability.calendar = PageCalendar.objects.filter(user=request.user).first()
+            availability.location = availability_form.cleaned_data['location']
+
+            # First day
+            availability.start = availability_form.cleaned_data['start_time']
+            availability.end = availability_form.cleaned_data['end_time']
+
+            # Recurrence
+            availability.rule = Rule.objects.filter(name="Weekly").first()
+            first_day = availability_form.cleaned_data['start_time'].date()
+            availability.end_recurring_period = first_day + timedelta(days=2*365)
+
+            # Save the availability
+            availability.save()
+
+            messages.success(request, 'Availability added!')
+            return redirect('page_viewing', pk=request.user.pk)
+    else:
+        # Get applicable locations
+        cls_on_file = CoachLocation.objects.filter(coach=request.user)
+        coach_locations = [coach_location.location.id for coach_location in cls_on_file]
+        locations_queryset = Location.objects.filter(pk__in=coach_locations)
+        availability_form = AvailabilityForm(locations=locations_queryset)
+
+    context = {
+        'availability':availability_form,
+    }
+    
+    return render(request, 'page/availability_form.html', context) # Current availability will need to be passed as context
+
+@login_required
+def remove_availability(request, availability_id):
+    availability = Availability.objects.filter(id=availability_id)
+    availability.delete()
+    messages.success(request, 'Availability removed!')
+    return redirect('page_viewing', pk=request.user.pk)
+    
 
 @login_required
 def create_package(request):
@@ -132,6 +197,82 @@ def create_package(request):
     }
 
     return render(request, 'page/package_form.html', context)
+
+# View for showing potential clients a Coach's still-available time slots
+def check_availability(request, pk, week):
+    week = int(week)
+    coach = User.objects.get(pk=pk)
+
+    # Get a coach's posted availability
+    avails = Availability.objects.filter(creator=coach)
+    # Break each availability down into 1 hour time slots
+    slots = []
+    date = datetime.now().date() + timedelta(days=7*week)
+    for avail in avails:
+        # 1: Find difference between today's weekday and availability's weekday
+        today_index = date.weekday()
+        avail_day_index = list(calendar.day_name).index(avail.day)
+        day_diff = (avail_day_index - today_index)
+
+        print(day_diff)
+
+        # 2: Get the specific date of the availability
+        specific_date = date + timedelta(days=day_diff)
+
+        print(specific_date)
+
+        # 3: Combine this date with the start and end times of the availability
+        start_datetime = datetime.combine(specific_date, avail.start.time())
+        end_datetime = datetime.combine(specific_date, avail.end.time())
+
+        # 4: Generate 1-hour time slots within this range - [)
+        current_time = start_datetime
+        while current_time < end_datetime:
+            slots.append(current_time)  # Add the current time slot to the list
+            current_time += timedelta(hours=1)  # Increment by 1 hour
+
+    # get coach's events for the applicable window (2 weeks long extending back and forwards a week from the current day)
+    events = Event.objects.filter(creator=coach, start__gte=date-timedelta(weeks=1), end__lt=date+timedelta(weeks=1))
+
+    # delete time slots if they're in the past or if the coach has an event during that time
+    for slot in slots[:]:  # Iterating over a copy of slots to safely modify the original list
+        # Check if the slot is in the past
+        if slot < datetime.now():
+            slots.remove(slot)
+            continue  # Skip to the next slot
+        
+        # Check if the slot conflicts with any of the coach's events
+        for event in events:
+            if event.start <= slot < event.end:
+                slots.remove(slot)
+                continue  # Skip to the next slot once a conflict is found
+    
+    formatted_slots = []
+    for slot in slots:
+        formatted_slots.append({
+            'date': slot.date(),  # Extract the date part
+            'time': slot.time()   # Extract the time part
+        })
+
+    # Create a dictionary mapping days of the week to their corresponding dates (of the appropriate week)
+    days_of_week = list(calendar.day_name)
+    dates = {}
+    for i, day in enumerate(days_of_week):
+        day_date = date + timedelta(days=(i - date.weekday()))
+        dates[day.lower()] = {
+            'display': day_date.strftime('%m/%d'),  # For display (MM/DD)
+            'compare': day_date             # For comparison (datetime.date object)
+        }
+
+    context = {
+        'coach':coach,
+        'week':week,
+        'slots':formatted_slots,
+        'dates':dates,
+    }
+    
+    return render(request, 'page/partials/time_slots.html', context)
+
 
 @login_required
 def create_event(request):

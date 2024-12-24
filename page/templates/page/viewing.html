@@ -1,20 +1,18 @@
 {% extends "main/toolbar.html" %}
 {% block content %}
 {% load static %}
+{% load custom_filters %}
 <!-- Checking if the viewing user is the owner of the page-->
 {% if is_owner %}
+<h1>
+    Hey Coach, welcome to your Page!
+</h1>
+<p>
+    <i>(This is your hub for creating and managing your stuff, and for getting a preview of what your Page looks like to other users who are viewing it.)</i>
+</p>
 <!-- Coach Hub -->
  <div class="coach-dashboard">
     <div class="main-content">
-        <h1>
-            Hey Coach, welcome to your Page!
-        </h1>
-        <p>
-            <i>(This is your hub for creating and managing your stuff, and for getting a preview of what your Page looks like to other users who are viewing it.)</i>
-        </p>
-        <!-- Availability -->
-
-
         <!-- Locations -->
         <p>
             Your Locations:
@@ -27,7 +25,7 @@
                 {% endfor %}
                 {% if coach_locations.count == 0 %}
                     <p>
-                        You don't have any associated locations! Add some to your profile so you can host Events!
+                        <strong><i>You don't have any associated locations! Add some to your profile so you can host Events!</i></strong>
                     </p>
                 {% endif %}
             </ul>
@@ -37,17 +35,55 @@
                 </li>
             </ul>
         </p>
+        <!-- Packages -->
+        <p>
+            Your packages:
+            <ul>
+                {% for package in packages %}
+                    {% if package.athletes == 1 %}
+                        <li>{{ package.type }} ({{ package.athletes }} player) - ${{ package.price }} / {{ package.duration|format_duration}} </li>
+                    {% elif package.athletes > 1 %}
+                        <li>{{ package.type }} ({{ package.athletes }} players) - ${{ package.price }} / {{ package.duration|format_duration}} </li>
+                    {% endif %}
+                {% endfor %}
+                <li>
+                    <a href={% url 'package_form' %}>Add Package</a>
+                </li>
+            </ul>
+        </p>
+        <!-- Availability -->
+         <p>
+            Your Availability:
+            <ul>
+                <!-- Display Coach's Availability by day w/ Remove buttons -->
+                {% for availability in coach_availability %}
+                <li>
+                    {{ availability.day }}: {{ availability.start.time }} - {{ availability.end.time }}
+                    <a href="{% url 'remove_availability' availability_id=availability.id %}"><small>(Remove)</small></a>
+                </li>
+                {% endfor %}
+                {% if coach_availability.count == 0 %}
+                    <p>
+                        <strong><i>You don't have any posted availability! Add some to your profile so clients can schedule sessions with you!</i></strong>
+                    </p>
+                {% endif %}
+                <li>
+                    <a href="{% url 'set_availability' %}">Add Availability</a>
+                </li>
+            </ul>
+         </p>
     </div>
-    <!-- Create -->
+    <!-- Create --> <!-- Add this concept back in when we're onto Coach-created Events --> <!-- Maybe fill this right area with schedule??? -->
+     <!--
     <div class="form-container page-create">
         <center>
             <h4 class="form-header">CREATE</h4>
         </center>
         <ul class="list-group">
-            <a class="list-group-item list-link" href="{% url 'package_form' %}">Package</a>
             <a class="list-group-item list-link" href="{% url 'event_form' %}">Event</a>
         </ul>
     </div>
+    -->
 </div>
 <!-- Midline -->
 <p>
@@ -58,22 +94,158 @@
 {% endif %}
 <!-- Page View -->
 <!-- User View -->
-<body>
-    <div class="content-section">
-        <div class="media">
-            <img class="rounded-circle account-img" src= "{{ user.image.url }}">
-            <div class="media-body">
-                {% if is_owner %}
-                    <h5 class="account-heading">{{ profile.first_name }} {{ profile.last_name }}</h5>
-                {% endif %}
+<div class="media content-section">
+    <img class="rounded-circle account-img" src="{{ coach.image.url }}">
+    <div class="coach-info">
+        <div class="coach-name ml-2">
                 <h5 class="account-heading">{{ coach.first_name }} {{ coach.last_name }}</h5>
-                <p class="text-secondary">@{{ user.username }}</p>
-                <p class="text-secondary">Email: {{ user.email }}</p>
+            <div class="sport-cred">
+                {{ sport }}
             </div>
         </div>
+        <p>
+            <strong>Email: </strong>
+            <a class="text-secondary" href="mailto:{{ coach.email }}">{{ coach.email }}</a>
+        </p>
     </div>
-</body>
-<!-- Events -->
+</div>
+<!-- Service info -->
+ <div class="coach-info">
+        <!-- Packages -->
+        <p class="border-bottom">
+            {{ coach.first_name }}'s Packages
+        </p>
+        <div class="package-container mb-2">
+            {% for package in packages %}
+                <div class="package-box" 
+                    hx-get="{% url 'check_availability' pk=coach.pk week=0 %}" 
+                    hx-target="#time-slots" 
+                    hx-swap="innerHTML transition:true"
+                    hx-vals='{"current_week": 0}'
+                    hx-trigger="click"
+                    onclick="selectPackage(this)"
+                >
+                    <h3>{{ package.type }}</h3> 
+                    {% if package.type == "Training" %}
+                        {% if package.athletes == 1 %}
+                            <p class="package-details">{{ package.type }} (Solo athlete): <span>${{ package.price }}/hour</span></p>
+                        {% endif %}
+                        {% if package.athletes == 2 %}
+                            <p class="package-details">{{ package.type }} (Group of 2): <span>${{ package.price_per_athlete_2 }}.00/hour (per athlete)</span></p>
+                        {% endif %}
+                        {% if package.athletes == 3 %}
+                            <p class="package-details">{{ package.type }} (Group of 3): <span>${{ package.price_per_athlete_3 }}.00/hour (per athlete)</span></p>
+                        {% endif %}
+                    {% elif package.type == "P(r)ep Talk" %}
+                        <p class="package-details">{{ package.type }}: <span>${{ package.price }}/{{ package.duration|format_duration}}</span></p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            function selectPackage(element) {
+                // Remove 'selected' class from all package boxes
+                document.querySelectorAll('.package-box').forEach(box => {
+                    box.classList.remove('selected');
+                });
+                // Add 'selected' class to clicked package box
+                element.classList.add('selected');
+            }
+        </script>
+
+        <div id="time-slots">
+            <!-- This will be the target for HTMX output -->
+        </div>
+
+    <!-- Locations -->
+    <p class="border-bottom">
+        {{ coach.first_name }}'s Location(s)
+        {% for location in locations %}
+            <div class="location-item">
+                <img
+                src="{% static 'images/location_icon_green.png' %}"
+                width="40"
+                height="40"
+                />
+                <span>{{ location.location.location_name }}</span>
+            </div>
+        {% endfor %}
+    </p>
+    <!-- Availability -->
+    <p class="border-bottom">
+        {{ coach.first_name }}'s Availability
+        <div class="availability-chart">
+            <div class="chart-header">
+                <div class="day">Monday</div>
+                <div class="day">Tuesday</div>
+                <div class="day">Wednesday</div>
+                <div class="day">Thursday</div>
+                <div class="day">Friday</div>
+                <div class="day">Saturday</div>
+                <div class="day">Sunday</div>
+            </div>
+            <div class="chart-body">
+                <div class="day-column">
+                    {% for availability in availabilities %}
+                        {% if availability.day == "Monday" %}
+                            {{ availability.start.time }} - {{ availability.end.time }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="day-column">
+                    {% for availability in availabilities %}
+                        {% if availability.day == "Tuesday" %}
+                            {{ availability.start.time }} - {{ availability.end.time }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="day-column">
+                    {% for availability in availabilities %}
+                        {% if availability.day == "Wednesday" %}
+                            {{ availability.start.time }} - {{ availability.end.time }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="day-column">
+                    {% for availability in availabilities %}
+                        {% if availability.day == "Thursday" %}
+                            {{ availability.start.time }} - {{ availability.end.time }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="day-column">
+                    {% for availability in availabilities %}
+                        {% if availability.day == "Friday" %}
+                            {{ availability.start.time }} - {{ availability.end.time }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="day-column">
+                    {% for availability in availabilities %}
+                        {% if availability.day == "Saturday" %}
+                            {{ availability.start.time }} - {{ availability.end.time }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="day-column">
+                    {% for availability in availabilities %}
+                        {% if availability.day == "Sunday" %}
+                            {{ availability.start.time }} - {{ availability.end.time }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <p><small><i>
+            *Note: This is {{ coach.first_name }}'s weekly availability. Choose one of {{ coach.first_name }}'s packages to pick a time slot that's still up for grabs!
+        </i></small></p>
+    </p>
+<p>
+</p>
+{% endblock content %}
+
+<!-- Events (Maybe after 'Coaches') -->
 <body>
     <h3>
         Upcoming Hosted Events:
@@ -96,10 +268,4 @@
             </article>
         {% endfor %}
     </body>
-    <p>
-        <i>
-            (Listed Events should be replaced by Drills once they become part of the platform -- Events (and availability) will be accessible through a calendar on the page display)
-        </i>
-    </p>
 </body>
-{% endblock content %}

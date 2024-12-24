@@ -1,0 +1,83 @@
+<!-- prettier-ignore -->
+<div class="slots-chart">
+  <!-- Storing the current week value in a data attribute -->
+  <div class="week-navigation" data-current-week="{{ week }}">
+    <button class="btn mr-5"
+            hx-get="{% url 'check_availability' pk=coach.pk week=week|add:'-1' %}"
+            hx-target="#time-slots"
+            hx-swap="innerHTML transition:true"
+            {% if week == 0 %}disabled{% endif %}>
+        ← Previous Week
+    </button>
+    
+    <center><p class="mt-2">Week of {{ dates.monday.display }}</p></center>
+    
+    <button class="btn ml-5"
+            hx-get="{% url 'check_availability' pk=coach.pk week=week|add:'1' %}"
+            hx-target="#time-slots"
+            hx-swap="innerHTML transition:true">
+        Next Week →
+    </button>
+</div>
+
+  <div class="chart-header">
+    <div class="day">Monday {{ dates.monday.display }}</div>
+    <div class="day">Tuesday {{ dates.tuesday.display }}</div>
+    <div class="day">Wednesday {{ dates.wednesday.display }}</div>
+    <div class="day">Thursday {{ dates.thursday.display }}</div>
+    <div class="day">Friday {{ dates.friday.display }}</div>
+    <div class="day">Saturday {{ dates.saturday.display }}</div>
+    <div class="day">Sunday {{ dates.sunday.display }}</div>
+  </div>
+  <div class="chart-body">
+    <div class="date-column">
+      {% for slot in slots %}
+        {% if slot.date == dates.monday.compare %}
+          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="date-column">
+      {% for slot in slots %}
+        {% if slot.date == dates.tuesday.compare %}
+          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="date-column">
+      {% for slot in slots %}
+        {% if slot.date == dates.wednesday.compare %}
+          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="date-column">
+      {% for slot in slots %}
+        {% if slot.date == dates.thursday.compare %}
+          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="date-column">
+      {% for slot in slots %}
+        {% if slot.date == dates.friday.compare %}
+          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="date-column">
+      {% for slot in slots %}
+        {% if slot.date == dates.saturday.compare %}
+          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="date-column">
+      {% for slot in slots %}
+        {% if slot.date == dates.sunday.compare %}
+          <div class="slot">{{ slot.time|time:"g:i A"}}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>

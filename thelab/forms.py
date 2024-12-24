@@ -18,6 +18,8 @@ class UserUpdateForm(forms.ModelForm):
 
 # Profile Updating
 class ProfileUpdateForm(forms.ModelForm):
+    birthday = forms.DateField(widget=forms.DateInput(attrs={'type':'date'}), required=False)
+
     class Meta:
         model = Profile
         fields = ['first_name','last_name','city','state','birthday']

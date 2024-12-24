@@ -1,0 +1,8 @@
+{% load crispy_forms_tags %}
+
+<div class="attendee-form">
+  {{ form|crispy }}
+  <button type="button" class="btn btn-danger" onClick="deleteForm(this)">
+    <small>Remove</small>
+  </button>
+</div>
