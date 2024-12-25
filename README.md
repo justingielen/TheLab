@@ -37,15 +37,15 @@ Check out the project in its current state at [The Lab Website](https://justingi
 ### Coming Soon:
 
 - Calendaring for Coaches and Athletes.
-- Location scheduling portal (for event creation, integrating location availability data).
-- Networking (Friends, Parent/Child, Boss/Worker, Teams).
-
-### Looking Ahead:
-
 - Skill-tagged instructional video content posted by Coaches on the platform.
 - Drill Library for athletes to save their favorite practice activities.
 - Drill reviews by coaches.
 - Drill leaderboards for athletes with verified drill performance outcomes (e.g., their time or score).
+
+### Looking Ahead:
+
+- Location scheduling portal (for event creation, integrating location availability data).
+- Networking (Friends, Parent/Child, Boss/Worker, Teams).
 - AI-driven feedback and analysis to automate and enhance drill reviews.
 
 ---
