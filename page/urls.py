@@ -12,5 +12,6 @@ urlpatterns = [
     path('remove/availability/<str:availability_id>/', views.remove_availability, name='remove_availability'),
     path('create/package/', views.create_package, name='package_form'),
     path('<pk>/<week>/check_availability', views.check_availability, name='check_availability'),
+    path('<date>/<time>/<week>/signup/', views.signup, name='signup'),
     path('create/event/', views.create_event, name='event_form'),
 ]

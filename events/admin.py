@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import EventAttendee, AttendeeParent
+from .models import Occurrence
 
 # Register your models here.
-admin.site.register(EventAttendee)
-admin.site.register(AttendeeParent)
+admin.site.register(Occurrence)

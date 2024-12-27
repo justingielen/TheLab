@@ -190,7 +190,18 @@ def create_package(request):
             return redirect('page_viewing', pk=request.user.pk)
     
     else:
-        package_form = PackageForm()
+        # Get applicable locations
+        cls_on_file = CoachLocation.objects.filter(coach=request.user)
+        coach_locations = [coach_location.location.id for coach_location in cls_on_file]
+        locations_queryset = Location.objects.filter(pk__in=coach_locations)
+
+        # Get applicable sports
+        profile_user = ProfileUser.objects.filter(user=request.user, control_type='personal').get()
+        profile_sport_objects = ProfileSport.objects.filter(profile=profile_user.profile)
+        profile_sports = [profile_sport.sport.id for profile_sport in profile_sport_objects]
+        sports_queryset = Sport.objects.filter(pk__in=profile_sports)
+
+        package_form = PackageForm(sports=sports_queryset, locations=locations_queryset)
 
     context = {
         'package':package_form
@@ -202,6 +213,8 @@ def create_package(request):
 def check_availability(request, pk, week):
     week = int(week)
     coach = User.objects.get(pk=pk)
+    package_id = request.GET.get('package_id')
+    package = get_object_or_404(Package, id=package_id)
 
     # Get a coach's posted availability
     avails = Availability.objects.filter(creator=coach)
@@ -214,12 +227,8 @@ def check_availability(request, pk, week):
         avail_day_index = list(calendar.day_name).index(avail.day)
         day_diff = (avail_day_index - today_index)
 
-        print(day_diff)
-
         # 2: Get the specific date of the availability
         specific_date = date + timedelta(days=day_diff)
-
-        print(specific_date)
 
         # 3: Combine this date with the start and end times of the availability
         start_datetime = datetime.combine(specific_date, avail.start.time())
@@ -267,11 +276,33 @@ def check_availability(request, pk, week):
     context = {
         'coach':coach,
         'week':week,
+        'package':package,
         'slots':formatted_slots,
         'dates':dates,
     }
     
     return render(request, 'page/partials/time_slots.html', context)
+
+def signup(request, date, time, week):
+    # get the selected package
+    package_id = request.GET.get('package_id')
+    package = Package.objects.get(pk=package_id)
+
+    # convert to datetimes
+    date = datetime.strptime(date, "%Y-%m-%d").date()  # Convert to a date object
+    start_time = datetime.strptime(time, "%H:%M:%S").time()  # Convert to a time object
+    start_time = datetime.combine(date, start_time)
+    end_time = start_time + timedelta(hours=1)
+    
+    context = {
+        'package':package, 
+        'week':week,
+        'date':date, 
+        'start_time':start_time, 
+        'end_time':end_time, 
+    }
+
+    return render(request, 'page/partials/signup.html', context)
 
 
 @login_required

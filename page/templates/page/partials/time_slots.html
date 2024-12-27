@@ -3,7 +3,7 @@
   <!-- Storing the current week value in a data attribute -->
   <div class="week-navigation" data-current-week="{{ week }}">
     <button class="btn mr-5"
-            hx-get="{% url 'check_availability' pk=coach.pk week=week|add:'-1' %}"
+            hx-get="{% url 'check_availability' pk=coach.pk week=week|add:'-1' %}?package_id={{ package.id }}"
             hx-target="#time-slots"
             hx-swap="innerHTML transition:true"
             {% if week == 0 %}disabled{% endif %}>
@@ -13,7 +13,7 @@
     <center><p class="mt-2">Week of {{ dates.monday.display }}</p></center>
     
     <button class="btn ml-5"
-            hx-get="{% url 'check_availability' pk=coach.pk week=week|add:'1' %}"
+            hx-get="{% url 'check_availability' pk=coach.pk week=week|add:'1' %}?package_id={{ package.id }}"
             hx-target="#time-slots"
             hx-swap="innerHTML transition:true">
         Next Week →
@@ -33,7 +33,13 @@
     <div class="date-column">
       {% for slot in slots %}
         {% if slot.date == dates.monday.compare %}
-          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
+          <div class="slot"
+          hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}" 
+          hx-target="#time-slots"
+          hx-swap="innerHTML transition:true"
+          >
+          {{ slot.time|time:"g:i A" }}
+        </div>
         {% endif %}
       {% endfor %}
     </div>

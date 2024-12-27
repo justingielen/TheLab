@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from schedule.models import Event as BaseEvent
 from schedule.models import Calendar as BaseCalendar
-from schedule.models import Occurrence as BaseOccurrence
 from thelab.models import Profile
 from datetime import timedelta
     
@@ -20,6 +19,17 @@ class ProfileSport(models.Model):
 
     def __str__(self):
         return f"{self.profile} - {self.sport}"
+    
+class PageCalendar(BaseCalendar):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    def save(self, *args, **kwargs):
+        self.name = f"Page Calendar for {self.user.username}"
+        # Customize slug generation to ensure uniqueness
+        self.slug = f"page_calendar_{self.user.username}"
+        super().save(*args, **kwargs)
+              
+    def __str__(self):
+        return self.name
 
 class Location(models.Model):
     location_name = models.CharField(max_length=255, unique=True)
@@ -39,6 +49,10 @@ class Location(models.Model):
     
     def __str__(self):
         return self.location_name
+    
+class LocationSport(models.Model):
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
 
 class CoachLocation(models.Model):
     coach = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -76,12 +90,28 @@ class Package(models.Model):
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
     duration = models.DurationField(default=timedelta(minutes=60))
     athletes = models.IntegerField(default=1)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in an Event)", blank=True, null=True)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in a Package)", blank=True, null=True)
+    sport = models.ForeignKey(Sport, on_delete=models.CASCADE, default=1)
     description = models.TextField(blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"@{self.owner} - {self.type} ({self.athletes}): ${self.price}"
+
+# Attendee model, to let parents sign their kids up for events without making accounts for them
+class Attendee(models.Model):
+    first_name = models.CharField(max_length=50, help_text="(athlete's first name)")
+    last_name = models.CharField(max_length=100, help_text="(athlete's last name)")
+    age = models.IntegerField()
+    attendee_notes = models.TextField(blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
+
+    def __str__(self):
+        try:
+            return f'{self.user.first_name} {self.user.last_name}'
+        except: 
+            return f'{self.first_name} {self.last_name}'
+
 
 class Event(BaseEvent):
     '''''
@@ -111,23 +141,17 @@ class EventSport(models.Model):
 
     def __str__(self):
         return f"{self.event.title} - {self.sport}"
-
-class Occurrence(BaseOccurrence):
-    date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-
-class PageCalendar(BaseCalendar):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    def save(self, *args, **kwargs):
-        self.name = f"Page Calendar for {self.user.username}"
-        # Customize slug generation to ensure uniqueness
-        self.slug = f"page_calendar_{self.user.username}"
-        super().save(*args, **kwargs)
-              
-    def __str__(self):
-        return self.name
     
-class EventCoach(models.Model):
-    event = models.OneToOneField(Event, on_delete=models.CASCADE)
-    coach = models.OneToOneField(User, on_delete=models.CASCADE)
+class EventAttendee(models.Model):
+    attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.attendee} -- {self.event.title}'
+    
+class AttendeeParent(models.Model):
+    attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
+    parent_first_name = models.CharField(max_length=50, default="(first name)")
+    parent_last_name = models.CharField(max_length=50, default="(last name)")
+    parent_email = models.EmailField(max_length=50)
+    # still need to add phone number

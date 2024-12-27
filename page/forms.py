@@ -3,7 +3,8 @@ import calendar
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from .models import Event, EventSport, Location, Availability, Package
+from .models import Event, EventSport, Location, Availability, Package, Attendee
+
 
 class LocationForm(forms.ModelForm):
 
@@ -67,13 +68,29 @@ class AvailabilityForm(forms.ModelForm):
 
 
 class PackageForm(forms.ModelForm):
+    # Restricting the available sports and locations to those associated with the Coach (passed to this Form through the create_package view)
+    def __init__(self, *args, **kwargs):
+        sports = kwargs.pop('sports', None)
+        locations = kwargs.pop('locations', None)
+        super().__init__(*args, **kwargs)
+        if sports:
+            self.fields['sport'].queryset = sports
+        if locations:
+            self.fields['location'].queryset = locations
 
     class Meta:
         model = Package
-        fields = ['type', 'price', 'duration', 'athletes', 'location', 'description']
+        fields = ['sport', 'type', 'price', 'duration', 'athletes', 'location', 'description']
+
+class AttendeeForm(forms.ModelForm):
+    class Meta:
+        model = Attendee
+        fields = ['first_name','last_name','age','attendee_notes']
+
+AttendeeFormSet = forms.modelformset_factory(Attendee, form=AttendeeForm, extra=1)
 
 class EventSportForm(forms.ModelForm):
-    # Restricting the available locations to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
+    # Restricting the available sports to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
     def __init__(self, *args, **kwargs):
         sports = kwargs.pop('sports', None)
         super().__init__(*args, **kwargs)

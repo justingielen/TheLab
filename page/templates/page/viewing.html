@@ -17,13 +17,13 @@
         <p>
             Your Locations:
             <ul>
-                {% for coach_location in coach_locations %}
+                {% for location in locations %}
                     <li>
-                        {{ coach_location.location.location_name }}
-                        <a href="{% url 'remove_location' location_name=coach_location.location.location_name %}"><small>(Remove)</small></a>
+                        {{ location.location.location_name }}
+                        <a href="{% url 'remove_location' location_name=location.location.location_name %}"><small>(Remove)</small></a>
                     </li>
                 {% endfor %}
-                {% if coach_locations.count == 0 %}
+                {% if locations.count == 0 %}
                     <p>
                         <strong><i>You don't have any associated locations! Add some to your profile so you can host Events!</i></strong>
                     </p>
@@ -56,7 +56,7 @@
             Your Availability:
             <ul>
                 <!-- Display Coach's Availability by day w/ Remove buttons -->
-                {% for availability in coach_availability %}
+                {% for availability in availabilities %}
                 <li>
                     {{ availability.day }}: {{ availability.start.time }} - {{ availability.end.time }}
                     <a href="{% url 'remove_availability' availability_id=availability.id %}"><small>(Remove)</small></a>
@@ -118,26 +118,25 @@
         <div class="package-container mb-2">
             {% for package in packages %}
                 <div class="package-box" 
-                    hx-get="{% url 'check_availability' pk=coach.pk week=0 %}" 
+                    hx-get="{% url 'check_availability' pk=coach.pk week=0 %}?package_id={{ package.id }}" 
                     hx-target="#time-slots" 
                     hx-swap="innerHTML transition:true"
-                    hx-vals='{"current_week": 0}'
                     hx-trigger="click"
                     onclick="selectPackage(this)"
                 >
                     <h3>{{ package.type }}</h3> 
                     {% if package.type == "Training" %}
                         {% if package.athletes == 1 %}
-                            <p class="package-details">{{ package.type }} (Solo athlete): <span>${{ package.price }}/hour</span></p>
+                            <p class="package-details">{{ package.sport }} {{ package.type }} (Solo athlete): <span>${{ package.price }}/hour</span></p>
                         {% endif %}
                         {% if package.athletes == 2 %}
-                            <p class="package-details">{{ package.type }} (Group of 2): <span>${{ package.price_per_athlete_2 }}.00/hour (per athlete)</span></p>
+                            <p class="package-details">{{ package.sport }} {{ package.type }} (Group of 2): <span>${{ package.price_per_athlete_2 }}.00/hour (per athlete)</span></p>
                         {% endif %}
                         {% if package.athletes == 3 %}
-                            <p class="package-details">{{ package.type }} (Group of 3): <span>${{ package.price_per_athlete_3 }}.00/hour (per athlete)</span></p>
+                            <p class="package-details">{{ package.sport }} {{ package.type }} (Group of 3): <span>${{ package.price_per_athlete_3 }}.00/hour (per athlete)</span></p>
                         {% endif %}
                     {% elif package.type == "P(r)ep Talk" %}
-                        <p class="package-details">{{ package.type }}: <span>${{ package.price }}/{{ package.duration|format_duration}}</span></p>
+                        <p class="package-details">{{ package.sport }} {{ package.type }}: <span>${{ package.price }}/{{ package.duration|format_duration}}</span></p>
                     {% endif %}
                 </div>
             {% endfor %}

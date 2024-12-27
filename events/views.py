@@ -3,8 +3,9 @@ from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.contrib import messages
 from page.models import Event
-from . import forms
-from .models import EventAttendee
+from page import forms
+from .models import *
+from page.models import Attendee
 
 # ----------- # Class-based views (List)
 class EventListView(ListView):
@@ -48,7 +49,7 @@ def create_attendee(request, pk):
             response['HX-Redirect'] = redirect('browse_events').url
             return response
     
-    formset = forms.AttendeeFormSet(queryset=EventAttendee.objects.none())
+    formset = forms.AttendeeFormSet(queryset=Attendee.objects.none())
     return render(request, 'events/partials/attendee_formset.html',{'formset':formset, 'event':event})
 
 # View to add empty attendee form to the end of the current attendee formset
@@ -64,6 +65,3 @@ def add_attendee(request, pk):
 
     # Return the rendered empty form
     return render(request, 'events/partials/attendee_form.html', {'form':empty_form})
-
-def delete_attendee(request, pk):
-    pass

@@ -1,0 +1,23 @@
+<!-- prettier-ignore -->
+<div class="signup-container">
+  <div class="signup-header">
+    <!-- Back button using HTMX -->
+    <button
+      class="btn mb-3"
+      hx-get="{% url 'check_availability' pk=package.owner.pk week=week %}?package_id={{ package.id }}"
+      hx-target="#time-slots"
+      hx-swap="innerHTML transition:true"
+    >
+      ← Back to Times
+    </button>
+
+    <!-- Package and time slot information -->
+    <div class="selected-info border-bottom">
+      <p class="session-details">
+        {{ package.sport }} {{ package.type }} @ {{ package.location }} ({{ date }} {{ start_time.time }} - {{ end_time.time }})
+      </p>
+    </div>
+  </div>
+
+  <!-- Rest of signup form goes here -->
+</div>
