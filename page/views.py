@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required # Decorator-- adds functionality to an existing function
 from django.contrib import messages
 from django.utils import timezone
+from django.forms import modelformset_factory
 from thelab.models import Profile, ProfileUser, User
-from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Availability, Package, Event
-from .forms import LocationForm, PackageForm, AvailabilityForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
+from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Availability, Package, Attendee, Event
+from .forms import LocationForm, PackageForm, AvailabilityForm, AttendeeForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
 from datetime import datetime, timedelta
 import calendar
 from schedule.models import Rule
@@ -293,16 +294,30 @@ def signup(request, date, time, week):
     start_time = datetime.strptime(time, "%H:%M:%S").time()  # Convert to a time object
     start_time = datetime.combine(date, start_time)
     end_time = start_time + timedelta(hours=1)
-    
-    context = {
+
+    # Create the AttendeeFormSet with a dynamic number of forms based on `package.athletes`
+    AttendeeFormSet = modelformset_factory(Attendee, form=AttendeeForm, extra=package.athletes)
+    formset = AttendeeFormSet(queryset=Attendee.objects.none())  # Initialize empty formset
+
+
+    if request.method == 'POST':
+        formset = AttendeeFormSet(request.POST)
+        if formset.is_valid():
+            attendees = formset.save(commit=False)
+            for attendee in attendees:
+                attendee.save()
+        return redirect('payment_page')
+        
+    else:
+        context = {
         'package':package, 
         'week':week,
         'date':date, 
         'start_time':start_time, 
         'end_time':end_time, 
-    }
-
-    return render(request, 'page/partials/signup.html', context)
+        'formset':formset,
+        }
+        return render(request, 'page/partials/signup.html', context)
 
 
 @login_required

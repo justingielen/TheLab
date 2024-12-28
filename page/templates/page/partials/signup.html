@@ -1,3 +1,4 @@
+{% load crispy_forms_tags %}
 <!-- prettier-ignore -->
 <div class="signup-container">
   <div class="signup-header">
@@ -8,7 +9,7 @@
       hx-target="#time-slots"
       hx-swap="innerHTML transition:true"
     >
-      ← Back to Times
+      ← Back
     </button>
 
     <!-- Package and time slot information -->
@@ -19,5 +20,32 @@
     </div>
   </div>
 
-  <!-- Rest of signup form goes here -->
+  <!-- Formset header -->
+    <div class="form-container">
+        <h3>Add Attendee(s)</h3>
+    
+        <!-- Formset -->
+        <form method="POST">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            {{ formset.management_form }}
+            <div id="formset-container" class="formset-grid">
+            {% for form in formset.forms %}
+    
+            <!-- Form(s) -->
+            <div class="attendee-form card">
+                <h5 class="card-title">Attendee {{ forloop.counter }}</h5>
+                {{ form|crispy }}
+            </div>
+    
+            {% endfor %}
+            </div>
+        </fieldset>
+
+        <!-- Continue to Payment Button -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">Continue to Payment</button>
+        </div>
+    </form>
+  </div>
 </div>
