@@ -104,7 +104,6 @@ class Attendee(models.Model):
     last_name = models.CharField(max_length=100, help_text="(athlete's last name)")
     age = models.IntegerField()
     attendee_notes = models.TextField(blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
 
     def __str__(self):
         try:
@@ -127,6 +126,8 @@ class Event(BaseEvent):
     event_type = models.CharField(max_length=255, choices=EVENT_TYPES)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in an Event)")
     location_notes = models.CharField(max_length=255,blank=True, help_text="(e.g., 'Field 3', or 'Auxiliary Gym')")
+    is_accepted = models.BooleanField(default=True)
+    max_attendance = models.IntegerField(default=100)
     # price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True,help_text='(optional)') # maybe IntegerField(1000),null=True,blank=True... in order to deal with Stripe's API better
 
     def __str__(self):

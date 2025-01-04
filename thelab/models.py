@@ -76,7 +76,8 @@ class Profile(models.Model):
 # Notifications -------------------------------------------------------------------------------------
 notif_types = {
     'profile_creation':'profile_creation',
-    'coach_approval':'coach_approval'
+    'coach_approval':'coach_approval',
+    'event_suggestion':'event_suggestion',
 }
 
 class Notification(models.Model):

@@ -11,6 +11,18 @@
     <i>(This is your hub for creating and managing your stuff, and for getting a preview of what your Page looks like to other users who are viewing it.)</i>
 </p>
 <!-- Coach Hub -->
+ {% if suggested_events %}
+ <div class="suggestions">
+ PACKAGE PURCHASES:
+    {% for event in suggested_events %}
+    <div class="alerts">
+        {{ event.event_type }} ({{ event.location.location_name }}) - {{ event.date }} @ {{ event.start }}
+        <a class="btn-primary" href={% url 'page_viewing' pk=coach.pk%}><center>Accept</center>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
  <div class="coach-dashboard">
     <div class="main-content">
         <!-- Locations -->
@@ -113,7 +125,7 @@
  <div class="coach-info">
         <!-- Packages -->
         <p class="border-bottom">
-            {{ coach.first_name }}'s Packages
+            <strong>{{ coach.first_name }}'s Packages</strong>
         </p>
         <div class="package-container mb-2">
             {% for package in packages %}
@@ -155,11 +167,12 @@
 
         <div id="time-slots">
             <!-- This will be the target for HTMX output -->
+            <i>Click on a package above to schedule your session!</i>
         </div>
 
     <!-- Locations -->
     <p class="border-bottom">
-        {{ coach.first_name }}'s Location(s)
+        <strong>{{ coach.first_name }}'s Location(s)</strong>
         {% for location in locations %}
             <div class="location-item">
                 <img

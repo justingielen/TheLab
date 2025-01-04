@@ -1,5 +1,6 @@
 <!-- prettier-ignore -->
 <div class="slots-chart">
+  <i><center><h4 class="border-bottom mb-2"> Schedule your session with {{ coach.first_name }}! </h4></center></i>
   <!-- Storing the current week value in a data attribute -->
   <div class="week-navigation" data-current-week="{{ week }}">
     <button class="btn mr-5"
@@ -29,61 +30,102 @@
     <div class="day">Saturday {{ dates.saturday.display }}</div>
     <div class="day">Sunday {{ dates.sunday.display }}</div>
   </div>
+  {% if not slots %}
+  <div class="unavailable">
+    <strong><i><center>{{ coach.first_name }} doesn't have any available time slots for this week. </center></i></strong>
+  </div>
+    {% else %}
   <div class="chart-body">
-    <div class="date-column">
+      <div class="date-column">
       {% for slot in slots %}
         {% if slot.date == dates.monday.compare %}
           <div class="slot"
-          hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}" 
+          hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}" 
           hx-target="#time-slots"
           hx-swap="innerHTML transition:true"
           >
           {{ slot.time|time:"g:i A" }}
+          </div>
+        {% endif %}
+      {% endfor %}
+      </div>
+      <div class="date-column">
+        {% for slot in slots %}
+          {% if slot.date == dates.tuesday.compare %}
+            <div class="slot"
+            hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}" 
+            hx-target="#time-slots"
+            hx-swap="innerHTML transition:true"
+            >
+            {{ slot.time|time:"g:i A" }}
         </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    <div class="date-column">
-      {% for slot in slots %}
-        {% if slot.date == dates.tuesday.compare %}
-          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    <div class="date-column">
-      {% for slot in slots %}
-        {% if slot.date == dates.wednesday.compare %}
-          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    <div class="date-column">
-      {% for slot in slots %}
-        {% if slot.date == dates.thursday.compare %}
-          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    <div class="date-column">
-      {% for slot in slots %}
-        {% if slot.date == dates.friday.compare %}
-          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    <div class="date-column">
-      {% for slot in slots %}
-        {% if slot.date == dates.saturday.compare %}
-          <div class="slot">{{ slot.time|time:"g:i A" }}</div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    <div class="date-column">
-      {% for slot in slots %}
-        {% if slot.date == dates.sunday.compare %}
-          <div class="slot">{{ slot.time|time:"g:i A"}}</div>
-        {% endif %}
-      {% endfor %}
-    </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="date-column">
+        {% for slot in slots %}
+          {% if slot.date == dates.wednesday.compare %}
+            <div class="slot"
+            hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}" 
+            hx-target="#time-slots"
+            hx-swap="innerHTML transition:true"
+            >{{ slot.time|time:"g:i A" }}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="date-column">
+        {% for slot in slots %}
+          {% if slot.date == dates.thursday.compare %}
+            <div class="slot"
+            hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}" 
+            hx-target="#time-slots"
+            hx-swap="innerHTML transition:true"
+            >
+            {{ slot.time|time:"g:i A" }}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="date-column">
+        {% for slot in slots %}
+          {% if slot.date == dates.friday.compare %}
+            <div class="slot"
+            hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}" 
+            hx-target="#time-slots"
+            hx-swap="innerHTML transition:true"
+            >
+            {{ slot.time|time:"g:i A" }}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="date-column">
+        {% for slot in slots %}
+          {% if slot.date == dates.saturday.compare %}
+            <div class="slot"
+            hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}" 
+            hx-target="#time-slots"
+            hx-swap="innerHTML transition:true"
+            >
+            {{ slot.time|time:"g:i A" }}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="date-column">
+        {% for slot in slots %}
+          {% if slot.date == dates.sunday.compare %}
+            <div class="slot"
+            hx-get="{% url 'signup' date=slot.date time=slot.time week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}" 
+            hx-target="#time-slots"
+            hx-swap="innerHTML transition:true"
+            >
+            {{ slot.time|time:"g:i A"}}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 </div>

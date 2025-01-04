@@ -17,6 +17,16 @@
       crossorigin="anonymous"
     />
 
+    <meta
+      name="description"
+      content="The Lab by LevelUp Sports helps athletes connect with coaches to level up their game. Join today and start improving!"
+    />
+    <meta
+      name="keywords"
+      content="sports, coaches, athletes, training, LevelUp Sports, The Lab"
+    />
+    <meta name="author" content="LevelUp Sports" />
+
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org"></script>
 
@@ -87,7 +97,21 @@
               >
               {% endif %}
               <a class="nav-item nav-link" href="{% url 'home' %}">Home</a>
-              <a class="nav-item nav-link" href="{% url 'alerts' %}">Alerts</a>
+              <a class="nav-item nav-link" href="{% url 'alerts' %}"
+                >Alerts
+                <span
+                  id="alerts-badge"
+                  class="badge badge-danger position-absolute"
+                  style="
+                    top: 0;
+                    right: 0;
+                    transform: translate(50%, -50%);
+                    display: none;
+                  "
+                >
+                  0
+                </span>
+              </a>
               {% else %}
               <a class="nav-item nav-link" href="{% url 'login' %}">Log In</a>
               <a class="nav-item nav-link" href="{% url 'createprofile' %}"

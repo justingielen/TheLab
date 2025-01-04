@@ -9,6 +9,71 @@
   font-weight: 500;
 }
 
+.suggestions {
+  background-color: #dbdbdb; /* Light red background */
+  border: 2px dashed #e4081e; /* Dark red, dashed border */
+  padding: 10px; /* Adds some padding inside the div */
+  border-radius: 5px; /* Rounds the corners slightly */
+  margin: 10px 0; /* Adds spacing above and below the div */
+  color: #363536; /* Matches the text color to the border for consistency */
+  font-family: Arial, sans-serif; /* Optional: define a font */
+}
+
+/* Stuff for discover_drills cover */
+.search-section {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.search-field {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.tag-construction {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.tag-image {
+  display: block;
+  margin: 10px 0;
+  max-width: 100%;
+  height: auto;
+}
+
+.text-muted {
+  font-size: 0.9em;
+  color: #6c757d;
+}
+
+.feed-section {
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+/* end */
+
 .content-section {
   background: #c0cbc2d1;
   padding: 10px 20px;
@@ -77,6 +142,19 @@ a.article-title:hover {
   color: rgb(238, 238, 244);
   border-radius: 1px;
 }
+
+/* alerts */
+#alerts-badge {
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  color: white;
+}
+
+
 
 .ml-20 {
   margin-left: 7rem;
@@ -302,10 +380,10 @@ blockquote {
 }
 
 .btn-primary {
-  background-color: #089819; /* Sets the background color to blue */
-  color: rgb(255, 255, 255); /* Sets the text color to white for better contrast */
-  text-transform: uppercase; /* Converts the button text to uppercase for better emphasis */
-  padding: 10px 20px; /* Adds padding to make the button larger and easier to click */
+  background-color: #089819; /* Green background */
+  color: rgb(255, 255, 255); /* White text */
+  text-transform: uppercase; /* All caps */
+  padding: 10px 20px; /* Larger click area */
   border-radius: 20px; /* Rounds the corners of the button */
   text-decoration: none; /* Removes any underline if the link style is applied */
   border: 2px solid rgb(9, 153, 9); /* Green outline */
@@ -315,6 +393,11 @@ blockquote {
 .btn-primary:hover {
   background-color: #166306; 
   border: 2px solid rgb(5, 220, 5); /* Green outline */
+}
+
+/* Space out buttons in btn-group */
+.btn-group .btn {
+  margin: 0 5px; /* Add horizontal spacing between buttons */
 }
 
 /* Style for the sport label */
@@ -573,6 +656,12 @@ blockquote {
   color: #888;
 }
 
+.unavailable {
+  margin: 4rem;
+  color: #888;
+  align-items: center;
+  justify-content: center;
+}
 
 .attendee-form {
   background-color: #fff;

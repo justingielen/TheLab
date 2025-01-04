@@ -1,5 +1,7 @@
 {% load crispy_forms_tags %}
 <!-- prettier-ignore -->
+<i><center><h4 class="border-bottom mb-2"> Sign up for your session with {{ coach.first_name }}! </h4></center></i>
+
 <div class="signup-container">
   <div class="signup-header">
     <!-- Back button using HTMX -->
@@ -15,37 +17,57 @@
     <!-- Package and time slot information -->
     <div class="selected-info border-bottom">
       <p class="session-details">
+        <!-- prettier-ignore -->
         {{ package.sport }} {{ package.type }} @ {{ package.location }} ({{ date }} {{ start_time.time }} - {{ end_time.time }})
       </p>
     </div>
   </div>
 
   <!-- Formset header -->
-    <div class="form-container">
-        <h3>Add Attendee(s)</h3>
-    
-        <!-- Formset -->
-        <form method="POST">
-        {% csrf_token %}
-        <fieldset class="form-group">
-            {{ formset.management_form }}
-            <div id="formset-container" class="formset-grid">
-            {% for form in formset.forms %}
-    
-            <!-- Form(s) -->
-            <div class="attendee-form card">
-                <h5 class="card-title">Attendee {{ forloop.counter }}</h5>
-                {{ form|crispy }}
-            </div>
-    
-            {% endfor %}
-            </div>
-        </fieldset>
+  <div class="form-container">
+    <h3>Add Attendee(s)</h3>
 
-        <!-- Continue to Payment Button -->
-        <div class="text-center mt-4">
-            <button type="submit" class="btn btn-primary">Continue to Payment</button>
+    <!-- Formset -->
+    <form
+      method="POST"
+      hx-post="{% url 'signup' date=date|date:'Y-m-d' time=start_time.time|time:'H:i:s' week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}"
+      hx-target="#time-slots"
+    >
+      {% csrf_token %}
+      <fieldset class="form-group">
+        {{ formset.management_form }}
+        <div id="formset-container" class="formset-grid">
+          {% for form in formset.forms %}
+
+          <!-- Form(s) -->
+          <div class="attendee-form card">
+            <h5 class="card-title">Attendee {{ forloop.counter }}</h5>
+            {{ form|crispy }}
+          </div>
+
+          {% endfor %}
         </div>
+      </fieldset>
+
+      <!-- Registration -->
+      <div class="text-center btn-group">
+        <button
+          type="submit"
+          name="payment_type"
+          value="online"
+          class="btn btn-primary"
+        >
+          Pay Online
+        </button>
+        <button
+          type="submit"
+          name="payment_type"
+          value="in_person"
+          class="btn btn-primary"
+        >
+          Pay In-Person
+        </button>
+      </div>
     </form>
   </div>
 </div>

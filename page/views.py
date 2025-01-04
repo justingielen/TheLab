@@ -3,8 +3,11 @@ from django.contrib.auth.decorators import login_required # Decorator-- adds fun
 from django.contrib import messages
 from django.utils import timezone
 from django.forms import modelformset_factory
-from thelab.models import Profile, ProfileUser, User
-from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Availability, Package, Attendee, Event
+from django.http import HttpResponse
+from django.urls import reverse
+
+from thelab.models import Profile, ProfileUser, User, Notification
+from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Availability, Package, Attendee, Event, EventAttendee
 from .forms import LocationForm, PackageForm, AvailabilityForm, AttendeeForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
 from datetime import datetime, timedelta
 import calendar
@@ -54,6 +57,8 @@ def page_viewing(request, pk):
     coach_profile = ProfileUser.objects.filter(user=coach, control_type='personal').first().profile
     coach_sport = ProfileSport.objects.filter(profile=coach_profile).first().sport
 
+    suggested_events = Event.objects.filter(creator=coach, is_accepted=False)
+
     # Add calculated fields for group pricing
     for package in coach_packages:
         if package.type == "Training":
@@ -69,6 +74,7 @@ def page_viewing(request, pk):
         'availabilities':coach_availability,
         'packages':coach_packages,
         'sport':coach_sport,
+        'suggested_events':suggested_events,
     }
     return render(request, 'page/viewing.html',context=context)
 
@@ -219,6 +225,7 @@ def check_availability(request, pk, week):
 
     # Get a coach's posted availability
     avails = Availability.objects.filter(creator=coach)
+
     # Break each availability down into 1 hour time slots
     slots = []
     date = datetime.now().date() + timedelta(days=7*week)
@@ -288,8 +295,9 @@ def signup(request, date, time, week):
     # get the selected package
     package_id = request.GET.get('package_id')
     package = Package.objects.get(pk=package_id)
+    coach = User.objects.get(pk=request.GET.get('coach_id'))
 
-    # convert to datetimes
+    # convert date and time (strings) to start_time and end_time (datetimes)
     date = datetime.strptime(date, "%Y-%m-%d").date()  # Convert to a date object
     start_time = datetime.strptime(time, "%H:%M:%S").time()  # Convert to a time object
     start_time = datetime.combine(date, start_time)
@@ -297,28 +305,79 @@ def signup(request, date, time, week):
 
     # Create the AttendeeFormSet with a dynamic number of forms based on `package.athletes`
     AttendeeFormSet = modelformset_factory(Attendee, form=AttendeeForm, extra=package.athletes)
-    formset = AttendeeFormSet(queryset=Attendee.objects.none())  # Initialize empty formset
-
 
     if request.method == 'POST':
         formset = AttendeeFormSet(request.POST)
         if formset.is_valid():
-            attendees = formset.save(commit=False)
+            # Save attendees
+            attendees = formset.save()
+            
+            # Get coach's calendar
+            page_calendar = PageCalendar.objects.get(user=coach)
+            
+            # Create a suggested event
+            event = Event(
+                title=f"{package.sport} {package.type} - {package.owner.first_name}",
+                location=package.location,
+                start=start_time,
+                end=end_time,
+                event_type=package.type,
+                creator=coach,
+                is_accepted=False,  # Needs coach approval
+                max_attendance=package.athletes, 
+                calendar=page_calendar
+            )
+            event.save()
+            
+            # Add attendees to event
             for attendee in attendees:
-                attendee.save()
-        return redirect('payment_page')
+                EventAttendee.objects.create(
+                    event=event,
+                    attendee=attendee
+                )
+
+            # Handle payment choice
+            payment_type = request.POST.get('payment_type')
+            
+            if payment_type == 'online':
+                # add this with Stripe
+                pass
+            else:  # in_person payment
+                messages.success(
+                    request, 
+                    'Your session has been requested. We will notify you when your coach has accepted!'
+                )
+                # Notify coach about new event suggestion
+                notification = Notification(
+                    user=coach,
+                    message="A new event has been suggested! Please Accept or Deny it as soon as possible.",
+                    type='event_suggestion'
+                )
+                notification.save()
+
+                # For HTMX, we need to send a response that includes HX-Redirect
+                response = HttpResponse()
+                response['HX-Redirect'] = reverse('home')
+                return response
         
     else:
-        context = {
+
+        formset = AttendeeFormSet(queryset=Attendee.objects.none())
+
+    context = {
         'package':package, 
         'week':week,
+        'coach':coach,
         'date':date, 
         'start_time':start_time, 
         'end_time':end_time, 
         'formset':formset,
-        }
-        return render(request, 'page/partials/signup.html', context)
+    }
+    
+    return render(request, 'page/partials/signup.html', context)
 
+def accept_event(request):
+    pass
 
 @login_required
 def create_event(request):
@@ -329,8 +388,6 @@ def create_event(request):
         
         if all([event_details.is_valid(), event_timeline.is_valid(), event_recurrence.is_valid()]):
             event = Event()
-            event.creator = request.user
-            event.calendar = PageCalendar.objects.get(user=request.user)
             print(event.calendar)
 
             # Details
@@ -347,10 +404,6 @@ def create_event(request):
             # Recurrence
             event.rule = event_recurrence.cleaned_data['rule']
             event.end_recurring_period = datetime.combine(event_recurrence.cleaned_data['end_date'], event_recurrence.cleaned_data['end_time'])
-
-            event.save()
-            messages.success(request, 'Event created!')
-            return redirect('page_viewing', pk=request.user.pk)
         
     else:
         # Get applicable locations
