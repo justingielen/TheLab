@@ -4,6 +4,8 @@
 {% load custom_filters %}
 <!-- Checking if the viewing user is the owner of the page-->
 {% if is_owner %}
+
+
 <h1>
     Hey Coach, welcome to your Page!
 </h1>
@@ -11,15 +13,40 @@
     <i>(This is your hub for creating and managing your stuff, and for getting a preview of what your Page looks like to other users who are viewing it.)</i>
 </p>
 <!-- Coach Hub -->
- {% if suggested_events %}
- <div class="suggestions">
- PACKAGE PURCHASES:
-    {% for event in suggested_events %}
-    <div class="alerts">
-        {{ event.event_type }} ({{ event.location.location_name }}) - {{ event.date }} @ {{ event.start }}
-        <a class="btn-primary" href={% url 'page_viewing' pk=coach.pk%}><center>Accept</center>
-        </a>
+<!-- Schedule, if they have any events-->
+{% if all_events %}
+
+<div class="schedule">
+    <h1 class="schedule-title">Upcoming Events</h1>
+    {% regroup all_events by start.date as events_by_date %}
+    
+    {% for date_group in events_by_date %}
+    <div class="date-header">
+        {{ date_group.grouper|date:"l, F j" }}
     </div>
+    
+    {% for event in date_group.list %}
+    <div class="event-item {% if not event.is_accepted %}not-accepted{% endif %}">
+        <div class="event-details">
+            <div class="event-time">{{ event.start|time:"g:i A" }}</div>
+            <div class="event-info">
+                <div class="event-type">
+                    {{ event.title }}
+                    {% if not event.is_accepted %}
+                    <span class="status-badge status-pending">Pending</span>
+                    {% endif %}
+                </div>
+                <div class="event-location">{{ event.location.location_name }} ({{ event.event_type }})</div>
+            </div>
+        </div>
+        {% if not event.is_accepted %}
+        <form method="POST" action="{% url 'page_viewing' pk=coach.pk %}?event=event">
+            {% csrf_token %}
+            <button type="submit" class="accept-btn">Accept</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
     {% endfor %}
 </div>
 {% endif %}

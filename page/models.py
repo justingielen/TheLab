@@ -1,9 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.urls import reverse
 from schedule.models import Event as BaseEvent
 from schedule.models import Calendar as BaseCalendar
-from thelab.models import Profile
+from django.conf import settings
 from datetime import timedelta
     
 
@@ -14,14 +13,14 @@ class Sport(models.Model):
         return self.sport
 
 class ProfileSport(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    profile = models.ForeignKey('thelab.Profile', on_delete=models.CASCADE)
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.profile} - {self.sport}"
     
 class PageCalendar(BaseCalendar):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     def save(self, *args, **kwargs):
         self.name = f"Page Calendar for {self.user.username}"
         # Customize slug generation to ensure uniqueness
@@ -55,19 +54,13 @@ class LocationSport(models.Model):
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
 
 class CoachLocation(models.Model):
-    coach = models.ForeignKey(User, on_delete=models.CASCADE)
+    coach = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.coach} - {self.location}"
-
-class Availability(BaseEvent):
-    '''''
-    From django-scheduler (thelab > lib > schedule > models > events.py):
-
-    start, end, title, description, creator (fk --> django_settings.AUTH_USER_MODEL), created_on, updated_on, rule (fk), end_recurring_period, calendar (fk), 
-    '''''
-    day = models.CharField(max_length=10,choices= {
+    
+days_of_the_week = {
         ("Monday", "Monday"),
         ("Tuesday", "Tuesday"),
         ("Wednesday", "Wednesday"),
@@ -75,17 +68,26 @@ class Availability(BaseEvent):
         ("Friday", "Friday"),
         ("Saturday", "Saturday"),
         ("Sunday", "Sunday"),
-    })
+    }
+
+class Availability(BaseEvent):
+    '''''
+    From django-scheduler (thelab > lib > schedule > models > events.py):
+
+    start, end, title, description, creator (fk --> django_settings.AUTH_USER_MODEL), created_on, updated_on, rule (fk), end_recurring_period, calendar (fk), 
+    '''''
+    day = models.CharField(max_length=10,choices=days_of_the_week)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, default=1)
 
     def __str__(self):
         return f"@{self.creator} ({self.day}): {self.start.time()} - {self.end.time()}"
     
-class Package(models.Model):
-    package_types = {
+package_types = {
         ('Training','Training'),
         ('P(r)ep Talk','P(r)ep Talk'),
     }
+
+class Package(models.Model):
     type = models.CharField(max_length=20, choices=package_types)
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
     duration = models.DurationField(default=timedelta(minutes=60))
@@ -93,7 +95,7 @@ class Package(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in a Package)", blank=True, null=True)
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE, default=1)
     description = models.TextField(blank=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"@{self.owner} - {self.type} ({self.athletes}): ${self.price}"
@@ -111,6 +113,11 @@ class Attendee(models.Model):
         except: 
             return f'{self.first_name} {self.last_name}'
 
+class Parent(models.Model):
+    first_name = models.CharField(max_length=50, default="(first name)")
+    last_name = models.CharField(max_length=50, default="(last name)")
+    email = models.EmailField(max_length=50)
+    # phone = models.ForeignKey ?
 
 class Event(BaseEvent):
     '''''
@@ -152,7 +159,4 @@ class EventAttendee(models.Model):
     
 class AttendeeParent(models.Model):
     attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
-    parent_first_name = models.CharField(max_length=50, default="(first name)")
-    parent_last_name = models.CharField(max_length=50, default="(last name)")
-    parent_email = models.EmailField(max_length=50)
-    # still need to add phone number
+    parent = models.ForeignKey(Parent, on_delete=models.CASCADE)

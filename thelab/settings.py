@@ -16,7 +16,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['justingielen.pythonanywhere.com','127.0.0.1','localhost']
 
-AUTH_USER_MODELS = 'thelab.User'
+AUTH_USER_MODEL = 'thelab.User'
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.history.HistoryPanel',
@@ -51,7 +51,10 @@ INSTALLED_APPS = [
     'schedule', # Django-scheduler
     'djangobower', # Django-scheduler
     'events',
+    'phonenumber_field'
 ]
+
+PHONENUMBER_DEFAULT_REGION = 'US'
 
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',

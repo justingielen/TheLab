@@ -1,8 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User as DjangoUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.conf import settings
 from PIL import Image # for re-sizing profile pictures
-from schedule.models import Calendar as BaseCalendar
+from phonenumber_field.modelfields import PhoneNumberField
 
 user_types = {
     'person':'person',
@@ -10,12 +10,24 @@ user_types = {
 }
 
 # User accounts
-class User(DjangoUser):
+class User(AbstractUser):
     image = models.ImageField(default='user_pics/default.jpg', upload_to='user_pics')
     type = models.CharField(max_length=20,choices=user_types,default="person")
+    phone = PhoneNumberField(blank=True, null=True, unique=True)
 
     def __str__(self):
         return f"@{self.username}"
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name='thelab_user_set',  # Avoids clash with auth.User.groups
+        blank=True
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name='thelab_user_permissions',  # Avoids clash with auth.User.user_permissions
+        blank=True
+    )
 
     #  Re-defining the save User function to re-size any uploaded image to a max of 300x300
     def save(self, *args, **kwargs):
@@ -100,25 +112,12 @@ control_types = {
 }
 class ProfileUser(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     control_type = models.CharField(max_length=15,choices=control_types,default='personal')
 
     def __str__(self):
         return f"{self.profile.first_name} {self.profile.last_name} - {self.user} ({self.control_type})"
-# ----------------------------------------------------------------------------------------------------
-
-# Home Calendar automatically created for Profiles
-class HomeCalendar(BaseCalendar):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
-    def save(self, *args, **kwargs):
-        self.name = f"Home Calendar for {self.user.username}"
-        # Customize slug generation to ensure uniqueness
-        self.slug = f"home_calendar_{self.user.username}"
-        super().save(*args, **kwargs)
-              
-    def __str__(self):
-        return self.name
-
+    
 # Application for Profiles to authenticate playing/coaching resume   
 # "approved" starts out as unknown, and is edited to True or False in admin, based on a manual review of the Application    
 # DO NOT DELETE APPLICATIONS
@@ -140,3 +139,20 @@ class Application(models.Model):
             result = "undecided"
 
         return f"{self.profile.first_name} {self.profile.last_name} - {self.team} //// {self.sport} ({result})"
+# ----------------------------------------------------------------------------------------------------
+
+# Home Calendar automatically created for Profiles ---------------------------------------------------
+from schedule.models import Calendar as BaseCalendar
+
+class HomeCalendar(BaseCalendar):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
+    def save(self, *args, **kwargs):
+        self.name = f"Home Calendar for {self.user.username}"
+        # Customize slug generation to ensure uniqueness
+        self.slug = f"home_calendar_{self.user.username}"
+        super().save(*args, **kwargs)
+              
+    def __str__(self):
+        return self.name
+# ----------------------------------------------------------------------------------------------------
+

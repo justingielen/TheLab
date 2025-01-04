@@ -57,7 +57,10 @@ def page_viewing(request, pk):
     coach_profile = ProfileUser.objects.filter(user=coach, control_type='personal').first().profile
     coach_sport = ProfileSport.objects.filter(profile=coach_profile).first().sport
 
-    suggested_events = Event.objects.filter(creator=coach, is_accepted=False)
+    # Combine suggested and upcoming events
+    all_events = list(Event.objects.filter(
+        creator=coach,
+    ).order_by('start'))
 
     # Add calculated fields for group pricing
     for package in coach_packages:
@@ -74,7 +77,7 @@ def page_viewing(request, pk):
         'availabilities':coach_availability,
         'packages':coach_packages,
         'sport':coach_sport,
-        'suggested_events':suggested_events,
+        'all_events':all_events,
     }
     return render(request, 'page/viewing.html',context=context)
 
@@ -317,7 +320,7 @@ def signup(request, date, time, week):
             
             # Create a suggested event
             event = Event(
-                title=f"{package.sport} {package.type} - {package.owner.first_name}",
+                title=f"{package.sport} {package.type}",
                 location=package.location,
                 start=start_time,
                 end=end_time,
@@ -377,6 +380,11 @@ def signup(request, date, time, week):
     return render(request, 'page/partials/signup.html', context)
 
 def accept_event(request):
+    event = request.GET.get('event')
+    event.is_accepted = True
+    event.save()
+
+def reject_event(request):
     pass
 
 @login_required

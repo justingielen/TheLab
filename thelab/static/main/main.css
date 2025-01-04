@@ -9,16 +9,6 @@
   font-weight: 500;
 }
 
-.suggestions {
-  background-color: #dbdbdb; /* Light red background */
-  border: 2px dashed #e4081e; /* Dark red, dashed border */
-  padding: 10px; /* Adds some padding inside the div */
-  border-radius: 5px; /* Rounds the corners slightly */
-  margin: 10px 0; /* Adds spacing above and below the div */
-  color: #363536; /* Matches the text color to the border for consistency */
-  font-family: Arial, sans-serif; /* Optional: define a font */
-}
-
 /* Stuff for discover_drills cover */
 .search-section {
   padding: 20px;
@@ -268,6 +258,135 @@ ul.list-group {
   color: #0a6605;
 }
 
+/* Coach Schedule */ 
+.schedule {
+  max-height: 400px; /* Set a maximum height for the schedule div */
+  overflow-y: hidden; /* Enable vertical scrolling */
+  background-color: #eeecec; /* Light red background */
+  border: 0.2px solid #077c1b; /* Dark red, dashed border */
+  padding: 10px; /* Adds some padding inside the div */
+  border-radius: 5px; /* Rounds the corners slightly */
+  margin: 10px 0; /* Adds spacing above and below the div */
+  color: #363536; /* Matches the text color to the border for consistency */
+  font-family: Arial, sans-serif; /* Optional: define a font */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+}
+
+.schedule:hover {
+  overflow-y: auto;
+  border-color: #045c13; /* Change the border color on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Intensify shadow on hover */
+}
+
+.schedule-title {
+  text-align: center; /* Center the text */
+  font-size: 1.8rem; /* Adjust the font size */
+  font-weight: bold; /* Make the title bold */
+  color: #077c1b; /* Match the color scheme */
+}
+
+/* Custom scrollbar styling */
+.schedule::-webkit-scrollbar {
+  width: 8px; /* Set a slim width for the scrollbar */
+}
+
+.schedule::-webkit-scrollbar-thumb {
+  background-color: #b5c4b7; /* Match the border color */
+  border-radius: 5px; /* Round the scrollbar thumb */
+  border: 2px solid #dbdbdb; /* Add some padding around the thumb for a sleek effect */
+}
+
+.schedule::-webkit-scrollbar-thumb:hover {
+  background-color: #045c13; /* Darken the thumb on hover for interactivity */
+}
+
+.schedule::-webkit-scrollbar-track {
+  background: #f0f0f0; /* Light background for the scrollbar track */
+  border-radius: 5px; /* Round the scrollbar track edges */
+}
+
+.date-header {
+  display: inline-block; /* Ensure width matches text */
+  padding: 8px 15px;
+  color: #363536;
+  font-size: 1.1rem;
+  font-weight: 750;
+  margin: 20px -5px 10px -5px;
+  border-bottom: 2px solid #077c1b;
+}
+
+.event-item {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 12px 15px;
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.event-item:hover {
+  background-color: #f0f0f0;
+}
+
+.event-details {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-grow: 1;
+}
+
+.event-time {
+  min-width: 85px;
+  color: #077c1b;
+  font-weight: 500;
+}
+
+.event-item.not-accepted {
+  background-color: #f8efee;
+  border: 1px solid #e57373;
+}
+
+.event-info {
+  flex-grow: 1;
+}
+
+.event-type {
+  font-weight: 500;
+  color: #363536;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.event-location {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 3px;
+}
+
+.accept-btn {
+  background-color: #089819;
+  color: rgb(255, 255, 255);
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  border: 2px solid rgb(9, 153, 9);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.accept-btn:hover {
+  background-color: #166306;
+  border: 2px solid rgb(5, 220, 5);
+  transform: translateX(5px); 
+}
+
 /* Parent flex container for Coach Dashboard */
 .coach-dashboard {
   display: flex;
@@ -413,10 +532,6 @@ blockquote {
   border-radius: 5px; /* Rounded corners */
   background-color: rgb(203, 250, 203); /* Optional: background color */
   z-index: 1; /* Ensure it stays above content */
-}
-
-.event-header {
-  display: flex;
 }
 
 .coach-feed {
