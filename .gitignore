@@ -4,19 +4,32 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
+staticfiles/
 
 # Project specific 
 .env
+.env.*          
+# (Any environment-specific variations)
 
 # Python bytecode
 *.pyc
 __pycache__/
 *.pyo
 *.pyd
+.Python
+# (Python virtual environment marker)
 
 # Virtual Environment
 venv/
 .venv/
+env/            
+bin/            
+# Virtual environment binaries
+lib/            
+# Virtual environment libraries
+include/        
+# Virtual environment include files
+pip-selfcheck.json
 
 # IDE
 .vscode/
