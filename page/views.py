@@ -190,19 +190,8 @@ def remove_availability(request, availability_id):
 
 @login_required
 def create_package(request):
-    if request.method == 'POST':
-        # handle form info
-        package_form = PackageForm(request.POST)
-        if package_form.is_valid:
-            package = Package()
-            package = package_form.save(commit=False)
-            package.owner = request.user
-            package.save()
-
-            messages.success(request, 'Package added!')
-            return redirect('page_viewing', pk=request.user.pk)
-    
-    else:
+    # Helper function to get the required querysets
+    def get_querysets():
         # Get applicable locations
         cls_on_file = CoachLocation.objects.filter(coach=request.user)
         coach_locations = [coach_location.location.id for coach_location in cls_on_file]
@@ -213,7 +202,28 @@ def create_package(request):
         profile_sport_objects = ProfileSport.objects.filter(profile=profile_user.profile)
         profile_sports = [profile_sport.sport.id for profile_sport in profile_sport_objects]
         sports_queryset = Sport.objects.filter(pk__in=profile_sports)
+        
+        return sports_queryset, locations_queryset
 
+    # Get the querysets regardless of request method
+    sports_queryset, locations_queryset = get_querysets()
+
+    if request.method == 'POST':
+        # handle form info
+        package_form = PackageForm(
+            request.POST,
+            sports=sports_queryset,
+            locations=locations_queryset
+        )
+        if package_form.is_valid():
+            package = package_form.save(commit=False)
+            package.owner = request.user
+            package.save()
+
+            messages.success(request, 'Package added!')
+            return redirect('page_viewing', pk=request.user.pk)
+    
+    else:
         package_form = PackageForm(sports=sports_queryset, locations=locations_queryset)
 
     context = {
