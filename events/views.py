@@ -20,7 +20,7 @@ class EventListView(ListView):
         return context
 
     def get_queryset(self):
-        return Event.objects.all()
+        return Event.objects.filter(is_accepted=True)
 # ---------- # Class-based views (Detail)
 class EventDetailView(DetailView):
     model = Event

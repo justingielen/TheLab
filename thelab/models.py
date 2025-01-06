@@ -102,6 +102,9 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"@{self.user.username} - {self.type}"
+
+    class Meta:
+        ordering = ['-timestamp']
 # Notifications -------------------------------------------------------------------------------------
     
 control_types = {
@@ -127,7 +130,7 @@ class Application(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     sport = models.CharField(max_length=20,help_text="(Just the sport- leave out Men's or Women's & whether College or Professional)")
     team = models.CharField(max_length=50,blank=True, help_text="(i.e., the college/university or professional organization)")
-    roster = models.TextField(help_text='(Ideally, a copy-and-pasted link to the roster of the team on which you are or were a player or a coach)') # unique = True (can't submit same record twice)
+    roster = models.TextField(help_text='(Copy-and-paste the link to a roster of a college/professional team on which you are or were a player or a coach)') # unique = True (can't submit same record twice)
     approved = models.BooleanField(null=True)
 
     def __str__(self):

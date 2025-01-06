@@ -2,8 +2,9 @@
 <!-- prettier ignore -->
 {% block content %} {% load static %}
 <div class="form-container">
-  <legend class="border-bottom">
+  <legend class="profile-edit-header border-bottom justify-content-between">
     <h2>{{ profile.first_name }} {{ profile.last_name }}'s Profile</h2>
+    <a class="btn back mb-3" href="{% url 'home' %}">← Back to Home</a>
   </legend>
   <div class="content-section row">
     <img class="rounded-circle account-img" src="{{ user.image.url }}" />

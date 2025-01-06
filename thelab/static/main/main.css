@@ -122,36 +122,96 @@ a.article-title:hover {
   font-size: 2.5rem;
 }
 
-/* styling for Profile Edit button in Home page */
+/* alerts */
+.nav-link {
+  position: relative;
+  display: inline-block;
+}
 
+/* Red badge styling */
+.alert-badge {
+  position: absolute; /* Position relative to .nav-link */
+  top: 15; /* Adjust based on Navbar styling */
+  right: 10; /* Adjust to align with the corner */
+  width: 10px; /* Size of the circle */
+  height: 10px; /* Size of the circle */
+  background-color: red; /* Circle color */
+  border-radius: 50%; /* Makes it a perfect circle */
+  border: 2px solid white; /* Optional: matches Navbar background for contrast */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Optional: adds a shadow effect */
+}
+
+.alert {
+  padding: 25px;
+  border-radius: 25px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.alert-timestamp {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #bdbdbd; /* Subtle gray tone */
+}
+
+.alert:hover {
+  transform: translateY(-2px);
+}
+
+.alert-unread {
+  background-color: #55795d;
+  color: #d9e0db;
+}
+
+.alert-unread:hover {
+  cursor: pointer;
+  background-color: #4a6a52;
+  color: #f3f8f5;
+  box-shadow: 0 8px 15px rgba(30, 179, 0, 0.2);
+}
+
+.alert-read {
+  background-color: #eef1ef;
+  color: #7a8f7f;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.alert-read:hover {
+  background-color: #e5e8e6;
+}
+
+.ml-20 {
+  margin-left: 7rem;
+}
+
+/* */ /* */ /* */
+/* The Lab 1_0 */
+/* */ /* */ /* */
+
+/* styling for Profile Edit button in Home page */
 .edit-btn {
   position: absolute;
   bottom: 15px;
   right: 30px;
   background-color: #7a7e7b;
   color: rgb(238, 238, 244);
-  border-radius: 1px;
-}
-
-/* alerts */
-#alerts-badge {
-  min-width: 18px;
-  min-height: 18px;
-  border-radius: 50%;
-  font-size: 12px;
-  line-height: 18px;
-  text-align: center;
-  color: white;
-}
-
-
-
-.ml-20 {
-  margin-left: 7rem;
+  border-radius: 10px;
+  padding: 5px;
 }
 
 .edit-btn:hover {
   color:rgb(6, 161, 6)
+}
+
+.profile-edit-header {
+  position: relative;
+  display: flex;
+  flex-direction: row;
 }
 
 .btn-outline-info {
@@ -165,9 +225,13 @@ a.article-title:hover {
   border-color: #f2f5f2;
 }
 
-/* */ /* */ /* */
-/* The Lab 1_1 */
-/* */ /* */ /* */
+.back {
+  color:rgb(21, 87, 21)
+}
+
+.back:hover {
+  color:rgb(0, 0, 0)
+}
 
 body {
   background: #fafafa;
@@ -676,14 +740,10 @@ blockquote {
 }
 
 .signup-container {
+  overflow-y: auto; /* Enable vertical scrolling */
   border: 1px solid #636161;
-  padding: 1.5rem;
   background-color: #f9f9f9;
-  border-radius: 10px;
-  max-width: 900px;
-  margin: auto;
   box-shadow: 0 2px 8px rgba(81, 206, 95, 0.947);
-  animation: slideDown 3sec ease-out;
 }
 
 .signup-header {

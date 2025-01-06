@@ -12,8 +12,10 @@
   {% for location in locations %}
   <li>
     <div class="content-section">
-      {{ location.location_name }} ({{ location.location_city}})
-      <a href="{% url 'add_location' location_name=location.location_name %}"
+      {{ location.location_name }}
+      <a
+        class="btn-primary"
+        href="{% url 'add_location' location_name=location.location_name %}"
         >Select</a
       >
     </div>

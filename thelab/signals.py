@@ -1,5 +1,10 @@
 from django.db.models.signals import post_save, post_delete # signal that gets fired after an object is saved
 from django.dispatch import receiver # decorator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.urls import reverse
 from .models import User, Profile, ProfileUser, Notification, Application
 from .models import HomeCalendar
 from page.models import Sport, ProfileSport
@@ -16,8 +21,37 @@ def create_profile(sender, instance, created, **kwargs):
 
         # Create a notification for the user
         user = instance
-        message = "Welcome to your personal profile in the Lab!! You can look for a Coach that suits your (or your child's) aspirations using the 'Coaches' tab. You can also find upcoming developmental sports Events in the 'Events' tab. And, you can discover drills to inspire your workout at home! (under the 'Drills' tab)."
+        message = (
+        "Welcome to The Lab! We're excited to help you be part of the future of sports development. "
+        "If you've played or coached at the collegiate level or above, we invite you to "
+        '<a href="/application">submit an application</a> to join our coaching team. '
+        'For those looking to enhance their athletic journey, explore our roster of '
+        '<a href="/page/browsing">experienced coaches</a> who are ready to guide you or your athlete '
+        'to the next level. You can also discover upcoming developmental Events and explore our '
+        'library of training Drills to support your progress.'
+    )
         Notification.objects.create(user=user,message=message)
+
+        '''
+        # Send welcome email
+        html_message = render_to_string(
+            'emails/profile_creation.html',
+            {
+                'username': instance.username,
+                'message': message
+            }
+        )
+        # (include both html and plain text versions to void being marked as spam)
+        plain_message = strip_tags(html_message)
+        send_mail(
+            subject='Welcome to the Lab!',
+            message=plain_message,
+            html_message=html_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[instance.email],
+            fail_silently=False,
+        )
+        '''
         
         # Create a home calendar for the user
         HomeCalendar.objects.create(user=instance)
@@ -48,7 +82,13 @@ def delete_profile(sender, instance, **kwargs):
 def application_notification(sender, instance, **kwargs):
     if instance.approved is not None:
         if instance.approved:
-            message = "Congratulations Coach! Your Team Application has been Approved! If you didn't already, you should have access to a 'Page' button on your main navigation bar."
+            profile = instance.profile
+            user = ProfileUser.objects.get(profile=profile, control_type='personal').user
+            page_url = reverse('page_viewing', kwargs={'pk': user.pk})
+            message = (
+                f"Congratulations Coach! Your Team Application has been Approved! "
+                f"If you didn't already, you should have access to a <a href='{page_url}'>Page</a> button on your main navigation bar."
+            )        
         else:
             message = "Your Team Application has been denied."
         

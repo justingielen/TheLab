@@ -92,7 +92,7 @@ class Package(models.Model):
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
     duration = models.DurationField(default=timedelta(minutes=60))
     athletes = models.IntegerField(default=1)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in a Package)", blank=True, null=True)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, blank=True, null=True)
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE, default=1)
     description = models.TextField(blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

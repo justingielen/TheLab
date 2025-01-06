@@ -3,9 +3,11 @@ from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, ApplicationForm
-from page.models import Event
 from .models import ProfileUser, Profile, Notification
 from django.contrib.auth.decorators import login_required # Decorator-- adds functionality to an existing function
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 
 title = 'The Lab - '
 
@@ -69,7 +71,6 @@ def home(request):
 
 @login_required
 def alerts(request):
-    print(request.user)
     notifications = request.user.notifications.all()
     
     context = {
@@ -77,6 +78,15 @@ def alerts(request):
         'notifications': notifications,
     }
     return render(request, 'main/alerts.html', context)
+
+@csrf_exempt
+def read_notification(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    response = HttpResponse(render_to_string("main/partials/single_alert.html", {"notification": notification}))
+    response["HX-Trigger"] = "notificationRead"
+    return response
 
 # ----------------------------------------------------------------------------------------------------------------------
 @login_required

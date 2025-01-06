@@ -12,6 +12,7 @@ urlpatterns = [
     path('', views.welcome, name='welcome'),
     path('home/', views.home, name='home'),
     path('alerts/', views.alerts, name='alerts'),
+    path('alerts/<int:notification_id>/read/', views.read_notification, name='read_notification'),
     path('discover_drills/', views.discover_drills, name='discover_drills'),
     path('whatisthelab/', views.whatisthelab, name = 'whatis-thelab'),
     path('about/', views.about, name='about'),

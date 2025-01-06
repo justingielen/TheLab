@@ -15,11 +15,13 @@
     <h3 class="border-bottom">Lab Coaches:</h3>
     {% for coach, sport, price in coach_data %}
     <article class ='content-section'>
+        {% if price %}
         <a class="book-now-label btn-primary" href={% url 'page_viewing' pk=coach.pk%}><center>BOOK NOW !!</center>
             <p>
                 <small>Starting at <strong>${{ price }}</strong></small>
             </p>
         </a>
+        {% endif %}
         <img class="rounded-circle" src='{{ coach.image.url }}' width="65" height="80"> <!-- Rounded circle is from the Profile Editing interface-->
         <div class="coach-info">
             <div class='coach-name ml-2'>

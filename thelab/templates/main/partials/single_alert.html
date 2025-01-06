@@ -1,0 +1,6 @@
+<div
+  class="alert {% if not notification.is_read %}alert-unread{% else %}alert-read{% endif %}"
+>
+  {{ notification.message|safe }}
+  <div class="alert-timestamp">{{ notification.timestamp|timesince }} ago</div>
+</div>

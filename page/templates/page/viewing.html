@@ -13,7 +13,8 @@
     <i>(This is your hub for creating and managing your stuff, and for getting a preview of what your Page looks like to other users who are viewing it.)</i>
 </p>
 <!-- Coach Hub -->
-<!-- Schedule, if they have any events-->
+
+<!-- Schedule, if they have any events -->
 {% if all_events %}
 
 <div class="schedule">
@@ -50,6 +51,9 @@
     {% endfor %}
 </div>
 {% endif %}
+<!-- End of Schedule-->
+
+<!-- Dashboard, to be integrated -->
  <div class="coach-dashboard">
     <div class="main-content">
         <!-- Locations -->
@@ -64,7 +68,7 @@
                 {% endfor %}
                 {% if locations.count == 0 %}
                     <p>
-                        <strong><i>You don't have any associated locations! Add some to your profile so you can host Events!</i></strong>
+                        <strong><i>You don't have any associated locations! Add some so you can host events!</i></strong>
                     </p>
                 {% endif %}
             </ul>
@@ -85,6 +89,11 @@
                         <li>{{ package.type }} ({{ package.athletes }} players) - ${{ package.price }} / {{ package.duration|format_duration}} </li>
                     {% endif %}
                 {% endfor %}
+                {% if packages.count == 0 %}
+                    <p>
+                        <strong><i>You don't have any service packages! Add some (e.g., Private Training) so you can get paid by clients!</i></strong>
+                    </p>
+                {% endif %}
                 <li>
                     <a href={% url 'package_form' %}>Add Package</a>
                 </li>
@@ -101,7 +110,7 @@
                     <a href="{% url 'remove_availability' availability_id=availability.id %}"><small>(Remove)</small></a>
                 </li>
                 {% endfor %}
-                {% if coach_availability.count == 0 %}
+                {% if availabilities.count == 0 %}
                     <p>
                         <strong><i>You don't have any posted availability! Add some to your profile so clients can schedule sessions with you!</i></strong>
                     </p>
@@ -130,7 +139,9 @@
         ------------------------------------------------ Page preview --------------------------------------------------
     </i>
 </p>
+<!-- End of Dashboard -->
 {% endif %}
+
 <!-- Page View -->
 <!-- User View -->
 <div class="media content-section">
@@ -193,7 +204,6 @@
         </script>
 
         <div id="time-slots">
-            <!-- This will be the target for HTMX output -->
             <i>Click on a package above to schedule your session!</i>
         </div>
 
@@ -213,7 +223,7 @@
     </p>
     <!-- Availability -->
     <p class="border-bottom">
-        {{ coach.first_name }}'s Availability
+        <strong>{{ coach.first_name }}'s Availability</strong>
         <div class="availability-chart">
             <div class="chart-header">
                 <div class="day">Monday</div>

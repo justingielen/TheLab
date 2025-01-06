@@ -98,19 +98,9 @@
               {% endif %}
               <a class="nav-item nav-link" href="{% url 'home' %}">Home</a>
               <a class="nav-item nav-link" href="{% url 'alerts' %}"
-                >Alerts
-                <span
-                  id="alerts-badge"
-                  class="badge badge-danger position-absolute"
-                  style="
-                    top: 0;
-                    right: 0;
-                    transform: translate(50%, -50%);
-                    display: none;
-                  "
-                >
-                  0
-                </span>
+                >Alerts{% if alerts %}
+                <span class="alert-badge"></span>
+                {% endif %}
               </a>
               {% else %}
               <a class="nav-item nav-link" href="{% url 'login' %}">Log In</a>

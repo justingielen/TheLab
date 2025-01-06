@@ -29,7 +29,10 @@ def page_browsing(request):
         
         packages = Package.objects.filter(owner=coach)
         prices = [package.price for package in packages]
-        lowest_price = min(prices)
+        try:
+            lowest_price = min(prices)
+        except ValueError:
+            lowest_price = 0
 
         if lowest_price and sport:
             coach_data.append((coach, sport, lowest_price))
@@ -264,7 +267,8 @@ def check_availability(request, pk, week):
         # Check if the slot conflicts with any of the coach's events
         for event in events:
             if event.start <= slot < event.end:
-                slots.remove(slot)
+                if slot in slots:
+                    slots.remove(slot)
                 continue  # Skip to the next slot once a conflict is found
     
     formatted_slots = []

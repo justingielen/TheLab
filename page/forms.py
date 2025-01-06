@@ -2,7 +2,7 @@ from datetime import datetime, time, timedelta
 import calendar
 from django import forms
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
+from django.urls import reverse
 from .models import Event, EventSport, Location, Availability, Package, Attendee
 
 
@@ -73,10 +73,13 @@ class PackageForm(forms.ModelForm):
         sports = kwargs.pop('sports', None)
         locations = kwargs.pop('locations', None)
         super().__init__(*args, **kwargs)
-        if sports:
-            self.fields['sport'].queryset = sports
-        if locations:
-            self.fields['location'].queryset = locations
+        self.fields['sport'].queryset = sports
+        self.fields['location'].queryset = locations
+        location_help_text=(
+            f"(Note: locations must be added to your Profile before they can be used in a Package. "
+            f"You can add them <a href='{reverse('location_search')}'>here</a>!)"
+        )
+        self.fields['location'].help_text = location_help_text
 
     class Meta:
         model = Package
