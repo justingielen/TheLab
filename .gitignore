@@ -10,15 +10,6 @@ staticfiles/
 .env
 .env.*          
 # (Any environment-specific variations)
-
-# Python bytecode
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-.Python
-# (Python virtual environment marker)
-
 # Virtual Environment
 venv/
 .venv/
@@ -31,8 +22,16 @@ include/
 # Virtual environment include files
 pip-selfcheck.json
 
+# Python bytecode
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+# (Python virtual environment marker)
+
 # IDE
 .vscode/
 
 # System (Windows system file)
-desktop.ini 
+desktop.ini
