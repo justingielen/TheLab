@@ -5,13 +5,12 @@
 <!-- Checking if the viewing user is the owner of the page-->
 {% if is_owner %}
 
-
-<h1>
-    Hey Coach, welcome to your Page!
-</h1>
-<p>
-    <i>(This is your hub for creating and managing your stuff, and for getting a preview of what your Page looks like to other users who are viewing it.)</i>
-</p>
+<div class="blockquote">
+    <h2>
+        <strong>Hey Coach, welcome to your Page!</strong>
+    </h2>
+</div>
+<i>(This is your hub for creating and managing your stuff, and you getting a preview of what your Page looks like to other users who are viewing it.)</i>
 <!-- Coach Hub -->
 
 <!-- Schedule, if they have any events -->
@@ -52,75 +51,9 @@
 </div>
 {% endif %}
 <!-- End of Schedule-->
+{% endif %}
+ <!-- End of owner check -->
 
-<!-- Dashboard, to be integrated -->
- <div class="coach-dashboard">
-    <div class="main-content">
-        <!-- Locations -->
-        <p>
-            Your Locations:
-            <ul>
-                {% for location in locations %}
-                    <li>
-                        {{ location.location.location_name }}
-                        <a href="{% url 'remove_location' location_name=location.location.location_name %}"><small>(Remove)</small></a>
-                    </li>
-                {% endfor %}
-                {% if locations.count == 0 %}
-                    <p>
-                        <strong><i>You don't have any associated locations! Add some so you can host events!</i></strong>
-                    </p>
-                {% endif %}
-            </ul>
-            <ul>
-                <li>
-                    <a href="{% url 'location_search' %}">Add Location</a>
-                </li>
-            </ul>
-        </p>
-        <!-- Packages -->
-        <p>
-            Your packages:
-            <ul>
-                {% for package in packages %}
-                    {% if package.athletes == 1 %}
-                        <li>{{ package.type }} ({{ package.athletes }} player) - ${{ package.price }} / {{ package.duration|format_duration}} </li>
-                    {% elif package.athletes > 1 %}
-                        <li>{{ package.type }} ({{ package.athletes }} players) - ${{ package.price }} / {{ package.duration|format_duration}} </li>
-                    {% endif %}
-                {% endfor %}
-                {% if packages.count == 0 %}
-                    <p>
-                        <strong><i>You don't have any service packages! Add some (e.g., Private Training) so you can get paid by clients!</i></strong>
-                    </p>
-                {% endif %}
-                <li>
-                    <a href={% url 'package_form' %}>Add Package</a>
-                </li>
-            </ul>
-        </p>
-        <!-- Availability -->
-         <p>
-            Your Availability:
-            <ul>
-                <!-- Display Coach's Availability by day w/ Remove buttons -->
-                {% for availability in availabilities %}
-                <li>
-                    {{ availability.day }}: {{ availability.start.time }} - {{ availability.end.time }}
-                    <a href="{% url 'remove_availability' availability_id=availability.id %}"><small>(Remove)</small></a>
-                </li>
-                {% endfor %}
-                {% if availabilities.count == 0 %}
-                    <p>
-                        <strong><i>You don't have any posted availability! Add some to your profile so clients can schedule sessions with you!</i></strong>
-                    </p>
-                {% endif %}
-                <li>
-                    <a href="{% url 'set_availability' %}">Add Availability</a>
-                </li>
-            </ul>
-         </p>
-    </div>
     <!-- Create --> <!-- Add this concept back in when we're onto Coach-created Events --> <!-- Maybe fill this right area with schedule??? -->
      <!--
     <div class="form-container page-create">
@@ -132,18 +65,10 @@
         </ul>
     </div>
     -->
-</div>
-<!-- Midline -->
-<p>
-    <i>
-        ------------------------------------------------ Page preview --------------------------------------------------
-    </i>
-</p>
-<!-- End of Dashboard -->
-{% endif %}
 
 <!-- Page View -->
-<!-- User View -->
+
+<!-- User/Profile View -->
 <div class="media content-section">
     <img class="rounded-circle account-img" src="{{ coach.image.url }}">
     <div class="coach-info">
@@ -163,9 +88,16 @@
  <div class="coach-info">
         <!-- Packages -->
         <p class="border-bottom">
-            <strong>{{ coach.first_name }}'s Packages</strong>
+            <strong>Packages</strong>
         </p>
-        <div class="package-container mb-2">
+        {% if packages.count == 0 %}
+            <ul>
+                <p>
+                <strong><i>You don't have any service packages! Add some (e.g., 1on-1 Private Training for $80/hr) <a href={% url 'package_form' %}>here</a> so you can get paid by clients!</i></strong>
+            </p>
+        </ul>
+        {% endif %}
+        <div class="package-container">
             {% for package in packages %}
                 <div class="package-box" 
                     hx-get="{% url 'check_availability' pk=coach.pk week=0 %}?package_id={{ package.id }}" 
@@ -189,7 +121,16 @@
                         <p class="package-details">{{ package.sport }} {{ package.type }}: <span>${{ package.price }}/{{ package.duration|format_duration}}</span></p>
                     {% endif %}
                 </div>
+                <!-- edit package button -->
+                <!-- delete package button -->
             {% endfor %}
+            {% if is_owner and packages.count != 0 %}
+                <ul>
+                    <li>
+                        <a href={% url 'package_form' %}>Add Package</a>
+                    </li>
+                </ul>
+            {% endif %}
         </div>
 
         <script>
@@ -203,27 +144,54 @@
             }
         </script>
 
-        <div id="time-slots">
+        {% if not is_owner or packages.count != 0 %}
+        <div id="time-slots" class="mb-3">
             <i>Click on a package above to schedule your session!</i>
         </div>
+        {% endif %}
 
     <!-- Locations -->
     <p class="border-bottom">
-        <strong>{{ coach.first_name }}'s Location(s)</strong>
-        {% for location in locations %}
-            <div class="location-item">
-                <img
-                src="{% static 'images/location_icon_green.png' %}"
-                width="40"
-                height="40"
-                />
-                <span>{{ location.location.location_name }}</span>
-            </div>
-        {% endfor %}
+        <strong>Location(s)</strong>
+            <div class="main-content">
+                {% for location in locations %}
+                    <div class="location-item mb-3">
+                    <img
+                        src="{% static 'images/location_icon_green.png' %}"
+                        width="40"
+                        height="40"
+                    />
+                    <span>{{ location.location.location_name }}</span>
+                    {% if is_owner %}
+                    <a href="{% url 'remove_location' location_name=location.location.location_name %}"><small>(Remove)</small></a>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+                {% if is_owner %}
+                    <ul>
+                    {% if locations.count == 0 %}
+                        <p>
+                            <strong><i>You don't have any locations! Add some <a href="{% url 'location_search' %}">here</a> so you can host events!</i></strong>
+                        </p>
+                    {% else %}
+                        <li>
+                            <a href="{% url 'location_search' %}">Add Location</a>
+                        </li>
+                    {% endif %}
+                    </ul>
+                {% endif %}
     </p>
     <!-- Availability -->
     <p class="border-bottom">
-        <strong>{{ coach.first_name }}'s Availability</strong>
+        <strong>Availability</strong>
+
+        {% if availabilities.count == 0 %}
+        <ul>
+            <p>
+                <strong><i>You haven't posted any availability! Set your working hours <a href="{% url 'set_availability' %}">here</a> so your can clients can schedule with you!</i></strong>
+            </p>
+        </ul>
+        {% else %}
         <div class="availability-chart">
             <div class="chart-header">
                 <div class="day">Monday</div>
@@ -238,7 +206,9 @@
                 <div class="day-column">
                     {% for availability in availabilities %}
                         {% if availability.day == "Monday" %}
-                            {{ availability.start.time }} - {{ availability.end.time }}
+                            <div class="time-bubble">
+                                {{ availability.start.time|time:"g:iA" }} - {{ availability.end.time|time:"g:iA" }}
+                            </div>
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -272,9 +242,11 @@
                 </div>
                 <div class="day-column">
                     {% for availability in availabilities %}
+                    <div class="time-bubble">
                         {% if availability.day == "Saturday" %}
-                            {{ availability.start.time }} - {{ availability.end.time }}
+                            {{ availability.start.time|time:"g:iA" }}-{{ availability.end.time|time:"g:iA" }}
                         {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
                 <div class="day-column">
@@ -289,9 +261,10 @@
         <p><small><i>
             *Note: This is {{ coach.first_name }}'s weekly availability. Choose one of {{ coach.first_name }}'s packages to pick a time slot that's still up for grabs!
         </i></small></p>
+        {% endif %}
+
     </p>
-<p>
-</p>
+</div>
 {% endblock content %}
 
 <!-- Events (Maybe after 'Coaches') -->

@@ -83,7 +83,7 @@ class PackageForm(forms.ModelForm):
 
     class Meta:
         model = Package
-        fields = ['sport', 'type', 'price', 'duration', 'athletes', 'location', 'description']
+        fields = ['sport', 'location', 'type', 'price', 'duration', 'athletes', 'description']
 
 class AttendeeForm(forms.ModelForm):
     class Meta:
@@ -115,7 +115,7 @@ class EventDetailsForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['title','location','location_notes','description','event_type'] # 'price'
+        fields = ['title','price','location','location_notes','description','event_type'] # 'price'
 
 class EventTimelineForm(forms.ModelForm):
     date = forms.DateField(widget=forms.DateInput(attrs={'type':'date'}))

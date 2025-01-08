@@ -374,7 +374,7 @@ def signup(request, date, time, week):
 
                 # For HTMX, we need to send a response that includes HX-Redirect
                 response = HttpResponse()
-                response['HX-Redirect'] = reverse('home')
+                response['HX-Redirect'] = reverse('createprofile')
                 return response
         
     else:

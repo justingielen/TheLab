@@ -135,10 +135,10 @@ class Event(BaseEvent):
     location_notes = models.CharField(max_length=255,blank=True, help_text="(e.g., 'Field 3', or 'Auxiliary Gym')")
     is_accepted = models.BooleanField(default=True)
     max_attendance = models.IntegerField(default=100)
-    # price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True,help_text='(optional)') # maybe IntegerField(1000),null=True,blank=True... in order to deal with Stripe's API better
+    price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True,help_text='(optional)') # maybe IntegerField(1000),null=True,blank=True... in order to deal with Stripe's API better
 
     def __str__(self):
-        return f'{self.title} - {self.location} - ({self.event_type})'
+        return f'{self.title} - {self.location} - ({self.price})'
     
     def get_absolute_url(self):
         return reverse('view_event', kwargs={'pk':self.pk})

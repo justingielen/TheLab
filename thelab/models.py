@@ -33,7 +33,7 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         super().save(*args,**kwargs) # args/kwargs are ensuring that any arguments expected by the original save() method are correctly handled
 
-        if self.image: # If an image was passed to the User 
+        if self.image and self.image.name != 'user_pics/default.jpg': # If a user-uploaded image was passed to the User 
             img = Image.open(self.image.path) # opens the image of the current instance
 
             if img.height > 300 or img.width > 300:
@@ -88,7 +88,7 @@ class Profile(models.Model):
 # Notifications -------------------------------------------------------------------------------------
 notif_types = {
     'profile_creation':'profile_creation',
-    'coach_approval':'coach_approval',
+    'coach_application':'coach_application',
     'event_suggestion':'event_suggestion',
 }
 
@@ -130,7 +130,7 @@ class Application(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     sport = models.CharField(max_length=20,help_text="(Just the sport- leave out Men's or Women's & whether College or Professional)")
     team = models.CharField(max_length=50,blank=True, help_text="(i.e., the college/university or professional organization)")
-    roster = models.TextField(help_text='(Copy-and-paste the link to a roster of a college/professional team on which you are or were a player or a coach)') # unique = True (can't submit same record twice)
+    roster = models.TextField(help_text='(Copy-and-paste the link to a roster of any college/professional team on which you are or were a player or a coach)') # unique = True (can't submit same record twice)
     approved = models.BooleanField(null=True)
 
     def __str__(self):

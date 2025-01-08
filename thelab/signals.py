@@ -23,16 +23,17 @@ def create_profile(sender, instance, created, **kwargs):
         user = instance
         message = (
         "Welcome to The Lab! We're excited to help you be part of the future of sports development. "
-        "If you've played or coached at the collegiate level or above, we invite you to "
-        '<a href="/application">submit an application</a> to join our coaching team. '
-        'For those looking to enhance their athletic journey, explore our roster of '
-        '<a href="/page/browsing">experienced coaches</a> who are ready to guide you or your athlete '
-        'to the next level. You can also discover upcoming developmental Events and explore our '
-        'library of training Drills to support your progress.'
+        "If you've played or coached at the collegiate level or above, "
+        "submit an <a class='green-link' href='/application'>Application</a> to join the coaching team! "
+        'For those looking to enhance an athletic career, explore our roster of experienced '
+        "<a class='green-link' href='/page/browsing'>Coaches</a> who are ready to guide you or your athlete's journey "
+        'to the next level! You can also discover and sign up for upcoming developmental '
+        "<a class='green-link' href='/events/browsing'>Events</a> (e.g., camps & Clinics). "
+        "Stay tuned for more features and updates as we continue building The Lab!"
     )
         Notification.objects.create(user=user,message=message)
 
-        '''
+        
         # Send welcome email
         html_message = render_to_string(
             'emails/profile_creation.html',
@@ -43,6 +44,8 @@ def create_profile(sender, instance, created, **kwargs):
         )
         # (include both html and plain text versions to void being marked as spam)
         plain_message = strip_tags(html_message)
+        print(settings.DEFAULT_FROM_EMAIL)
+        print(settings.EMAIL_HOST_PASSWORD)
         send_mail(
             subject='Welcome to the Lab!',
             message=plain_message,
@@ -51,12 +54,12 @@ def create_profile(sender, instance, created, **kwargs):
             recipient_list=[instance.email],
             fail_silently=False,
         )
-        '''
+        
         
         # Create a home calendar for the user
         HomeCalendar.objects.create(user=instance)
                 
-        
+# This might be unnecessary -- Not having a Profile model could make this obsolete
 @receiver(post_save, sender=Profile)
 def user_name(sender, instance, **kwargs):
     profile = instance
@@ -86,16 +89,16 @@ def application_notification(sender, instance, **kwargs):
             user = ProfileUser.objects.get(profile=profile, control_type='personal').user
             page_url = reverse('page_viewing', kwargs={'pk': user.pk})
             message = (
-                f"Congratulations Coach! Your Team Application has been Approved! "
-                f"If you didn't already, you should have access to a <a href='{page_url}'>Page</a> button on your main navigation bar."
+                f"Congratulations Coach! Your Application has been Approved! "
+                f"If you didn't already, you should have access to a <a class='green-link' href='{page_url}'>Page</a> button on your navigation bar."
             )        
         else:
-            message = "Your Team Application has been denied."
+            message = "Your Coach Application has been denied."
         
         profile_user = ProfileUser.objects.get(profile=instance.profile)
         user = profile_user.user
 
-        type = 'Team Approval'
+        type = 'coach_application'
         Notification.objects.create(user=user,message=message,type=type)
 
 @receiver([post_save, post_delete], sender=Application)
@@ -120,6 +123,15 @@ def check_sport(sender, instance, **kwargs):
         sport_exists = Sport.objects.filter(sport=instance.sport).exists()
         if not sport_exists:
             Sport.objects.create(sport=instance.sport)
+
+    # Ensure admin has access to all sports -- this needs work
+    adminuser = User.objects.get(username='admin')
+    adminprofile = ProfileUser.objects.get(user=adminuser).profile
+    adminsports = ProfileSport.objects.filter(profile=adminprofile)
+    sports = Sport.objects.all()
+    for sport in sports:
+        if sport.sport not in adminsports:
+            ProfileSport.objects.create(sport=sport,profile=adminprofile)
 
     else: 
         # Delete sport if there are no more approved Applications for it

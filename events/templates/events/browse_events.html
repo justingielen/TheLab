@@ -14,11 +14,11 @@
       <div class="article-metadata">
         <img
           class="rounded-circle"
-          src="{{ event.creator.user.image.url }}"
+          src="{{ event.creator.image.url }}"
           width="40"
           height="40"
         />
-        <a class="mr-2" href="{% url 'page_viewing' pk=event.creator.pk %}"> @{{ event.creator }} </a>
+        <a class="mr-2" href="{% url 'page_viewing' pk=event.creator.pk %}"> {{ event.creator }} </a>
         <!-- Event Location -->
         <img
           src="{% static 'images/location_icon_green.png' %}"
