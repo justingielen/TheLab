@@ -6,8 +6,13 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Initialize environment variables
-env = environ.Env()
-environ.Env.read_env(env_file=str(BASE_DIR / ".env"))
+env = environ.Env(
+    # Set default values and casting
+    DEBUG=(bool, False)
+)
+
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -66,9 +71,9 @@ EMAIL_HOST = 'smtp.zoho.com'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'justin@levelupsportslab.com'
-EMAIL_HOST_PASSWORD = '7S83yGbjLYNH'
-DEFAULT_FROM_EMAIL = 'justin@levelupsportslab.com'
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Defined in .env
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Defined in .env
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')  # Defined in .env
 
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
