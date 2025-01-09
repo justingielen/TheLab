@@ -2,8 +2,8 @@
 {% block content %}
 {% load static %}
 {% load custom_filters %}
-<div class="border-bottom mb-2 mt-4">
-    <strong><h1>Find a Coach!</h1></strong>
+<div class="blockquote border-bottom mb-2 mt-4">
+    <h2><strong>Find a Coach!</strong></h2>
 </div>
 <blockquote class="text-muted">
     <p>
@@ -12,8 +12,8 @@
     </p>
 </blockquote>
 <body>
-    <h3 class="border-bottom">Lab Coaches:</h3>
-    {% for coach, sport, price in coach_data %}
+    <h4 class="border-bottom"><strong>Lab Coaches:</strong></h4>
+    {% for coach, sports, price in coach_data %}
     <article class ='content-section'>
         {% if price %}
         <a class="book-now-label btn-primary" href={% url 'page_viewing' pk=coach.pk%}><center>BOOK NOW !!</center>
@@ -30,9 +30,11 @@
                 {% else %}
                     <a class="green-link" href="{% url 'page_viewing' pk=coach.pk %}"> {{ coach }}</a>
                 {% endif %}
-                <div class="sport-cred">
-                    {{ sport }}
-                </div>
+                {% for sport in sports %}
+                    <div class="sport-cred">
+                        {{ sport }}
+                    </div>
+                {% endfor %}
             </div>
             <div class='ml-2'>
                 <i>*Insert bio*</i>

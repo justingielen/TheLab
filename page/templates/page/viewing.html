@@ -74,9 +74,11 @@
     <div class="coach-info">
         <div class="coach-name ml-2">
                 <h5 class="account-heading">{{ coach.first_name }} {{ coach.last_name }}</h5>
-            <div class="sport-cred">
-                {{ sport }}
-            </div>
+            {% for sport in sports %}
+                <div class="sport-cred">
+                    {{ sport }}
+                </div>
+            {% endfor %}
         </div>
         <p>
             <strong>Email: </strong>
@@ -153,7 +155,7 @@
     <!-- Locations -->
     <p class="border-bottom">
         <strong>Location(s)</strong>
-            <div class="main-content">
+    </p>
                 {% for location in locations %}
                     <div class="location-item mb-3">
                     <img

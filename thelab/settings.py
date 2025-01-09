@@ -21,6 +21,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-co*2qcbgji0o(hc-2(5=bjch%-s_0q)dk$%m5r0l++=%s2d#1g'
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -71,6 +72,7 @@ EMAIL_HOST = 'smtp.zoho.com'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
+EMAIL_TIMEOUT = 10  # Timeout in seconds
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Defined in .env
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Defined in .env
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')  # Defined in .env
@@ -117,18 +119,13 @@ WSGI_APPLICATION = 'thelab.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE':'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-
-        # for production, these will probably be the details (should probably get a new stripe account too, because info has been on github)
-        
-        #'ENGINE': 'django.db.backends.mysql',
-        #'NAME': str(BASE_DIR / 'justingielen$default'), # got an error: TypeError: connect() argument 4 must be str, not WindowsPath... so that's why it's a string 
-        #'USER': 'justingielen',
-        #'PASSWORD':'pretty!!good55password...',
-        #'HOST':'justingielen.mysql.pythonanywhere-services.com',
-        #'PORT':'3306',
+'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
     }
 }
 

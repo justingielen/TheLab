@@ -3,13 +3,12 @@
 {% block content %}
 <title>{{ title }}</title>
 <center>
-  <h2 class="mt-3 mb-3">Welcome to The Lab!!</h2>
+  <h2 class="mt-3 mb-3 border-bottom"><strong>Welcome to The Lab!!</strong></h2>
   <p>
-    <i>
       Where aspiring athletes can connect with successful players & coaches to LEVEL UP their game!!
   </p>
   <p>
-    Find quality <a href={% url 'page_browsing' %}>coaches</a> to book a session, or explore upcoming developmental <a href={% url 'browse_events' %}>events</a> (like shooting/skills clinics or summer camps)!
+    Find quality <a href={% url 'page_browsing' %}>coaches</a> to book a session, or explore upcoming <a href={% url 'browse_events' %}>events</a> (like shooting/skills clinics or summer camps)!
   </p>
 </center>
 

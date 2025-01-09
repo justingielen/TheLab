@@ -5,15 +5,14 @@ from schedule.models import Calendar as BaseCalendar
 from django.conf import settings
 from datetime import timedelta
     
-
 class Sport(models.Model):
     sport = models.CharField(max_length=25, unique=True)
 
     def __str__(self):
         return self.sport
 
-class ProfileSport(models.Model):
-    profile = models.ForeignKey('thelab.Profile', on_delete=models.CASCADE)
+class CoachSport(models.Model):
+    coach = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -39,8 +38,7 @@ class Location(models.Model):
     location_type = models.CharField(max_length=20, choices=LOCATION_TYPES)
     hyperlink = models.CharField(max_length=255, blank=True, null=True)
     
-    # All of this should eventually incorporate some sort of searching for actual address, in order to compare proposed additions to existing locations
-    # ^^ For this, consider Django's GIS (PointField) framework or a library like Google Places
+    # For this, consider Django's GIS (PointField) framework or a library like Google Places
     street_address = models.CharField(max_length=255, blank=True)
     location_city = models.CharField(max_length=255, blank=True)
     location_state = models.CharField(max_length=2, blank=True)

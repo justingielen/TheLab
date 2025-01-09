@@ -1,13 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required # Decorator-- adds functionality to an existing function
 from django.contrib import messages
-from django.utils import timezone
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.urls import reverse
 
-from thelab.models import Profile, ProfileUser, User, Notification
-from .models import PageCalendar, Sport, ProfileSport, Location, CoachLocation, Availability, Package, Attendee, Event, EventAttendee
+from thelab.models import User, UserRelation, Notification
+from .models import PageCalendar, Sport, CoachSport, Location, CoachLocation, Availability, Package, Attendee, Event, EventAttendee
 from .forms import LocationForm, PackageForm, AvailabilityForm, AttendeeForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
 from datetime import datetime, timedelta
 import calendar
@@ -15,17 +14,15 @@ from schedule.models import Rule
 from .signals import coach_location
 
 def page_browsing(request):
-    # Find all coach profiles
-    coach_profiles = Profile.objects.filter(coach=True)
-    # Find all ProfileUser objects associated with those coaches
-    coach_profile_users = ProfileUser.objects.filter(profile__in=coach_profiles)
-    # Create list of just the Coach User accounts
-    coaches = [cpu.user for cpu in coach_profile_users]
+    # Find all coaches
+    coaches = User.objects.filter(coach=True)
     # Create a list of tuples containing coach's information
     coach_data = []
     for coach in coaches:
-        profile = ProfileUser.objects.get(user=coach, control_type='personal').profile
-        sport = ProfileSport.objects.get(profile=profile).sport
+        sports = []
+        coachsports = CoachSport.objects.filter(coach=coach)
+        for coachsport in coachsports:
+            sports.append(coachsport.sport)
         
         packages = Package.objects.filter(owner=coach)
         prices = [package.price for package in packages]
@@ -34,8 +31,8 @@ def page_browsing(request):
         except ValueError:
             lowest_price = 0
 
-        if lowest_price and sport:
-            coach_data.append((coach, sport, lowest_price))
+        if lowest_price and sports:
+            coach_data.append((coach, sports, lowest_price))
 
     context = {
         'coach_data': coach_data,
@@ -53,12 +50,15 @@ def page_viewing(request, pk):
             'is_owner':is_owner,
         }
     coach = User.objects.get(pk=pk)
+
+
     coach_locations = CoachLocation.objects.filter(coach=coach)
     coach_availability = Availability.objects.filter(creator=coach)
     coach_packages = Package.objects.filter(owner=coach)
-
-    coach_profile = ProfileUser.objects.filter(user=coach, control_type='personal').first().profile
-    coach_sport = ProfileSport.objects.filter(profile=coach_profile).first().sport
+    sports = []
+    coachsports = CoachSport.objects.filter(coach=coach)
+    for coachsport in coachsports:
+        sports.append(coachsport.sport)
 
     # Combine suggested and upcoming events
     all_events = list(Event.objects.filter(
@@ -79,7 +79,7 @@ def page_viewing(request, pk):
         'locations':coach_locations,
         'availabilities':coach_availability,
         'packages':coach_packages,
-        'sport':coach_sport,
+        'sports':sports,
         'all_events':all_events,
     }
     return render(request, 'page/viewing.html',context=context)
@@ -187,7 +187,7 @@ def remove_availability(request, availability_id):
     messages.success(request, 'Availability removed!')
     return redirect('page_viewing', pk=request.user.pk)
     
-
+# 
 @login_required
 def create_package(request):
     # Helper function to get the required querysets
@@ -198,10 +198,9 @@ def create_package(request):
         locations_queryset = Location.objects.filter(pk__in=coach_locations)
 
         # Get applicable sports
-        profile_user = ProfileUser.objects.filter(user=request.user, control_type='personal').get()
-        profile_sport_objects = ProfileSport.objects.filter(profile=profile_user.profile)
-        profile_sports = [profile_sport.sport.id for profile_sport in profile_sport_objects]
-        sports_queryset = Sport.objects.filter(pk__in=profile_sports)
+        coach_sport_objects = CoachSport.objects.filter(coach=request.user)
+        coach_sports = [profile_sport.sport.id for profile_sport in coach_sport_objects]
+        sports_queryset = Sport.objects.filter(pk__in=coach_sports)
         
         return sports_queryset, locations_queryset
 
@@ -434,10 +433,9 @@ def create_event(request):
         locations_queryset = Location.objects.filter(pk__in=coach_locations)
 
         # Get applicable sports
-        profile_user = ProfileUser.objects.filter(user=request.user, control_type='personal').get()
-        profile_sport_objects = ProfileSport.objects.filter(profile=profile_user.profile)
-        profile_sports = [profile_sport.sport.id for profile_sport in profile_sport_objects]
-        sports_queryset = Sport.objects.filter(pk__in=profile_sports)
+        coach_sport_objects = CoachSport.objects.filter(coach=request.user)
+        coach_sports = [profile_sport.sport.id for profile_sport in coach_sport_objects]
+        sports_queryset = Sport.objects.filter(pk__in=coach_sports)
 
         event_sports = EventSportForm(sports=sports_queryset)
 
@@ -453,15 +451,3 @@ def create_event(request):
         }
 
     return render(request, 'page/event_form.html', context)
-
-
-# Old EventCreate View
-#class EventCreateView(CreateView):
-#    model = Event
-#    fields = ['title','location','description','price','worker','start','end','rule']
-#    template_name='page/event_form.html'
-#
-#    def form_valid(self, form):
-#        form.instance.creator = self.request.user
-#        form.instance.calendar_id = PageCalendar.objects.get(user=self.request.user).id
-#        return super().form_valid(form)

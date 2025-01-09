@@ -45,16 +45,12 @@
           <div class="navbar-brand mx-auto">
             <a href="/" class="logo-wrapper d-flex justify-content-center">
               <img
-                src="{% static 'images/logo_white.png' %}"
+                src="{% static 'images/white_logo.png' %}"
                 alt="Button Image"
-                width="50"
-                height="50"
+                width="125"
+                height="45"
               />
             </a>
-          </div>
-          <!-- The Lab button (Welcome screen) -->
-          <div class="navbar-brand-wrapper d-flex align-items-center">
-            <a class="navbar-brand mr-4" href="/">The Lab</a>
           </div>
 
           <!-- Navbar toggler -->
@@ -89,7 +85,7 @@
             <div class="navbar-nav">
               {% if request.user.is_authenticated %}
               <!-- Check if user's profile is a coach -->
-              {% if profile.coach %}
+              {% if user.coach %}
               <a
                 class="nav-item nav-link"
                 href="{% url 'page_viewing' pk=request.user.pk %}"
@@ -119,12 +115,16 @@
       <div class="row">
         <div class="col-md-3">
           <div class="sidebar-wrapper">
-            <h3>The Lab-- by LevelUp Sports</h3>
+            <h3>
+              The Lab<span>–</span>
+              let's get better, together.
+            </h3>
             <p>
-              <small>
-                The Lab and LevelUp Sports are both about connecting aspiring
-                athletes with successful players and coaches who have the
-                knowledge and wisdom to help athletes LEVEL UP their game!
+              <small class="text-muted">
+                <i
+                  >The Lab is about connecting aspiring athletes with successful
+                  players and coaches who can help them LEVEL UP their game!</i
+                >
               </small>
             </p>
             <ul class="list-group">
@@ -132,9 +132,6 @@
                 class="list-group-item list-link"
                 href="{% url 'whatis-thelab' %}"
                 >What is The Lab?</a
-              >
-              <a class="list-group-item list-link" href="{% url 'about' %}"
-                >About LevelUp Sports</a
               >
             </ul>
           </div>
@@ -176,11 +173,6 @@
                   >What is The Lab?</a
                 >
               </li>
-              <li>
-                <a class="text-white" href="{% url 'about' %}"
-                  >About LevelUp Sports</a
-                >
-              </li>
             </ul>
           </div>
 
@@ -203,14 +195,12 @@
         </div>
         <div class="text-center mt-3">
           <img
-            src="{% static 'images/logo_white.png' %}"
+            src="{% static 'images/white_logo.png' %}"
             alt="Button Image"
-            width="30"
-            height="30"
+            width="100"
+            height="40"
           />
-          <small
-            >&copy; 2025 The Lab by LevelUp Sports. All rights reserved.</small
-          >
+          <small>&copy; 2025. All rights reserved.</small>
         </div>
       </div>
     </footer>

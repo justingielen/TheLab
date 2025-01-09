@@ -3,14 +3,14 @@
 {% block content %} {% load static %}
 <div class="form-container">
   <legend class="profile-edit-header border-bottom justify-content-between">
-    <h2>{{ profile.first_name }} {{ profile.last_name }}'s Profile</h2>
+    <h2>{{ user.first_name }} {{ user.last_name }}'s Profile</h2>
     <a class="btn back mb-3" href="{% url 'home' %}">← Back to Home</a>
   </legend>
   <div class="content-section row">
     <img class="rounded-circle account-img" src="{{ user.image.url }}" />
     <div class="media-body">
       <h5 class="account-heading">
-        {{ profile.first_name }} {{ profile.last_name }}
+        {{ user.first_name }} {{ user.last_name }}
       </h5>
       <p class="text-secondary">@{{ user.username }}</p>
       <p class="text-secondary">Email: {{ user.email }}</p>
@@ -22,7 +22,7 @@
     <fieldset class="form-group">
       <!-- Bootstrap class-->
       <legend class="border-bottom mb-4">Profile Editing</legend>
-      {{ u_form|crispy }} {{ p_form|crispy }}
+      {{ u_form|crispy }}
     </fieldset>
     <div class="form-group">
       <button class="btn btn-outline-info" type="submit">Update Profile</button>

@@ -5,30 +5,23 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.urls import reverse
-from .models import User, Profile, ProfileUser, Notification, Application
+from .models import User, Notification, Application
 from .models import HomeCalendar
-from page.models import Sport, ProfileSport
+from page.models import Sport, CoachSport
 
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
+def created_user(sender, instance, created, **kwargs):
     if created:
-        # Create a profile for the user
-        Profile.objects.create(first_name=instance.username)
-
-        # Create 'personal' profile-user association
-        profile = Profile.objects.get(first_name=instance.username)
-        ProfileUser.objects.create(profile=profile,user=instance)
-
         # Create a notification for the user
         user = instance
         message = (
         "Welcome to The Lab! We're excited to help you be part of the future of sports development. "
         "If you've played or coached at the collegiate level or above, "
-        "submit an <a class='green-link' href='/application'>Application</a> to join the coaching team! "
+        "submit an <strong><a class='green-link' href='/application'>Application</a></strong> to join the coaching team! "
         'For those looking to enhance an athletic career, explore our roster of experienced '
-        "<a class='green-link' href='/page/browsing'>Coaches</a> who are ready to guide you or your athlete's journey "
+        "<strong><a class='green-link' href='/page/browsing'>Coaches</a></strong> who are ready to guide you or your athlete's journey "
         'to the next level! You can also discover and sign up for upcoming developmental '
-        "<a class='green-link' href='/events/browsing'>Events</a> (e.g., camps & Clinics). "
+        "<strong><a class='green-link' href='/events/browsing'>Events</a></strong> (e.g., camps & Clinics). "
         "Stay tuned for more features and updates as we continue building The Lab!"
     )
         Notification.objects.create(user=user,message=message)
@@ -58,35 +51,12 @@ def create_profile(sender, instance, created, **kwargs):
         
         # Create a home calendar for the user
         HomeCalendar.objects.create(user=instance)
-                
-# This might be unnecessary -- Not having a Profile model could make this obsolete
-@receiver(post_save, sender=Profile)
-def user_name(sender, instance, **kwargs):
-    profile = instance
-    try:
-        user = ProfileUser.objects.get(profile=profile, control_type='personal').user
-        if profile.first_name is not None:
-            user.first_name = profile.first_name
-            user.last_name = profile.last_name
-            user.save()
-    except ProfileUser.DoesNotExist:
-        pass
-
-
-# Delete profile if personal User account is deleted
-@receiver(post_delete, sender=ProfileUser)
-def delete_profile(sender, instance, **kwargs):
-    if instance.control_type == 'personal':
-        profile = instance.profile
-        profile.delete()
-    
 
 @receiver(post_save,sender=Application) 
 def application_notification(sender, instance, **kwargs):
     if instance.approved is not None:
         if instance.approved:
-            profile = instance.profile
-            user = ProfileUser.objects.get(profile=profile, control_type='personal').user
+            user = instance.user
             page_url = reverse('page_viewing', kwargs={'pk': user.pk})
             message = (
                 f"Congratulations Coach! Your Application has been Approved! "
@@ -95,25 +65,23 @@ def application_notification(sender, instance, **kwargs):
         else:
             message = "Your Coach Application has been denied."
         
-        profile_user = ProfileUser.objects.get(profile=instance.profile)
-        user = profile_user.user
-
+        user = instance.user
         type = 'coach_application'
         Notification.objects.create(user=user,message=message,type=type)
 
 @receiver([post_save, post_delete], sender=Application)
 def check_coach(sender, instance, **kwargs):
-    profile = instance.profile  # Get the profile related to the Application
+    user = instance.user  # Get the user related to the Application
 
-    # Check if any Approved Applications exist for the related profile
+    # Check if any Approved Applications exist for the user
     approved_applications_exist = Application.objects.filter(
-        profile=profile,
+        user=user,
         approved=True
     ).exists()
 
     # Update the coach field according to the existence of approved applications
-    profile.coach = approved_applications_exist
-    profile.save()
+    user.coach = approved_applications_exist
+    user.save()
 
 # The signals to update the Sport model if needed
 @receiver(post_save, sender=Application)
@@ -124,20 +92,20 @@ def check_sport(sender, instance, **kwargs):
         if not sport_exists:
             Sport.objects.create(sport=instance.sport)
 
-    # Ensure admin has access to all sports -- this needs work
-    adminuser = User.objects.get(username='admin')
-    adminprofile = ProfileUser.objects.get(user=adminuser).profile
-    adminsports = ProfileSport.objects.filter(profile=adminprofile)
-    sports = Sport.objects.all()
-    for sport in sports:
-        if sport.sport not in adminsports:
-            ProfileSport.objects.create(sport=sport,profile=adminprofile)
-
     else: 
         # Delete sport if there are no more approved Applications for it
         sport_approved = Application.objects.filter(sport=instance.sport,approved=True).exists()
         if not sport_approved:
             Sport.objects.filter(sport=instance.sport).delete()
+
+    # Ensure admin has access to all sports -- this needs work
+    adminuser = User.objects.get(username='admin')
+    adminsports = CoachSport.objects.filter(coach=adminuser)
+    sports = Sport.objects.all()
+    for sport in sports:
+        if sport.sport not in adminsports:
+            print(sport)
+            CoachSport.objects.create(sport=sport,coach=adminuser)
 
 @receiver(post_delete, sender=Application)
 def check_sport_delete(sender, instance, **kwargs):
@@ -147,25 +115,25 @@ def check_sport_delete(sender, instance, **kwargs):
         Sport.objects.filter(sport=instance.sport).delete()
 
 @receiver(post_save, sender=Application)
-def check_profile_sport(sender, instance, **kwargs):
+def check_coach_sport(sender, instance, **kwargs):
     # If the Application is saved with a result
     if instance.approved is not None:
-        profile = instance.profile
+        user = instance.user
         sport = Sport.objects.get(sport=instance.sport)
         
         # ...of approved
         if instance.approved:
             # Check if association exists
-            associated = ProfileSport.objects.filter(sport=sport,profile=profile).exists()
+            associated = CoachSport.objects.filter(sport=sport,coach=user).exists()
             if not associated:
-                ProfileSport.objects.create(sport=sport,profile=profile)
+                CoachSport.objects.create(sport=sport,coach=user)
 
         #... of denied
         if not instance.approved:
             # Check if approved application exists
-            other_approved = Application.objects.filter(sport=sport,profile=profile,approved=True).exists()
+            other_approved = Application.objects.filter(sport=sport,user=user,approved=True).exists()
             if not other_approved:
                 # Check if association exists
-                associated = ProfileSport.objects.filter(sport=sport,profile=profile).exists()
+                associated = CoachSport.objects.filter(sport=sport,user=user).exists()
                 if associated:
-                    ProfileSport.objects.filter(sport=sport,profile=profile).delete()
+                    CoachSport.objects.filter(sport=sport,user=user).delete()

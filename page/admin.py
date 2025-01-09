@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Sport, ProfileSport, PageCalendar, Location, CoachLocation, Availability, Package, Attendee, Event, EventAttendee, AttendeeParent
+from .models import Sport, CoachSport, PageCalendar, Location, CoachLocation, Availability, Package, Attendee, Event, EventAttendee, AttendeeParent
 
 # Register your models here.
 admin.site.register(Sport)
-admin.site.register(ProfileSport)
+admin.site.register(CoachSport)
 admin.site.register(PageCalendar)
 admin.site.register(Location)
 admin.site.register(CoachLocation)
