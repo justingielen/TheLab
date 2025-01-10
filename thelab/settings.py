@@ -21,11 +21,19 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-co*2qcbgji0o(hc-2(5=bjch%-s_0q)dk$%m5r0l++=%s2d#1g'
 
+# Determine environment
+DJANGO_ENV = env('DJANGO_ENV', default='development')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = DJANGO_ENV == 'development'
 
-ALLOWED_HOSTS = ['justingielen.pythonanywhere.com','127.0.0.1','localhost']
+# Allowed hosts
+if DJANGO_ENV == 'development':
+    ALLOWED_HOSTS = ['127.0.0.1','localhost']
+elif DJANGO_ENV == 'staging':
+    ALLOWED_HOSTS = ['justingielen.pythonanywhere.com']
+else:
+    ALLOWED_HOSTS = ['your-production-domain.com']
 
 AUTH_USER_MODEL = 'thelab.User'
 

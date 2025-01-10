@@ -108,10 +108,10 @@
                     hx-trigger="click"
                     onclick="selectPackage(this)"
                 >
-                    <h3>{{ package.type }}</h3> 
+                    <h3>{{ package.sport }} {{ package.type }}</h3> 
                     {% if package.type == "Training" %}
                         {% if package.athletes == 1 %}
-                            <p class="package-details">{{ package.sport }} {{ package.type }} (Solo athlete): <span>${{ package.price }}/hour</span></p>
+                            <p class="package-details">(Solo athlete): <span>${{ package.price }}/hour</span></p>
                         {% endif %}
                         {% if package.athletes == 2 %}
                             <p class="package-details">{{ package.sport }} {{ package.type }} (Group of 2): <span>${{ package.price_per_athlete_2 }}.00/hour (per athlete)</span></p>
