@@ -1,56 +1,9 @@
 from django.db.models.signals import post_save, post_delete # signal that gets fired after an object is saved
 from django.dispatch import receiver # decorator
-from django.core.mail import send_mail
 from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.urls import reverse
 from .models import User, Notification, Application
-from .models import HomeCalendar
 from page.models import Sport, CoachSport
-
-@receiver(post_save, sender=User)
-def created_user(sender, instance, created, **kwargs):
-    if created:
-        # Create a notification for the user
-        user = instance
-        message = (
-        "Welcome to The Lab! We're excited to help you be part of the future of sports development. "
-        "If you've played or coached at the collegiate level or above, "
-        "submit an <strong><a class='green-link' href='/application'>Application</a></strong> to join the coaching team! "
-        'For those looking to enhance an athletic career, explore our roster of experienced '
-        "<strong><a class='green-link' href='/page/browsing'>Coaches</a></strong> who are ready to guide you or your athlete's journey "
-        'to the next level! You can also discover and sign up for upcoming developmental '
-        "<strong><a class='green-link' href='/events/browsing'>Events</a></strong> (e.g., camps & Clinics). "
-        "Stay tuned for more features and updates as we continue building The Lab!"
-    )
-        Notification.objects.create(user=user,message=message)
-
-        
-        # Send welcome email
-        html_message = render_to_string(
-            'emails/profile_creation.html',
-            {
-                'username': instance.username,
-                'message': message
-            }
-        )
-        # (include both html and plain text versions to void being marked as spam)
-        plain_message = strip_tags(html_message)
-        print(settings.DEFAULT_FROM_EMAIL)
-        print(settings.EMAIL_HOST_PASSWORD)
-        send_mail(
-            subject='Welcome to the Lab!',
-            message=plain_message,
-            html_message=html_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[instance.email],
-            fail_silently=False,
-        )
-        
-        
-        # Create a home calendar for the user
-        HomeCalendar.objects.create(user=instance)
 
 @receiver(post_save,sender=Application) 
 def application_notification(sender, instance, **kwargs):

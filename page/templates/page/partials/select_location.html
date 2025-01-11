@@ -1,0 +1,25 @@
+{% load static %}
+<!-- prettier-ignore -->
+{% if locations|length > 1 %}
+<!-- prettier-ignore -->
+<p style="color: green"><i><strong>Select your desired location!</strong></i></p>
+{% endif %}
+
+<!-- prettier-ignore -->
+{% for location in locations %}
+<div
+  class="mb-1 location-item {% if location.name == selected_location %}selected{% endif %}"
+  hx-get="{% url 'check_availability' pk=pk week=0 %}?location_id={{ location.id }}&package_id={{ package.id }}"
+  hx-target="#time-slots"
+  hx-swap="innerHTML transition:true"
+  hx-trigger="{% if location.name == selected_location %}load, click{% else %}click{% endif %}"
+  id="location-{{ location.id }}"
+>
+  <img
+    src="{% static 'images/location_icon_green.png' %}"
+    width="20"
+    height="20"
+  />
+  <span>{{ location.name }}</span>
+</div>
+{% endfor %}

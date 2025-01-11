@@ -40,15 +40,18 @@
         {{ formset.management_form }}
         <div id="formset-container" class="formset-grid">
           {% for form in formset.forms %}
-
           <!-- Form(s) -->
           <div class="attendee-form card">
             <h5 class="card-title">Attendee {{ forloop.counter }}</h5>
             {{ form|crispy }}
           </div>
-
           {% endfor %}
         </div>
+      </fieldset>
+
+      <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Your Information</legend>
+        {{ parent_form|crispy }}
       </fieldset>
 
       <!-- Registration -->

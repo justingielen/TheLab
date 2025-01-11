@@ -27,7 +27,7 @@ DJANGO_ENV = env('DJANGO_ENV', default='development')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = DJANGO_ENV == 'development'
 
-# Allowed hosts
+# Allowed hosts (depending) on environment)
 if DJANGO_ENV == 'development':
     ALLOWED_HOSTS = ['127.0.0.1','localhost']
 elif DJANGO_ENV == 'staging':
@@ -83,7 +83,8 @@ EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = 10  # Timeout in seconds
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Defined in .env
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Defined in .env
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')  # Defined in .env
+FROM_EMAIL_JUSTIN = env('FROM_EMAIL_JUSTIN')  # Defined in .env
+FROM_EMAIL_ADMIN = env('FROM_EMAIL_ADMIN')  # Defined in .env
 
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',

@@ -1,74 +1,103 @@
 {% extends "main/toolbar.html" %} {% load crispy_forms_tags %}
 <!-- prettier ignore -->
 {% block content %}
-<form class="form-container" method="POST" action="{% url 'createprofile' %}">
-  {% csrf_token %}<!-- "Cross Site Request Forgery", added security for forms that Django requires-->
-  <!-- Form fields-->
-  <fieldset class="form-group">
-    <!-- Bootstrap class-->
-    <legend class="form-header">Create a Profile!</legend>
-    {{ form|crispy }}
-  </fieldset>
+<div class="create-profile-view">
+  {% if parent %}
+  <div class="form-container">
+    <legend><i>About Lab Profiles</i></legend>
 
-  <div class="form-group">
-    <div class="border-bottom pt-3 row">
-      <button class="btn btn-outline-info mb-2 mr-2" type="submit">
-        Create Profile
-      </button>
-      <small class="text-muted float-right">
-        Already have a Profile?
-        <a href="{% url 'login' %}">Log In!</a>
-      </small>
-    </div>
+    <p><strong>Levels:</strong></p>
+    <ul class="mb-1">
+      <li class="mb-1">
+        <strong>Everyone:</strong> Every user (athlete, parent, or coach) starts
+        as a basic user. Parents, create accounts for you and your kids for
+        quick registration and seamless payments.
+      </li>
+
+      <li>
+        <strong>Coach:</strong> Users can upgrade their profile to coach by
+        submitting an application that verifies college-minimum playing or
+        coaching experience. Coaches can accept payment for coaching services
+        and schedule them on the same platform, without needing to pay for a
+        subscription.
+      </li>
+    </ul>
+    <!-- Additional Notes -->
+    <p>
+      <i>
+        <small class="text-muted border-top">
+          ** Event registration does not require a profile. Attendees simply
+          must be named. All registrants must be 18 or older.
+        </small>
+      </i>
+    </p>
+
+    <p><strong>Exclusive Coach Tools:</strong></p>
+    <ul class="mb-2">
+      <li>
+        Showcase your expertise and build credibility with a dedicated coach
+        profile page, highlighting your experience and certifications.
+      </li>
+      <li>
+        Monetize coaching service packages (e.g., $50/hr private training) from
+        your page.
+      </li>
+      <li>Create and host coaching events effortlessly.</li>
+    </ul>
   </div>
-</form>
+  {% endif %}
 
+  <form class="form-container" method="POST" action="{% url 'createprofile' %}">
+    {% csrf_token %}<!-- "Cross Site Request Forgery", added security for forms that Django requires-->
+    <!-- Form fields-->
+    <fieldset class="form-group">
+      <!-- Bootstrap class-->
+      <legend class="form-header">Create a Profile!</legend>
+      {{ form|crispy }}
+    </fieldset>
+
+    <div class="form-group">
+      <div class="border-bottom pt-3 row">
+        <button class="btn btn-outline-info mb-2 mr-2" type="submit">
+          Create Profile
+        </button>
+        <small class="text-muted float-right">
+          Already have a Profile?
+          <a href="{% url 'login' %}">Log In!</a>
+        </small>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% if not parent %}
 <div class="form-container">
   <legend><i>About Lab Profiles</i></legend>
 
   <p><strong>Levels:</strong></p>
-  <ul class="mb-4">
-    <li>
-      <strong>Basic:</strong> Every user (athlete, parent, or coach) starts as a
-      basic user. Users can access content (packages, events, drills).
+  <ul class="mb-1">
+    <li class="mb-1">
+      <strong>Everyone:</strong> Every user (athlete, parent, or coach) starts
+      as a basic user. Parents, create accounts for you and your kids for quick
+      registration and seamless payments.
     </li>
+
     <li>
       <strong>Coach:</strong> Users can upgrade their profile to coach by
       submitting an application that verifies college-minimum playing or
-      coaching experience. Coaches can create content (packages, events,
-      drills).
+      coaching experience. Coaches can accept payment for coaching services and
+      schedule them on the same platform, without needing to pay for a
+      subscription.
     </li>
   </ul>
-
-  <p><strong>Core Capabilities:</strong></p>
-  <ul class="mb-4">
-    <li>Find qualified coaches and purchase coaching services with ease.</li>
-    <li>Seamlessly search and register for events.</li>
-    <li>
-      (coming soon) Discover and complete expertly-crafted drills in your remote
-      workouts-- record and submit your drill performance to a Lab coach and you
-      can receive expert, personalized feedback (and score confirmation, to
-      participate in drill leaderboards and community competitions).
-    </li>
-  </ul>
-
-  <p><strong>Exclusive Coach Tools:</strong></p>
-  <ul class="mb-4">
-    <li>
-      Monetize coaching service packages (e.g., $50/hr private training) from
-      your page.
-    </li>
-    <li>Create and host coaching events effortlessly.</li>
-    <li>Manage business accounts with integrated scheduling (coming soon).</li>
-    <li>Post interactive drills for remote training (coming soon).</li>
-  </ul>
-
   <!-- Additional Notes -->
   <p>
     <i>
-      ** Event registration does not require a profile. Attendees simply must be
-      named. All registrants must be 18 or older.
+      <small class="text-muted border-top">
+        ** Event registration does not require a profile. Attendees simply must
+        be named. All registrants must be 18 or older.
+      </small>
     </i>
   </p>
+  {% endif %} {% endblock %}
 </div>
-{% endblock %}

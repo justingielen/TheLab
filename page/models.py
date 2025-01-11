@@ -16,7 +16,7 @@ class CoachSport(models.Model):
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.profile} - {self.sport}"
+        return f"{self.coach} - {self.sport}"
     
 class PageCalendar(BaseCalendar):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -30,22 +30,22 @@ class PageCalendar(BaseCalendar):
         return self.name
 
 class Location(models.Model):
-    location_name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True)
     LOCATION_TYPES = (
         ('in-person', 'In Person'),
         ('virtual', 'Virtual'),
     )
-    location_type = models.CharField(max_length=20, choices=LOCATION_TYPES)
+    type = models.CharField(max_length=20, choices=LOCATION_TYPES)
     hyperlink = models.CharField(max_length=255, blank=True, null=True)
     
     # For this, consider Django's GIS (PointField) framework or a library like Google Places
     street_address = models.CharField(max_length=255, blank=True)
-    location_city = models.CharField(max_length=255, blank=True)
-    location_state = models.CharField(max_length=2, blank=True)
-    location_zip = models.CharField(max_length=10, blank=True)
+    city = models.CharField(max_length=255, blank=True)
+    state = models.CharField(max_length=2, blank=True)
+    zip = models.CharField(max_length=10, blank=True)
     
     def __str__(self):
-        return self.location_name
+        return self.name
     
 class LocationSport(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
@@ -78,7 +78,7 @@ class Availability(BaseEvent):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, default=1)
 
     def __str__(self):
-        return f"@{self.creator} ({self.day}): {self.start.time()} - {self.end.time()}"
+        return f"{self.creator} ({self.day}): {self.start.time()} - {self.end.time()}"
     
 package_types = {
         ('Training','Training'),
@@ -90,13 +90,19 @@ class Package(models.Model):
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
     duration = models.DurationField(default=timedelta(minutes=60))
     athletes = models.IntegerField(default=1)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, blank=True, null=True)
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE, default=1)
     description = models.TextField(blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"@{self.owner} - {self.type} ({self.athletes}): ${self.price}"
+        return f"{self.owner} - {self.type} ({self.athletes}): ${self.price}"
+    
+class PackageLocation(models.Model):
+    package =  models.ForeignKey(Package, on_delete=models.CASCADE)   
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.package} @ {self.location}"
 
 # Attendee model, to let parents sign their kids up for events without making accounts for them
 class Attendee(models.Model):
@@ -112,10 +118,14 @@ class Attendee(models.Model):
             return f'{self.first_name} {self.last_name}'
 
 class Parent(models.Model):
-    first_name = models.CharField(max_length=50, default="(first name)")
-    last_name = models.CharField(max_length=50, default="(last name)")
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
-    # phone = models.ForeignKey ?
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    # phone = models.ForeignKey
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 
 class Event(BaseEvent):
     '''''
@@ -151,6 +161,7 @@ class EventSport(models.Model):
 class EventAttendee(models.Model):
     attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    is_accepted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.attendee} -- {self.event.title}'
@@ -158,3 +169,6 @@ class EventAttendee(models.Model):
 class AttendeeParent(models.Model):
     attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
     parent = models.ForeignKey(Parent, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.parent} : {self.attendee}"

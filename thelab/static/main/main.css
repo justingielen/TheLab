@@ -194,6 +194,10 @@ a.article-title:hover {
 /* The Lab 1_0 */
 /* */ /* */ /* */
 
+.create-profile-view {
+  font-size: 0.875rem;
+}
+
 /* styling for Profile Edit button in Home page */
 .edit-btn {
   position: absolute;
@@ -641,18 +645,6 @@ blockquote {
 }
 
 /* Page Viewing */
-.location-item {
-  display: flex; /* Place image and text side by side */
-  align-items: center; /* Align them vertically */
-  gap: 8px; /* Space between the image and text */
-  background-color: #d7d5d5;
-  border-radius: 10px;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-
 .availability-chart {
   display: grid;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -782,13 +774,8 @@ blockquote {
   font-weight: bold;
 }
 
-/* Container to hold the packages */
-.package-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px; /* Space between the boxes */
-  justify-content: flex-start; /* Align the boxes to the left */
-}
+
+/* PACKAGES */
 
 /* Container to hold the packages */
 .package-container {
@@ -801,7 +788,9 @@ blockquote {
 /* Each package box */
 .package-box {
   background-color: #f9f9f9;
-  padding: 20px;
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: calc(33.33% - 20px); /* Each box will take up one-third of the row */
@@ -821,31 +810,65 @@ blockquote {
   box-shadow: 0 2.5px 5px rgba(0, 0, 0, 0.2);
   /* Add a subtle border or glow to make it even more distinct */
   border: 2px solid #53b739;
+  cursor: default;
 }
 
-/* Title styling */
-.package-box h3 {
+/* header --> sport, type, and athletes */
+.package-header {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.package-header h3 {
   font-size: 1.25em;
-  color: #333;
-  margin-bottom: 10px;
+  margin: 0; /* Remove default margins from both elements */
+  color: #0c7f06;
 }
 
-/* Price and other details */
-.package-box .package-details {
-  font-size: 1.1em;
-  color: #555;
+/* details --> price & location */
+.package-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensure price and location are spaced properly */
+  gap: 1rem; /* Adjust spacing between price and location */
+  margin-bottom: 0;
 }
 
-.package-box .package-details span {
+.package-price {
+  font-size: 1.3rem;
   font-weight: bold;
-  color: #2e6da4;
 }
 
-/* For group-specific styling */
-.package-box .group-info {
-  font-size: 1em;
-  color: #888;
+.package-location {
+  color: #666;
+  font-size: 0.7em;
+  align-items: right;
 }
+
+.location-item {
+  display: flex; /* Place image and text side by side */
+  align-items: center; /* Align them vertically */
+  gap: 8px; /* Space between the image and text */
+  background-color: #d7d5d5;
+  border-radius: 10px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.location-item:hover {
+  cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: 0 1px 4px rgba(7, 226, 33, 0.947);
+}
+
+.location-item.selected {
+  border: 1.5px solid rgb(5, 220, 5);
+}
+
 
 .unavailable {
   margin: 4rem;

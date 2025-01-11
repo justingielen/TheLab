@@ -95,33 +95,53 @@
         {% if packages.count == 0 %}
             <ul>
                 <p>
-                <strong><i>You don't have any service packages! Add some (e.g., 1on-1 Private Training for $80/hr) <a href={% url 'package_form' %}>here</a> so you can get paid by clients!</i></strong>
+                <strong><i>You don't have any service packages! Add some (e.g., 1on-1 Private Training for $70/hr) <a href={% url 'package_form' %}>here</a> so you can get paid by clients!</i></strong>
             </p>
         </ul>
         {% endif %}
         <div class="package-container">
             {% for package in packages %}
+                <!-- selecting a package-box fills the package-location element (inside the package-box) with selectable packagelocations -->
+                <!-- if the package has only one location, it should be automatically selected-->
                 <div class="package-box" 
-                    hx-get="{% url 'check_availability' pk=coach.pk week=0 %}?package_id={{ package.id }}" 
-                    hx-target="#time-slots" 
+                    hx-get="{% url 'select_location' pk=coach.pk %}?package_id={{ package.id }}{% if package.location_name != 'Multiple Locations' %}&selected_location={{ package.location_name }}{% else %}&selected_location=None{% endif %}" 
+                    hx-target="#package-location-{{ package.id }}" 
                     hx-swap="innerHTML transition:true"
                     hx-trigger="click"
-                    onclick="selectPackage(this)"
+                    onclick="selectPackage(this, '{{ package.id }}')"
                 >
-                    <h3>{{ package.sport }} {{ package.type }}</h3> 
-                    {% if package.type == "Training" %}
-                        {% if package.athletes == 1 %}
-                            <p class="package-details">(Solo athlete): <span>${{ package.price }}/hour</span></p>
+                    <div class="package-header">
+                        <h3><strong>{{ package.sport }} {{ package.type }}</strong></h3>
+                        <p>
+                        {% if package.type == "Training" %}
+                            {% if package.athletes == 1 %}
+                                (Solo athlete)
+                            {% elif package.athletes == 2 %}
+                                (Group of 2)
+                            {% elif package.athletes == 3 %}
+                                (Group of 3)
+                            {% endif %}
                         {% endif %}
-                        {% if package.athletes == 2 %}
-                            <p class="package-details">{{ package.sport }} {{ package.type }} (Group of 2): <span>${{ package.price_per_athlete_2 }}.00/hour (per athlete)</span></p>
-                        {% endif %}
-                        {% if package.athletes == 3 %}
-                            <p class="package-details">{{ package.sport }} {{ package.type }} (Group of 3): <span>${{ package.price_per_athlete_3 }}.00/hour (per athlete)</span></p>
-                        {% endif %}
-                    {% elif package.type == "P(r)ep Talk" %}
-                        <p class="package-details">{{ package.sport }} {{ package.type }}: <span>${{ package.price }}/{{ package.duration|format_duration}}</span></p>
-                    {% endif %}
+                        </p>
+                    </div>
+                    <!-- Package Details -->
+                    <div class="package-details">
+                        <!-- Price -->
+                        <span class="package-price">
+                            <p>${{ package.price_per_athlete }}/{{ package.duration|format_duration}} {% if package.athletes != 1 %}(per athlete){% endif %}</p>
+                        </span>
+
+                        <!-- Location info -->
+                        <p class="package-location" id="package-location-{{ package.id }}" data-original-location="{{ package.location_name }}"> 
+                            <!-- selecting one of these locations calls the check_availability view (filling the time-slots div below)-->
+                            <img
+                            src="{% static 'images/location_icon_green.png' %}"
+                            width="20"
+                            height="20"
+                        />
+                            {{ package.location_name }}
+                        </p>
+                    </div>
                 </div>
                 <!-- edit package button -->
                 <!-- delete package button -->
@@ -136,6 +156,7 @@
         </div>
 
         <script>
+            // JavaScript for selecting & unselecting packages
             function selectPackage(element) {
                 // Remove 'selected' class from all package boxes
                 document.querySelectorAll('.package-box').forEach(box => {
@@ -143,10 +164,19 @@
                 });
                 // Add 'selected' class to clicked package box
                 element.classList.add('selected');
+
+                // Reset all package-location elements to their original state
+                document.querySelectorAll('.package-location').forEach(location => {
+                // Get the original location stored in the data attribute
+                    const originalLocation = location.getAttribute('data-original-location');
+                    if (originalLocation) {
+                        location.innerHTML = `<img src="{% static 'images/location_icon_green.png' %}" width="20" height="20" /> ${originalLocation}`;
+                    }
+                });
             }
         </script>
 
-        {% if not is_owner or packages.count != 0 %}
+        {% if packages.count != 0 %}
         <div id="time-slots" class="mb-3">
             <i>Click on a package above to schedule your session!</i>
         </div>
@@ -163,9 +193,9 @@
                         width="40"
                         height="40"
                     />
-                    <span>{{ location.location.location_name }}</span>
+                    <span>{{ location.location.name }}</span>
                     {% if is_owner %}
-                    <a href="{% url 'remove_location' location_name=location.location.location_name %}"><small>(Remove)</small></a>
+                    <a href="{% url 'remove_location' name=location.location.name %}"><small>(Remove)</small></a>
                     {% endif %}
                     </div>
                 {% endfor %}
@@ -224,37 +254,45 @@
                 <div class="day-column">
                     {% for availability in availabilities %}
                         {% if availability.day == "Wednesday" %}
-                            {{ availability.start.time }} - {{ availability.end.time }}
+                        <div class="time-bubble">
+                            {{ availability.start.time|time:"g:iA" }}-{{ availability.end.time|time:"g:iA" }}
+                        </div>                        
                         {% endif %}
                     {% endfor %}
                 </div>
                 <div class="day-column">
                     {% for availability in availabilities %}
                         {% if availability.day == "Thursday" %}
-                            {{ availability.start.time }} - {{ availability.end.time }}
+                        <div class="time-bubble">
+                            {{ availability.start.time|time:"g:iA" }}-{{ availability.end.time|time:"g:iA" }}
+                        </div>                        
                         {% endif %}
                     {% endfor %}
                 </div>
                 <div class="day-column">
                     {% for availability in availabilities %}
                         {% if availability.day == "Friday" %}
-                            {{ availability.start.time }} - {{ availability.end.time }}
+                        <div class="time-bubble">
+                            {{ availability.start.time|time:"g:iA" }}-{{ availability.end.time|time:"g:iA" }}
+                        </div>                        
                         {% endif %}
                     {% endfor %}
                 </div>
                 <div class="day-column">
                     {% for availability in availabilities %}
-                    <div class="time-bubble">
                         {% if availability.day == "Saturday" %}
+                        <div class="time-bubble">
                             {{ availability.start.time|time:"g:iA" }}-{{ availability.end.time|time:"g:iA" }}
+                        </div>
                         {% endif %}
-                    </div>
                     {% endfor %}
                 </div>
                 <div class="day-column">
                     {% for availability in availabilities %}
                         {% if availability.day == "Sunday" %}
-                            {{ availability.start.time }} - {{ availability.end.time }}
+                        <div class="time-bubble">
+                            {{ availability.start.time|time:"g:iA" }}-{{ availability.end.time|time:"g:iA" }}
+                        </div>
                         {% endif %}
                     {% endfor %}
                 </div>

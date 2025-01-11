@@ -5,15 +5,65 @@
 {% block content %}
 <div class="form-container">
   <h2><i>Create a Package!</i></h2>
-  <form method="POST">
+  <form method="POST" class="package-form">
     {% csrf_token %}
+    <!-- Package Form -->
     <fieldset class="form-group">
       <legend class="border-bottom mb-4">Package Details</legend>
       {{ package|crispy }}
     </fieldset>
+
+    <!-- Package Locations Form -->
+    <fieldset class="form-group">
+      <legend class="border-bottom mb-4">
+        Locations <small class-"text-muted"><i>(i.e., where you plan to offer this package)</small></i>
+      </legend>
+      <small class="text-muted">
+        <i>Hold Ctrl (Cmd on Mac) to select multiple locations</i>
+      </small>
+      {{ package_location|crispy }}
+    </fieldset>
+
+    <!-- Submit button -->
     <div class="form-group">
       <button class="btn btn-outline-info" type="submit">Create Package</button>
     </div>
   </form>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const locationSelect = document.querySelector('.location-select');
+      
+      // Add visual feedback when hovering over options
+      locationSelect.addEventListener('mouseover', function(e) {
+          if (e.target.tagName === 'OPTION') {
+              e.target.style.backgroundColor = '#f0f0f0';
+          }
+      });
+  
+      locationSelect.addEventListener('mouseout', function(e) {
+          if (e.target.tagName === 'OPTION' && !e.target.selected) {
+              e.target.style.backgroundColor = '';
+          }
+      });
+  
+      // Add keyboard navigation feedback
+      locationSelect.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+              const focused = document.activeElement;
+              if (focused.tagName === 'OPTION') {
+                  focused.selected = !focused.selected;
+                  e.preventDefault();
+              }
+          }
+      });
+  
+      // Update the instructions based on the operating system
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const instructions = document.querySelector('.select-instructions');
+      if (isMac) {
+          instructions.textContent = 'Hold ⌘ to select multiple locations';
+      }
+  });
+  </script>
 {% endblock %}

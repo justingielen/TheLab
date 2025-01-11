@@ -6,8 +6,8 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from thelab.models import User, UserRelation, Notification
-from .models import PageCalendar, Sport, CoachSport, Location, CoachLocation, Availability, Package, Attendee, Event, EventAttendee
-from .forms import LocationForm, PackageForm, AvailabilityForm, AttendeeForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
+from .models import PageCalendar, Sport, CoachSport, Location, CoachLocation, Availability, Package, PackageLocation, Attendee, AttendeeParent, Event, EventAttendee
+from .forms import LocationForm, PackageForm, PackageLocationForm, AvailabilityForm, AttendeeForm, ParentForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
 from datetime import datetime, timedelta
 import calendar
 from schedule.models import Rule
@@ -65,22 +65,33 @@ def page_viewing(request, pk):
         creator=coach,
     ).order_by('start'))
 
-    # Add calculated fields for group pricing
+    # Add calculated location info and per-athlete pricing
+    package_locations = {}
     for package in coach_packages:
+        # Calculate package price per athlete
         if package.type == "Training":
+            if package.athletes == 1:
+                package.price_per_athlete = package.price // 1
             if package.athletes == 2:
-                package.price_per_athlete_2 = package.price // 2
+                package.price_per_athlete = package.price // 2
             elif package.athletes == 3:
-                package.price_per_athlete_3 = package.price // 3
+                package.price_per_athlete = package.price // 3
+        # Map location info to the packages 
+        locations = PackageLocation.objects.filter(package=package)
+        if locations.count() == 1:
+            package.location_name = locations.first().location.name
+        else:
+            package.location_name = "Multiple Locations"
 
     context = {
         'is_owner':is_owner,
         'coach':coach,
+        'sports':sports,
+        'all_events':all_events,
         'locations':coach_locations,
         'availabilities':coach_availability,
         'packages':coach_packages,
-        'sports':sports,
-        'all_events':all_events,
+        'package_locations':package_locations,
     }
     return render(request, 'page/viewing.html',context=context)
 
@@ -91,13 +102,13 @@ def create_location(request):
         if location_form.is_valid():
             # handle the data
             location = Location()
-            location.location_name = location_form.cleaned_data['location_name']
-            location.location_type = location_form.cleaned_data['location_type']
+            location.name = location_form.cleaned_data['name']
+            location.type = location_form.cleaned_data['type']
             location.hyperlink = location_form.cleaned_data['hyperlink']
             location.street_address = location_form.cleaned_data['street_address']
-            location.location_city = location_form.cleaned_data['location_city']
-            location.location_state = location_form.cleaned_data['location_state']
-            location.location_zip = location_form.cleaned_data['location_zip']
+            location.city = location_form.cleaned_data['city']
+            location.state = location_form.cleaned_data['state']
+            location.zip = location_form.cleaned_data['zip']
             
             location.save()
             messages.success(request, 'Location added!')
@@ -118,15 +129,15 @@ def create_location(request):
 def search_location(request):
     # Don't know the details here
     query = request.GET.get('query', '')
-    locations = Location.objects.filter(location_name__icontains=query)
+    locations = Location.objects.filter(name__icontains=query)
     
     context = {'locations': locations, 'query': query}
     
     return render(request, 'page/location_search.html', context)
 
 @login_required
-def add_location(request, location_name):
-    location = get_object_or_404(Location, location_name=location_name)
+def add_location(request, name):
+    location = get_object_or_404(Location, name=name)
 
     coach_location(sender=Location, instance=location, location=location, user=request.user)
 
@@ -212,31 +223,72 @@ def create_package(request):
         package_form = PackageForm(
             request.POST,
             sports=sports_queryset,
-            locations=locations_queryset
         )
-        if package_form.is_valid():
+        package_location_form = PackageLocationForm(
+            request.POST,
+            locations=locations_queryset
+
+        )
+        if package_form.is_valid() and package_location_form.is_valid():
             package = package_form.save(commit=False)
             package.owner = request.user
             package.save()
+
+            # Create PackageLocation objects for each selected location
+            selected_locations = package_location_form.cleaned_data['locations']
+            for location in selected_locations:
+                PackageLocation.objects.create(
+                    package=package,
+                    location=location
+                )
 
             messages.success(request, 'Package added!')
             return redirect('page_viewing', pk=request.user.pk)
     
     else:
-        package_form = PackageForm(sports=sports_queryset, locations=locations_queryset)
+        package_form = PackageForm(sports=sports_queryset)
+        package_location_form = PackageLocationForm(locations=locations_queryset)
 
     context = {
-        'package':package_form
+        'package':package_form,
+        'package_location':package_location_form,
     }
 
     return render(request, 'page/package_form.html', context)
+
+def select_location(request, pk):
+    """
+    Intermediate view between package selection and availability checking.
+    Handles location selection for multi-location packages.
+    """
+    # Fetch the package based on package_id from the GET parameter
+    package_id = request.GET.get('package_id')
+    package = get_object_or_404(Package, id=package_id)
+
+     # Get all locations associated with this package
+    package_locations = PackageLocation.objects.filter(package=package)
+    locations = [package_location.location for package_location in package_locations]
+    selected_location = request.GET.get('selected_location')
+
+    context = {
+        'package': package,
+        'locations': locations,
+        'selected_location':selected_location,
+        'pk':pk,
+    }
+
+    return render(request, 'page/partials/select_location.html', context)
 
 # View for showing potential clients a Coach's still-available time slots
 def check_availability(request, pk, week):
     week = int(week)
     coach = User.objects.get(pk=pk)
     package_id = request.GET.get('package_id')
+    location_id = request.GET.get('location_id')
+
     package = get_object_or_404(Package, id=package_id)
+    location = get_object_or_404(Location, id=location_id)
+    print(location)
 
     # Get a coach's posted availability
     avails = Availability.objects.filter(creator=coach)
@@ -303,6 +355,7 @@ def check_availability(request, pk, week):
         'package':package,
         'slots':formatted_slots,
         'dates':dates,
+        'location':location,
     }
     
     return render(request, 'page/partials/time_slots.html', context)
@@ -324,7 +377,8 @@ def signup(request, date, time, week):
 
     if request.method == 'POST':
         formset = AttendeeFormSet(request.POST)
-        if formset.is_valid():
+        parent_form = ParentForm(request.POST or None)
+        if formset.is_valid() and parent_form.is_valid():
             # Save attendees
             attendees = formset.save()
             
@@ -344,6 +398,7 @@ def signup(request, date, time, week):
                 calendar=page_calendar
             )
             event.save()
+            parent = parent_form.save()
             
             # Add attendees to event
             for attendee in attendees:
@@ -351,12 +406,17 @@ def signup(request, date, time, week):
                     event=event,
                     attendee=attendee
                 )
+                AttendeeParent.objects.create(
+                    attendee=attendee,
+                    parent=parent,
+                )
+
 
             # Handle payment choice
             payment_type = request.POST.get('payment_type')
             
             if payment_type == 'online':
-                # add this with Stripe
+                # add this with Stripe (don't worry about this section yet)
                 pass
             else:  # in_person payment
                 messages.success(
@@ -371,14 +431,23 @@ def signup(request, date, time, week):
                 )
                 notification.save()
 
+                
+
                 # For HTMX, we need to send a response that includes HX-Redirect
                 response = HttpResponse()
-                response['HX-Redirect'] = reverse('createprofile')
+                redirect_url = reverse('createprofile')
+                passed = True
+
+                # Add query parameters for pre-filling the form
+                redirect_url_with_params = f"{redirect_url}?first_name={parent.first_name}&last_name={parent.last_name}&email={parent.email}&parent={passed}"
+
+
+                response['HX-Redirect'] = redirect_url_with_params
                 return response
         
     else:
-
         formset = AttendeeFormSet(queryset=Attendee.objects.none())
+        parent_form = ParentForm()
 
     context = {
         'package':package, 
@@ -388,17 +457,16 @@ def signup(request, date, time, week):
         'start_time':start_time, 
         'end_time':end_time, 
         'formset':formset,
+        'parent_form':parent_form,
     }
     
     return render(request, 'page/partials/signup.html', context)
 
 def accept_event(request):
     event = request.GET.get('event')
+
     event.is_accepted = True
     event.save()
-
-def reject_event(request):
-    pass
 
 @login_required
 def create_event(request):

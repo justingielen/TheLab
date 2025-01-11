@@ -3,14 +3,13 @@ import calendar
 from django import forms
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from .models import Event, EventSport, Location, Availability, Package, Attendee
+from .models import Event, EventSport, Location, Availability, Package, PackageLocation, Attendee, Parent
 
 
 class LocationForm(forms.ModelForm):
-
     class Meta:
         model = Location
-        fields = ['location_name','location_type','hyperlink','street_address','location_city','location_state','location_zip']
+        fields = ['name','type','hyperlink','street_address','city','state','zip']
 
 class AvailabilityForm(forms.ModelForm):
     start_time = forms.TimeField(widget=forms.TimeInput(attrs={'type':'time'}))
@@ -68,22 +67,38 @@ class AvailabilityForm(forms.ModelForm):
 
 
 class PackageForm(forms.ModelForm):
-    # Restricting the available sports and locations to those associated with the Coach (passed to this Form through the create_package view)
+    # Restricting the available sports to those associated with the Coach (passed to this Form through the create_package view)
     def __init__(self, *args, **kwargs):
         sports = kwargs.pop('sports', None)
-        locations = kwargs.pop('locations', None)
         super().__init__(*args, **kwargs)
         self.fields['sport'].queryset = sports
-        self.fields['location'].queryset = locations
-        location_help_text=(
-            f"(Note: locations must be added to your Profile before they can be used in a Package. "
-            f"You can add them <a href='{reverse('location_search')}'>here</a>!)"
-        )
-        self.fields['location'].help_text = location_help_text
 
     class Meta:
         model = Package
-        fields = ['sport', 'location', 'type', 'price', 'duration', 'athletes', 'description']
+        fields = ['sport', 'type', 'price', 'duration', 'athletes', 'description']
+
+class PackageLocationForm(forms.ModelForm):
+    # Making the 
+    locations = forms.ModelMultipleChoiceField(
+        queryset=Location.objects.none(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
+    )
+
+    # Restricting the available locations to those associated with the Coach (passed to this Form through the create_package view)
+    def __init__(self, *args, **kwargs):
+        locations = kwargs.pop('locations', None)
+        super().__init__(*args, **kwargs)
+        self.fields['locations'].queryset = locations
+        location_help_text=(
+            f"<small class='text-muted'><i>(Note: locations must be added to your Profile before they can be used in a Package. </i></small>"
+            f"<small class='text-muted'><i>You can add them <a href='{reverse('location_search')}'>here</a>!)</i></small>"
+        )
+        self.fields['locations'].help_text = location_help_text
+
+    class Meta:
+        model = PackageLocation
+        fields = ['locations']
+
 
 class AttendeeForm(forms.ModelForm):
     class Meta:
@@ -91,6 +106,12 @@ class AttendeeForm(forms.ModelForm):
         fields = ['first_name','last_name','age','attendee_notes']
 
 AttendeeFormSet = forms.modelformset_factory(Attendee, form=AttendeeForm, extra=1)
+
+class ParentForm(forms.ModelForm):
+    class Meta:
+        model = Parent
+        fields = ['first_name','last_name','email']
+
 
 class EventSportForm(forms.ModelForm):
     # Restricting the available sports to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
