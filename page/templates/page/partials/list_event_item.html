@@ -1,0 +1,43 @@
+{% load static %}
+<div
+  id="event-item-{{ event.id }}"
+  class="event-item {% if not event.is_accepted %}not-accepted{% endif %}"
+>
+  <div class="event-details">
+    <div class="event-time">{{ event.start|time:"g:i A" }}</div>
+    <div class="event-info">
+      <div class="event-type">
+        <strong class="border-bottom">{{ event.title }}</strong>
+        <div class="location-item">
+          <img
+            src="{% static 'images/location_icon_green.png' %}"
+            width="20"
+            height="20"
+          />
+          {{ event.location }}
+        </div>
+      </div>
+      {% for event_attendee in event_attendees %}
+      <!-- prettier-ignore -->
+      {% if event_attendee.event == event %}
+      <p>
+        {{ event_attendee.attendee.first_name }}
+        <!-- prettier-ignore -->
+        {{ event_attendee.attendee.last_name }}
+      </p>
+      {% endif %}
+      <!-- prettier-ignore -->
+      {% endfor %}
+    </div>
+  </div>
+  {% if not event.is_accepted %}
+  <button
+    hx-get="{% url 'accept_event' pk=coach.pk %}?event_id={{ event.id }}"
+    hx-target="#event-item-{{ event.id }}"
+    hx-swap="outerHTML"
+    class="accept-btn"
+  >
+    Accept
+  </button>
+  {% endif %}
+</div>

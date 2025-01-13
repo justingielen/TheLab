@@ -6,10 +6,13 @@ from .models import User, Notification, HomeCalendar
 from django.contrib.auth.decorators import login_required # Decorator-- adds functionality to an existing function
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+
+# emails 
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.core.mail import send_mail
+import base64
 
 
 title = 'The Lab - '
@@ -54,34 +57,37 @@ def createprofile(request):
         if form.is_valid():
             user = form.save()  # Save the user, username is automatically set
             message = (
-                "Welcome to The Lab! Welcome to the future of youth sports development. "
-                "If you've played or coached at the collegiate level or above, "
-                "submit an <strong><a class='green-link' href='/application'>Application</a></strong> to join the coaching team! "
+                "Welcome to The Lab, the future of youth sports development! "
                 'For those looking to enhance an athletic career, explore our roster of experienced '
                 "<strong><a class='green-link' href='/page/browsing'>Coaches</a></strong> who are ready to guide you or your athlete's journey "
-                'to the next level! You can also discover and sign up for upcoming developmental '
-                "<strong><a class='green-link' href='/events/browsing'>Events</a></strong> (e.g., camps & Clinics). "
+                'to the next level! '
+                "If you've played or coached at the collegiate level or above, "
+                "submit an <strong><a class='green-link' href='/application'>Application</a></strong> to join the coaching team and start making money while making a difference! "
                 "Stay tuned for more features and updates as we continue building The Lab!"
             )
             Notification.objects.create(user=user,message=message)
 
+            with open('C:/Users/Justin/.virtualenvs/TheLab1_0/thelab/static/images/green_logo.png', 'rb') as image_file:
+                encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
             
             # Send welcome email
             html_message = render_to_string(
-                'emails/profile_creation.html',
+                'emails/profile_created.html',
                 {
                     'username': user.username,
-                    'message': message
+                    'encoded_image':encoded_image
                 }
             )
             # (include both html and plain text versions to avoid being marked as spam)
             plain_message = strip_tags(html_message)
             send_mail(
-                subject='Welcome to the Lab!',
+                subject='Welcome to The Lab!',
                 message=plain_message,
                 html_message=html_message,
-                from_email=settings.FROM_EMAIL_JUSTIN,
+                from_email=settings.FROM_EMAIL_JUSTIN,  # From admin email
                 recipient_list=[user.email],
+                auth_user=settings.FROM_EMAIL_JUSTIN,
+                auth_password=settings.EMAIL_JUSTIN_PASSWORD,
                 fail_silently=False,
             )
             

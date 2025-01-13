@@ -1,0 +1,47 @@
+{% extends "emails/email_container.html" %}
+<!-- prettier-ignore -->
+{% block content %}
+<!-- prettier-ignore -->
+<h1>A New Event Has Been Suggested!</h1>
+<p>
+  Thank you for using The Lab, the future of youth sports development! We are
+  excited to have you as part of our coaching team.
+</p>
+<p>
+  A new event has been suggested for you! The details of the proposed event are
+  as follows:
+</p>
+<p>
+  <strong>Event: </strong>{{ package.sport }} {{ package.type }}<br />
+  <strong>Location: </strong>{{ location.name }}<br />
+  <strong>Scheduled Date: </strong>{{ date|date:"l, F j, Y" }}<br />
+  <strong>Start Time: </strong>{{ start_time|time:"g:i A" }}<br />
+  <strong>End Time: </strong>{{ end_time|time:"g:i A" }}
+</p>
+
+<p>The following attendees are signed up for this event:</p>
+
+<ul>
+  {% for attendee in attendees %}
+  <li>
+    <strong>{{ attendee.first_name }} {{ attendee.last_name }}</strong>
+  </li>
+  {% empty %}
+  <li>No attendees have signed up yet.</li>
+  {% endfor %}
+</ul>
+
+<p>
+  The event is currently in "Suggested" status and awaiting your approval. You
+  can review and accept or deny the event via your page.
+</p>
+<p>
+  Once the event is accepted, we'll notify the athletes and proceed with the
+  next steps.
+</p>
+<a href="https://127.0.0.1:8000/" class="button">Review Event</a>
+{% endblock content %}
+<p>
+  Thank you for helping develop the next generation of athletes! We look forward
+  to more successful events together.
+</p>

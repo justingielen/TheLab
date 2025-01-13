@@ -1,0 +1,35 @@
+{% extends "emails/email_container.html" %}
+<!-- prettier-ignore -->
+{% block content %}
+<!-- prettier-ignore -->
+<h1>Welcome to The Lab, {{ username }}!</h1>
+<p>
+  Thank you for joining The Lab, the future of youth sports development. We're
+  excited to have you on board!
+</p>
+<p>
+  If you're looking to enhance an athletic career, explore our roster of
+  experienced
+  <strong
+    ><a
+      href="https://127.0.0.1:8000/page/browsing"
+      style="color: #4caf50; text-decoration: none"
+      >Coaches</a
+    ></strong
+  >
+  who are ready to guide you or your athlete's journey to the next level.
+</p>
+<p>
+  If you've played or coached at the collegiate level or above, submit an
+  <strong
+    ><a
+      href="https://127.0.0.1:8000/application"
+      style="color: #4caf50; text-decoration: none"
+      >Application</a
+    ></strong
+  >
+  to join our coaching team and start earning money while making a difference!
+</p>
+<p>Stay tuned for more features and updates as we continue building The Lab.</p>
+<a href="https://127.0.0.1:8000/" class="button">Get Started</a>
+{% endblock content %}

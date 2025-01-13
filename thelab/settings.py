@@ -82,9 +82,10 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = 10  # Timeout in seconds
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Defined in .env
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Defined in .env
 FROM_EMAIL_JUSTIN = env('FROM_EMAIL_JUSTIN')  # Defined in .env
+EMAIL_JUSTIN_PASSWORD = env('EMAIL_JUSTIN_PASSWORD')  # Defined in .env
 FROM_EMAIL_ADMIN = env('FROM_EMAIL_ADMIN')  # Defined in .env
+EMAIL_ADMIN_PASSWORD = env('EMAIL_ADMIN_PASSWORD')
 
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',

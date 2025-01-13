@@ -13,6 +13,13 @@ import calendar
 from schedule.models import Rule
 from .signals import coach_location
 
+# emails
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
+from django.core.mail import send_mail
+import base64
+
 def page_browsing(request):
     # Find all coaches
     coaches = User.objects.filter(coach=True)
@@ -60,10 +67,28 @@ def page_viewing(request, pk):
     for coachsport in coachsports:
         sports.append(coachsport.sport)
 
-    # Combine suggested and upcoming events
-    all_events = list(Event.objects.filter(
-        creator=coach,
-    ).order_by('start'))
+    # Combine and order suggested and upcoming events
+    # Fetch all events for the coach
+    all_events = Event.objects.filter(
+        creator=coach
+    ).order_by('start')
+
+    # Filter EventAttendees based on the specific events the coach owns
+    event_ids = [event.id for event in all_events]  # Get the IDs of the coach's events
+
+    # Fetch the attendees for only the relevant events
+    event_attendees = EventAttendee.objects.filter(event_id__in=event_ids).select_related('attendee')
+
+    # Create a mapping of event IDs to their attendees
+    attendees_mapping = {}
+    for attendee in event_attendees:
+        if attendee.event.id not in attendees_mapping:
+            attendees_mapping[attendee.event.id] = []
+        attendees_mapping[attendee.event.id].append(attendee.attendee)
+
+    # Attach the attendees to the corresponding events in all_events
+    for event in all_events:
+        event.attendees = attendees_mapping.get(event.id, [])
 
     # Add calculated location info and per-athlete pricing
     package_locations = {}
@@ -88,6 +113,7 @@ def page_viewing(request, pk):
         'coach':coach,
         'sports':sports,
         'all_events':all_events,
+        'event_attendees':event_attendees,
         'locations':coach_locations,
         'availabilities':coach_availability,
         'packages':coach_packages,
@@ -145,8 +171,8 @@ def add_location(request, name):
     return redirect('page_viewing', pk=request.user.pk)
 
 @login_required
-def remove_location(request, location_name):
-    location = Location.objects.filter(location_name=location_name).get()
+def remove_location(request, name):
+    location = Location.objects.filter(name=name).get()
     coach_location = CoachLocation.objects.filter(location=location, coach=request.user)
     coach_location.delete()
     messages.success(request, 'Location removed!')
@@ -291,7 +317,7 @@ def check_availability(request, pk, week):
     print(location)
 
     # Get a coach's posted availability
-    avails = Availability.objects.filter(creator=coach)
+    avails = Availability.objects.filter(creator=coach, location=location)
 
     # Break each availability down into 1 hour time slots
     slots = []
@@ -361,10 +387,11 @@ def check_availability(request, pk, week):
     return render(request, 'page/partials/time_slots.html', context)
 
 def signup(request, date, time, week):
-    # get the selected package
-    package_id = request.GET.get('package_id')
-    package = Package.objects.get(pk=package_id)
+    # get the selected package & location
+    package = Package.objects.get(pk=request.GET.get('package_id'))
     coach = User.objects.get(pk=request.GET.get('coach_id'))
+    location = Location.objects.get(pk=request.GET.get('location_id'))
+
 
     # convert date and time (strings) to start_time and end_time (datetimes)
     date = datetime.strptime(date, "%Y-%m-%d").date()  # Convert to a date object
@@ -376,41 +403,73 @@ def signup(request, date, time, week):
     AttendeeFormSet = modelformset_factory(Attendee, form=AttendeeForm, extra=package.athletes)
 
     if request.method == 'POST':
+        # Capture attendee and parent info from the form 
         formset = AttendeeFormSet(request.POST)
         parent_form = ParentForm(request.POST or None)
+
         if formset.is_valid() and parent_form.is_valid():
-            # Save attendees
+            # Save attendee(s) & parent
             attendees = formset.save()
+            parent = parent_form.save()
             
             # Get coach's calendar
             page_calendar = PageCalendar.objects.get(user=coach)
             
-            # Create a suggested event
+            # Create a suggested event (is_accepted = False) that's private (max_attendance = package.athletes)
             event = Event(
                 title=f"{package.sport} {package.type}",
-                location=package.location,
+                location=location,
                 start=start_time,
                 end=end_time,
-                event_type=package.type,
+                type=package.type,
                 creator=coach,
                 is_accepted=False,  # Needs coach approval
                 max_attendance=package.athletes, 
                 calendar=page_calendar
             )
             event.save()
-            parent = parent_form.save()
             
-            # Add attendees to event
+            # Add attendees to suggested event
             for attendee in attendees:
                 EventAttendee.objects.create(
                     event=event,
                     attendee=attendee
                 )
+                # Create parent relation to attendees
                 AttendeeParent.objects.create(
                     attendee=attendee,
                     parent=parent,
                 )
-
+            
+            # Send email to Coach
+            with open('C:/Users/Justin/.virtualenvs/TheLab1_0/thelab/static/images/green_logo.png', 'rb') as image_file:
+                encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+            
+            # Send welcome email
+            html_message = render_to_string(
+                'emails/event_suggested.html',
+                {
+                    'encoded_image':encoded_image,
+                    'package': package,
+                    'location': location,
+                    'date': date,
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'attendees': attendees,
+                }
+            )
+            # (include both html and plain text versions to avoid being marked as spam)
+            plain_message = strip_tags(html_message)
+            send_mail(
+                subject='An event has been requested!',
+                message=plain_message,
+                html_message=html_message,
+                from_email=settings.FROM_EMAIL_ADMIN,  # From admin email
+                recipient_list=[coach.email],
+                auth_user=settings.FROM_EMAIL_ADMIN,
+                auth_password=settings.EMAIL_ADMIN_PASSWORD,
+                fail_silently=False,
+            )
 
             # Handle payment choice
             payment_type = request.POST.get('payment_type')
@@ -430,8 +489,6 @@ def signup(request, date, time, week):
                     type='event_suggestion'
                 )
                 notification.save()
-
-                
 
                 # For HTMX, we need to send a response that includes HX-Redirect
                 response = HttpResponse()
@@ -458,15 +515,24 @@ def signup(request, date, time, week):
         'end_time':end_time, 
         'formset':formset,
         'parent_form':parent_form,
+        'location':location,
     }
     
     return render(request, 'page/partials/signup.html', context)
 
-def accept_event(request):
-    event = request.GET.get('event')
-
+def accept_event(request, pk):
+    event = Event.objects.get(pk=request.GET.get('event_id'))
     event.is_accepted = True
     event.save()
+
+    coach = User.objects.get(pk=pk)
+
+    context = {
+        'coach':coach,
+        'event':event,
+    }
+
+    return render(request, 'page/partials/list_event_item.html', context)
 
 @login_required
 def create_event(request):

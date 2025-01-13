@@ -866,9 +866,14 @@ blockquote {
 }
 
 .location-item.selected {
+  font-weight: bold;
   border: 1.5px solid rgb(5, 220, 5);
 }
 
+/* For Coach Schedules */
+.location-item.accepted {
+  align-items: right;
+}
 
 .unavailable {
   margin: 4rem;

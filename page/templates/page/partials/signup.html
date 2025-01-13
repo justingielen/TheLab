@@ -1,3 +1,4 @@
+{% load static %}
 {% load crispy_forms_tags %}
 <!-- prettier-ignore -->
 
@@ -8,7 +9,7 @@
     <!-- Back button using HTMX -->
     <button
       class="btn mb-3"
-      hx-get="{% url 'check_availability' pk=package.owner.pk week=week %}?package_id={{ package.id }}"
+      hx-get="{% url 'check_availability' pk=package.owner.pk week=week %}?package_id={{ package.id }}&location_id={{ location.id }}"
       hx-target="#time-slots"
       hx-swap="innerHTML transition:true"
     >
@@ -19,8 +20,19 @@
     <div class="selected-info border-bottom">
       <p class="session-details">
         <!-- prettier-ignore -->
-        {{ package.sport }} {{ package.type }} @ {{ package.location }}
-        <p class="text-muted"> ({{ date }} {{ start_time.time }} - {{ end_time.time }}) </p>
+        <center class="border-bottom"><strong>{{ package.sport }} {{ package.type }} w/ {{ coach.first_name }}</strong></center> 
+        <p class="text-muted">
+          <img
+            src="{% static 'images/location_icon_green.png' %}"
+            width="40"
+            height="40"
+          /> {{ location.name }} </p>
+        <p class="text-muted">
+          <img
+          src="{% static 'images/calendar_icon_green.png' %}"
+          width="25"
+          height="25"
+        /> {{ date|date:"l, F j" }} {{ start_time.time|time:"g:iA"  }}-{{ end_time.time|time:"g:iA"  }} </p>
       </p>
     </div>
   </div>
@@ -32,7 +44,7 @@
     <!-- Formset -->
     <form
       method="POST"
-      hx-post="{% url 'signup' date=date|date:'Y-m-d' time=start_time.time|time:'H:i:s' week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}"
+      hx-post="{% url 'signup' date=date|date:'Y-m-d' time=start_time.time|time:'H:i:s' week=week %}?package_id={{ package.id }}&coach_id={{ coach.pk }}&location_id={{ location.id }}"
       hx-target="#time-slots"
     >
       {% csrf_token %}

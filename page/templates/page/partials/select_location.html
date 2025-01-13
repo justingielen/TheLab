@@ -1,4 +1,27 @@
 {% load static %}
+
+<head>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Variable to hold the selected location
+      let selectedLocation = null;
+
+      // Select all location-item elements
+      const locationItems = document.querySelectorAll(".location-item");
+
+      locationItems.forEach((item) => {
+        item.addEventListener("click", function () {
+          // Get the location name from the clicked element's data attribute
+          selectedLocation = this.getAttribute("data-location-name");
+
+          // Log or use the updated selectedLocation
+          console.log("Selected Location:", selectedLocation);
+        });
+      });
+    });
+  </script>
+</head>
+
 <!-- prettier-ignore -->
 {% if locations|length > 1 %}
 <!-- prettier-ignore -->
@@ -14,6 +37,7 @@
   hx-swap="innerHTML transition:true"
   hx-trigger="{% if location.name == selected_location %}load, click{% else %}click{% endif %}"
   id="location-{{ location.id }}"
+  data-location-name="{{ location.name }}"
 >
   <img
     src="{% static 'images/location_icon_green.png' %}"
@@ -22,4 +46,5 @@
   />
   <span>{{ location.name }}</span>
 </div>
+
 {% endfor %}

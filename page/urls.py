@@ -14,5 +14,6 @@ urlpatterns = [
     path('<pk>/select_location', views.select_location, name='select_location'),
     path('<pk>/<week>/check_availability', views.check_availability, name='check_availability'),
     path('<date>/<time>/<week>/signup/', views.signup, name='signup'),
+    path('<pk>/viewing/accept_event/', views.accept_event, name='accept_event'),
     path('create/event/', views.create_event, name='event_form'),
 ]

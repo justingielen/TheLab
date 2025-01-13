@@ -136,7 +136,7 @@ class EventDetailsForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['title','price','location','location_notes','description','event_type'] # 'price'
+        fields = ['title','price','location','location_notes','description','type'] # 'price'
 
 class EventTimelineForm(forms.ModelForm):
     date = forms.DateField(widget=forms.DateInput(attrs={'type':'date'}))

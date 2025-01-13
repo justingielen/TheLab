@@ -95,7 +95,7 @@ class Package(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.owner} - {self.type} ({self.athletes}): ${self.price}"
+        return f"{self.owner} - {self.sport} {self.type} (${self.price} {self.athletes} athlete(s)/{self.duration})"
     
 class PackageLocation(models.Model):
     package =  models.ForeignKey(Package, on_delete=models.CASCADE)   
@@ -138,7 +138,7 @@ class Event(BaseEvent):
         ('clinic', 'Clinic'),
         ('training', 'Training'),
     )
-    event_type = models.CharField(max_length=255, choices=EVENT_TYPES)
+    type = models.CharField(max_length=255, choices=EVENT_TYPES)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in an Event)")
     location_notes = models.CharField(max_length=255,blank=True, help_text="(e.g., 'Field 3', or 'Auxiliary Gym')")
     is_accepted = models.BooleanField(default=True)

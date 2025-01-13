@@ -26,24 +26,42 @@
     </div>
     
     {% for event in date_group.list %}
-    <div class="event-item {% if not event.is_accepted %}not-accepted{% endif %}">
+    <div id="event-item-{{ event.id }}" class="event-item {% if not event.is_accepted %}not-accepted{% endif %}">
         <div class="event-details">
             <div class="event-time">{{ event.start|time:"g:i A" }}</div>
             <div class="event-info">
                 <div class="event-type">
-                    {{ event.title }}
-                    {% if not event.is_accepted %}
-                    <span class="status-badge status-pending">Pending</span>
-                    {% endif %}
+                    <strong class="border-bottom mb-2">{{ event.title }}</strong>
                 </div>
-                <div class="event-location">{{ event.location.location_name }} ({{ event.event_type }})</div>
+                {% for event_attendee in event_attendees %}
+                <ul>
+                    {% if event_attendee.event == event %}
+                    <img
+                        src="{% static 'images/attendee_icon.png' %}"
+                        width="20"
+                        height="20"
+                    />  {{ event_attendee.attendee.first_name }} {{ event_attendee.attendee.last_name }}  </li>
+                    {% endif %}
+                </ul>
+                {% endfor %}
+            </div>
+            <div class="location-item mr-4 {% if event.is_accepted %}accepted{% endif %}">
+                <img
+                    src="{% static 'images/location_icon_green.png' %}"
+                    width="20"
+                    height="20"
+                />
+                {{ event.location }}
             </div>
         </div>
         {% if not event.is_accepted %}
-        <form method="POST" action="{% url 'page_viewing' pk=coach.pk %}?event=event">
-            {% csrf_token %}
-            <button type="submit" class="accept-btn">Accept</button>
-        </form>
+            <button 
+            hx-get="{% url 'accept_event' pk=coach.pk %}?event_id={{ event.id }}"
+            hx-target="#event-item-{{ event.id }}"
+            hx-swap="outerHTML"
+            class="accept-btn">
+            Accept
+        </button>
         {% endif %}
     </div>
     {% endfor %}
@@ -177,10 +195,53 @@
         </script>
 
         {% if packages.count != 0 %}
-        <div id="time-slots" class="mb-3">
+        <div id="time-slots" class="mb-3" hx-on="htmx:afterSwap" hx-trigger="htmx:afterSwap:scroll">
             <i>Click on a package above to schedule your session!</i>
         </div>
         {% endif %}
+
+        <script>
+            document.addEventListener("htmx:afterSwap", (event) => {
+                // Check if the target element is the time-slots div
+                if (event.target.id === "time-slots") {
+                    // Scroll to the time-slots element with an offset
+                    const rect = event.target.getBoundingClientRect();
+                    const offset = -200; // Adjust this value as needed
+                    window.scrollTo({
+                        top: window.scrollY + rect.top + offset,
+                        behavior: "smooth",
+                    });
+        
+                    // Find the selected package-box
+                    const selectedPackage = document.querySelector(".package-box.selected");
+                    if (selectedPackage) {
+                        // Remove 'selected' class from all package-location divs
+                        document.querySelectorAll(".package-location").forEach((location) => {
+                            location.classList.remove("selected");
+                        });
+        
+                        // Add 'selected' class to the selected package's location div
+                        const locationDiv = selectedPackage.querySelector(".package-location");
+                        if (locationDiv) {
+                            locationDiv.classList.add("selected");
+                        }
+                    }
+                }
+            });
+        
+            // Add an event listener for package box clicks to manage the 'selected' class
+            document.querySelectorAll(".package-box").forEach((box) => {
+                box.addEventListener("click", () => {
+                    // Remove 'selected' class from all package boxes
+                    document.querySelectorAll(".package-box").forEach((box) => {
+                        box.classList.remove("selected");
+                    });
+        
+                    // Add 'selected' class to the clicked package box
+                    box.classList.add("selected");
+                });
+            });
+        </script>
 
     <!-- Locations -->
     <p class="border-bottom">
