@@ -1,9 +1,19 @@
 from django.db import models
+from django.conf import settings
 from django.urls import reverse
 from schedule.models import Event as BaseEvent
 from schedule.models import Calendar as BaseCalendar
-from django.conf import settings
-from datetime import timedelta
+from datetime import datetime, timedelta
+
+# Locations
+import googlemaps
+from functools import lru_cache
+from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured
+from decimal import Decimal
+import logging
+
+
     
 class Sport(models.Model):
     sport = models.CharField(max_length=25, unique=True)
@@ -43,9 +53,112 @@ class Location(models.Model):
     city = models.CharField(max_length=255, blank=True)
     state = models.CharField(max_length=2, blank=True)
     zip = models.CharField(max_length=10, blank=True)
+
+    # Cached geocoding results for performance
+    latitude = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True,
+        help_text="Cached latitude from Google Maps geocoding"
+    )
+    longitude = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True,
+        help_text="Cached longitude from Google Maps geocoding"
+    )
     
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        """
+        Before saving, geocode the address for in-person locations.
+        This ensures we always have coordinates for travel time calculations.
+        """
+        if self.type == 'in-person' and not self.latitude and all([
+            self.street_address, self.city, self.state, self.zip
+        ]):
+            self._geocode_address()
+        super().save(*args, **kwargs)
+    
+    def _geocode_address(self):
+        """
+        Convert the physical address to latitude and longitude using Google Maps API.
+        Called automatically when saving new in-person locations or when addresses change.
+        """
+        logger = logging.getLogger(__name__)
+
+        if not hasattr(settings, 'GOOGLE_MAPS_API_KEY'):
+            raise ImproperlyConfigured(
+                "GOOGLE_MAPS_API_KEY setting is required. Please configure key."
+            )
+            
+        gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+        address = f"{self.street_address}, {self.city}, {self.state} {self.zip}"
+        
+        try:
+            result = gmaps.geocode(address)
+            if not result:
+                logger.error(f"No geocoding results found for address: {address}")
+                return
+                
+            location = result[0]['geometry']['location']
+            self.latitude = Decimal(str(location['lat']))
+            self.longitude = Decimal(str(location['lng']))
+            
+            logger.info(f"Successfully geocoded address: {address}")
+            
+        except googlemaps.exceptions.ApiError as e:
+            logger.error(f"Google Maps API error for {address}: {str(e)}")
+            raise ValidationError(f"Unable to geocode address: {str(e)}")
+        except Exception as e:
+            logger.error(f"Unexpected error geocoding {address}: {str(e)}")
+            raise ValidationError("An unexpected error occurred while geocoding the address")
+
+    @lru_cache(maxsize=100)
+    def get_travel_time(self, other_location, departure_time=None):
+        """
+        Calculate travel time to another location considering traffic at departure_time.
+        Results are cached to minimize API calls for frequently calculated routes.
+        
+        Args:
+            other_location: Destination Location instance (always the location of the event being compared to the time slot)
+            departure_time: When the journey will start (for traffic estimation)
+        
+        Returns:
+            int or None: Travel time in minutes, or None if calculation fails
+        """ 
+        logger = logging.getLogger(__name__)
+
+        if not all([self.latitude, self.longitude, 
+                   other_location.latitude, other_location.longitude]):
+            logger.warning(
+                f"Cannot calculate travel time: missing coordinates for {self.name} "
+                f"or {other_location.name}"
+            )
+            return None
+            
+        gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+
+        try:
+            result = gmaps.distance_matrix(
+                origins=[(float(self.latitude), float(self.longitude))],
+                destinations=[(float(other_location.latitude), float(other_location.longitude))],
+                mode="driving",
+                departure_time=departure_time or datetime.now(), # departure time provided in check_availability views
+                traffic_model="best_guess"
+            )
+            
+            if result['rows'][0]['elements'][0]['status'] == 'OK':
+                # Convert seconds to minutes
+                return result['rows'][0]['elements'][0]['duration']['value'] // 60
+            return None
+        except Exception as e:
+            print(f"Error calculating travel time: {str(e)}")
+            return None
     
 class LocationSport(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)

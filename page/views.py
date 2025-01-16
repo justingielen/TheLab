@@ -20,6 +20,9 @@ from django.conf import settings
 from django.core.mail import send_mail
 import base64
 
+# for caching travel_times
+from collections import defaultdict
+
 def page_browsing(request):
     # Find all coaches
     coaches = User.objects.filter(coach=True)
@@ -307,73 +310,149 @@ def select_location(request, pk):
 
 # View for showing potential clients a Coach's still-available time slots
 def check_availability(request, pk, week):
+    """
+    View function that checks a coach's availability considering travel times.
+    Supports 1-hour slots starting on either hour or half-hour marks when near existing events.
+    """
     week = int(week)
     coach = User.objects.get(pk=pk)
     package_id = request.GET.get('package_id')
-    location_id = request.GET.get('location_id')
-
     package = get_object_or_404(Package, id=package_id)
-    location = get_object_or_404(Location, id=location_id)
-    print(location)
 
-    # Get a coach's posted availability
-    avails = Availability.objects.filter(creator=coach, location=location)
+    location_id = request.GET.get('location_id')
+    package_location = get_object_or_404(Location, id=location_id)
 
-    # Break each availability down into 1 hour time slots
-    slots = []
+    # Get the date for the requested week
     date = datetime.now().date() + timedelta(days=7*week)
+    
+    # Get the coach's events within a buffer period 
+    events = Event.objects.filter(
+        creator=coach,
+        start__gte=date-timedelta(weeks=1),
+        end__lt=date+timedelta(weeks=1)
+    ).select_related('location').order_by('start')
+
+    # Get a coach's posted availability for the chosen location
+    avails = Availability.objects.filter(creator=coach, location=package_location)
+
+    # Cache for travel times to reduce API calls
+    travel_time_cache = defaultdict(dict)
+
+    def get_cached_travel_time(origin, destination, departure_time):
+        """
+        Cache travel times for origin-destination pairs with rounded departure times.
+        Returns travel time in minutes or None if travel is impossible.
+        """
+
+        print(f"Calculating travel time from {origin} to {destination} at {departure_time}")
+
+        if not origin or not destination:
+            return None
+        
+        # Early validation to prevent unnecessary API calls
+        if origin.type == 'virtual' or destination.type == 'virtual' or origin == destination:
+            return 0
+            
+        rounded_time = departure_time.replace(minute=(departure_time.minute // 15) * 15, second=0, microsecond=0)
+        cache_key = (origin.id, destination.id)
+        
+        if rounded_time not in travel_time_cache[cache_key]:
+            travel_time = origin.get_travel_time(destination, departure_time=rounded_time)
+            travel_time_cache[cache_key][rounded_time] = travel_time
+            print(f"Travel time: {travel_time} minutes")
+            
+        return travel_time_cache[cache_key][rounded_time]
+
+    # Generate potential time slots
+    slots = []
     for avail in avails:
-        # 1: Find difference between today's weekday and availability's weekday
+        # Get date and time frame of availability
         today_index = date.weekday()
         avail_day_index = list(calendar.day_name).index(avail.day)
         day_diff = (avail_day_index - today_index)
-
-        # 2: Get the specific date of the availability
         specific_date = date + timedelta(days=day_diff)
-
-        # 3: Combine this date with the start and end times of the availability
         start_datetime = datetime.combine(specific_date, avail.start.time())
         end_datetime = datetime.combine(specific_date, avail.end.time())
 
-        # 4: Generate 1-hour time slots within this range - [)
+        # Add regular 1-hour time slots
         current_time = start_datetime
         while current_time < end_datetime:
-            slots.append(current_time)  # Add the current time slot to the list
-            current_time += timedelta(hours=1)  # Increment by 1 hour
+            slots.append(current_time) 
+            current_time += timedelta(hours=1)
 
-    # get coach's events for the applicable window (2 weeks long extending back and forwards a week from the current day)
-    events = Event.objects.filter(creator=coach, start__gte=date-timedelta(weeks=1), end__lt=date+timedelta(weeks=1))
+        # Add half-hour start slots near existing events
+        current_time = start_datetime + timedelta(minutes=30)
+        while current_time < end_datetime - timedelta(minutes=30):  # Ensure full hour fits
+            # Check if slot is within 2 hours of any event
+            is_near_event = False
+            for event in events:
+                time_before_event = (event.start - current_time).total_seconds()
+                time_after_event = (current_time - event.end).total_seconds()
+                
+                if 0 <= time_before_event <= 7200 or 0 <= time_after_event <= 7200:
+                    is_near_event = True
+                    break
+            
+            if is_near_event:
+                slots.append(current_time)
+            current_time += timedelta(hours=1)
 
-    # delete time slots if they're in the past or if the coach has an event during that time
-    for slot in slots[:]:  # Iterating over a copy of slots to safely modify the original list
-        # Check if the slot is in the past
-        if slot < datetime.now():
-            slots.remove(slot)
-            continue  # Skip to the next slot
-        
-        # Check if the slot conflicts with any of the coach's events
-        for event in events:
-            if event.start <= slot < event.end:
-                if slot in slots:
-                    slots.remove(slot)
-                continue  # Skip to the next slot once a conflict is found
-    
-    formatted_slots = []
+    # Remove slot if the coach has a conflicting event (including travel time)
+    valid_slots = []
     for slot in slots:
-        formatted_slots.append({
-            'date': slot.date(),  # Extract the date part
-            'time': slot.time()   # Extract the time part
-        })
+        # ... or if the slot is in the past
+        if slot < datetime.now():
+            continue
 
-    # Create a dictionary mapping days of the week to their corresponding dates (of the appropriate week)
+        print(f"Checking slot: {slot}")
+        print(f"Valid slots so far: {len(valid_slots)}")
+
+        slot_end = slot + timedelta(hours=1)
+        conflict_found = False
+        
+        # Check conflicts with each event
+        for event in events:
+            # MAKE SURE THE EVENT IS ON THE SAME DAY AS THE SLOT BEFORE PROCEEDING
+
+            # Direct conflict
+            if event.start <= slot < event.end:
+                conflict_found = True
+                break
+
+            # Slot is before event
+            elif slot < event.start:
+                # Ensure coach has time to travel to the event
+                travel_time = get_cached_travel_time(package_location, event.location, departure_time=slot_end)
+                if travel_time is None or slot_end + timedelta(minutes=travel_time) > event.start:
+                    conflict_found = True
+                    break
+
+            # Slot is after event
+            elif slot >= event.end:
+                # Ensure coach has time to travel from the event
+                travel_time = get_cached_travel_time(event.location, package_location, departure_time=event.end)
+                if travel_time is None or slot < event.end + timedelta(minutes=travel_time):
+                    conflict_found = True
+                    break
+
+        if not conflict_found:
+            valid_slots.append(slot)
+
+    # Format remaining valid slots
+    formatted_slots = [
+        {'date': slot.date(), 
+         'time': slot.time()
+    } for slot in sorted(valid_slots)]
+
+    # Prepare dates for template
     days_of_week = list(calendar.day_name)
-    dates = {}
-    for i, day in enumerate(days_of_week):
-        day_date = date + timedelta(days=(i - date.weekday()))
-        dates[day.lower()] = {
-            'display': day_date.strftime('%m/%d'),  # For display (MM/DD)
-            'compare': day_date             # For comparison (datetime.date object)
+    dates = {
+        day.lower(): {
+            'display': (date + timedelta(days=(i - date.weekday()))).strftime('%m/%d'), # for display
+            'compare': date + timedelta(days=(i - date.weekday())) # for comparison
         }
+        for i, day in enumerate(days_of_week)
+    }
 
     context = {
         'coach':coach,
@@ -381,7 +460,7 @@ def check_availability(request, pk, week):
         'package':package,
         'slots':formatted_slots,
         'dates':dates,
-        'location':location,
+        'location':package_location,
     }
     
     return render(request, 'page/partials/time_slots.html', context)
@@ -485,7 +564,18 @@ def signup(request, date, time, week):
                 # Notify coach about new event suggestion
                 notification = Notification(
                     user=coach,
-                    message="A new event has been suggested! Please Accept or Deny it as soon as possible.",
+                    message=(
+                        f"A new event has been suggested! Please <strong><a class='green-link' href='/page/{coach.pk}/viewing'>Accept</a></strong> or Deny it as soon as possible. "
+                        f"<br><br>"
+                        f"<strong>Event Info:</strong><br>"
+                        f"Package: {package.sport} - {package.type} ({package.athletes}:1)<br>"
+                        f"Location: {location}<br>"
+                        f"Date & Time: {date.strftime('%A, %B %d, %Y')} ({start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')})<br>"
+                        f"<br>"
+                        f"<strong>Athlete Info:</strong><br>"
+                        f"Parent: {parent}<br>"
+                        f"Attendees: {', '.join(str(attendee) for attendee in attendees)}."
+                    ),                    
                     type='event_suggestion'
                 )
                 notification.save()
@@ -525,11 +615,15 @@ def accept_event(request, pk):
     event.is_accepted = True
     event.save()
 
+    # Fetch the attendees for only the relevant events
+    event_attendees = EventAttendee.objects.filter(event_id=event.id).select_related('attendee')
+
     coach = User.objects.get(pk=pk)
 
     context = {
         'coach':coach,
         'event':event,
+        'event_attendees':event_attendees,
     }
 
     return render(request, 'page/partials/list_event_item.html', context)

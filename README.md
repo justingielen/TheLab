@@ -35,13 +35,13 @@ Check out the project in its current state at [The Lab Website](https://justingi
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Tech Stack
 
-- **Frontend**: HTML / Django templates, (Bootstrap) CSS, JavaScript (React coming soon).
+- **Frontend**: HTML / Django templates, (Bootstrap) CSS, JavaScript & HTMX.
 - **Backend**: Django (Python).
-- **Hosting**: PythonAnywhere.
-- **Database**: SQLite (for now), planning to migrate to PostreSQL for production.
-- **Future Integrations**: AI/ML for video recommendation, analysis, and feedback.
+- **Hosting (staging)**: PythonAnywhere.
+- **Database**: MySQL.
+- **Hosted (production)**: Planned for Azure VMs.
 
 ---
 

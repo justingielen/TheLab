@@ -1,26 +1,29 @@
+{% load static %}
 <!-- prettier-ignore -->
 <div class="slots-chart">
   <i><center><h4 class="border-bottom mb-2"> Schedule your session with {{ coach.first_name }}! </h4></center></i>
-  <!-- Storing the current week value in a data attribute -->
+  
+  <!-- Week Navigation -->
   <div class="week-navigation" data-current-week="{{ week }}">
     <button class="btn mr-5"
             hx-get="{% url 'check_availability' pk=coach.pk week=week|add:'-1' %}?package_id={{ package.id }}&location_id={{ location.id }}"
             hx-target="#time-slots"
+            hx-indicator="#loading-indicator"
             hx-swap="innerHTML transition:true"
             {% if week == 0 %}disabled{% endif %}>
         ← Previous Week
     </button>
-    
     <center><p class="mt-2">Week of {{ dates.monday.display }}</p></center>
-    
     <button class="btn ml-5"
             hx-get="{% url 'check_availability' pk=coach.pk week=week|add:'1' %}?package_id={{ package.id }}&location_id={{ location.id }}"
             hx-target="#time-slots"
+            hx-indicator="#loading-indicator"
             hx-swap="innerHTML transition:true">
         Next Week →
     </button>
 </div>
 
+  <!-- Days of Current Week -->
   <div class="chart-header">
     <div class="day">Monday {{ dates.monday.display }}</div>
     <div class="day">Tuesday {{ dates.tuesday.display }}</div>
@@ -30,11 +33,13 @@
     <div class="day">Saturday {{ dates.saturday.display }}</div>
     <div class="day">Sunday {{ dates.sunday.display }}</div>
   </div>
+
+  <!-- Time Slots -->
   {% if not slots %}
   <div class="unavailable">
     <strong><i><center>{{ coach.first_name }} doesn't have any available time slots for this week. </center></i></strong>
   </div>
-    {% else %}
+  {% else %}
   <div class="chart-body">
       <div class="date-column">
       {% for slot in slots %}

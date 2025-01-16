@@ -74,6 +74,9 @@ INSTALLED_APPS = [
 
 PHONENUMBER_DEFAULT_REGION = 'US'
 
+# Google Maps API
+GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY')
+
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.zoho.com'
@@ -86,6 +89,8 @@ FROM_EMAIL_JUSTIN = env('FROM_EMAIL_JUSTIN')  # Defined in .env
 EMAIL_JUSTIN_PASSWORD = env('EMAIL_JUSTIN_PASSWORD')  # Defined in .env
 FROM_EMAIL_ADMIN = env('FROM_EMAIL_ADMIN')  # Defined in .env
 EMAIL_ADMIN_PASSWORD = env('EMAIL_ADMIN_PASSWORD')
+FROM_EMAIL_SUPPORT=env('FROM_EMAIL_SUPPORT')
+EMAIL_SUPPORT_PASSWORD=env('EMAIL_SUPPORT_PASSWORD')
 
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',

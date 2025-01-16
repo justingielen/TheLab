@@ -28,7 +28,7 @@
     {% for event in date_group.list %}
     <div id="event-item-{{ event.id }}" class="event-item {% if not event.is_accepted %}not-accepted{% endif %}">
         <div class="event-details">
-            <div class="event-time">{{ event.start|time:"g:i A" }}</div>
+            <div class="event-time">{{ event.start|time:"g:iA" }} - {{ event.end|time:"g:iA" }}</div>
             <div class="event-info">
                 <div class="event-type">
                     <strong class="border-bottom mb-2">{{ event.title }}</strong>
@@ -201,6 +201,7 @@
         {% endif %}
 
         <script>
+            // Event listener for scrolling down to time_slots and 'selecting' a location
             document.addEventListener("htmx:afterSwap", (event) => {
                 // Check if the target element is the time-slots div
                 if (event.target.id === "time-slots") {
@@ -229,7 +230,7 @@
                 }
             });
         
-            // Add an event listener for package box clicks to manage the 'selected' class
+            // Add an event listener for package-box clicks to manage the 'selected' class
             document.querySelectorAll(".package-box").forEach((box) => {
                 box.addEventListener("click", () => {
                     // Remove 'selected' class from all package boxes

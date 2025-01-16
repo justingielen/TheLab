@@ -671,6 +671,16 @@ blockquote {
   animation: slideDown 2sec ease-out;
 }
 
+.loading-indicator {
+  display: none; /* Ensures it's hidden initially */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+
 .week-navigation {
   display: flex;
   align-items: center;
