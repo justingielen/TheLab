@@ -19,7 +19,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-co*2qcbgji0o(hc-2(5=bjch%-s_0q)dk$%m5r0l++=%s2d#1g'
+SECRET_KEY = env('SECRET_KEY')
 
 # Determine environment
 DJANGO_ENV = env('DJANGO_ENV', default='development')
@@ -141,6 +141,10 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD'),
         'HOST': env('DB_HOST'),
         'PORT': env('DB_PORT'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
     }
 }
 

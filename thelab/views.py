@@ -13,6 +13,7 @@ from django.utils.html import strip_tags
 from django.conf import settings
 from django.core.mail import send_mail
 import base64
+import os
 
 
 title = 'The Lab - '
@@ -67,7 +68,8 @@ def createprofile(request):
             )
             Notification.objects.create(user=user,message=message)
 
-            with open('C:/Users/Justin/.virtualenvs/TheLab1_0/thelab/static/images/green_logo.png', 'rb') as image_file:
+            logo_path = os.path.join(settings.BASE_DIR, 'thelab','static', 'images', 'green_logo.png')
+            with open(logo_path, 'rb') as image_file:
                 encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
             
             # Send welcome email
