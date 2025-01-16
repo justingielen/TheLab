@@ -15,7 +15,6 @@ from django.core.mail import send_mail
 import base64
 import os
 
-
 title = 'The Lab - '
 
 def discover_drills(request):
@@ -72,21 +71,35 @@ def createprofile(request):
             with open(logo_path, 'rb') as image_file:
                 encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
             
+            # Ensuring email links point to the right domain
+            if settings.DJANGO_ENV == 'staging':
+                domain = 'https://justingielen.pythonanywhere.com'
+            else:
+                domain = 'http://localhost:8000'
+
+            links = {
+                'coaches': str(domain + "/page/browsing"),
+                'application': str(domain + "/application"),
+                'get_started': str(domain + "/home"),
+            }
+
             # Send welcome email
             html_message = render_to_string(
                 'emails/profile_created.html',
                 {
                     'username': user.username,
-                    'encoded_image':encoded_image
+                    'encoded_image': encoded_image,
+                    'links': links,
                 }
             )
+
             # (include both html and plain text versions to avoid being marked as spam)
             plain_message = strip_tags(html_message)
             send_mail(
                 subject='Welcome to The Lab!',
                 message=plain_message,
                 html_message=html_message,
-                from_email=settings.FROM_EMAIL_JUSTIN,  # From admin email
+                from_email=settings.FROM_EMAIL_JUSTIN,  # From justin email
                 recipient_list=[user.email],
                 auth_user=settings.FROM_EMAIL_JUSTIN,
                 auth_password=settings.EMAIL_JUSTIN_PASSWORD,
