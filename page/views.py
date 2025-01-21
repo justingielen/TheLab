@@ -78,10 +78,10 @@ def page_viewing(request, pk):
     ).order_by('start')
 
     # Filter EventAttendees based on the specific events the coach owns
-    event_ids = [event.id for event in all_events]  # Get the IDs of the coach's events
+    events = [event for event in all_events]  # Get the IDs of the coach's events
 
     # Fetch the attendees for the coach's events
-    event_attendees = EventAttendee.objects.filter(event_id__in=event_ids).select_related('attendee')
+    event_attendees = EventAttendee.objects.filter(event__in=events).select_related('attendee')
 
     # Create a mapping of event IDs to their attendees
     attendees_mapping = {}
