@@ -31,20 +31,35 @@
 <!-- prettier-ignore -->
 {% for location in locations %}
 <div
-  class="mb-1 location-item {% if location.name == selected_location %}selected{% endif %}"
-  hx-get="{% url 'check_availability' pk=pk week=0 %}?location_id={{ location.id }}&package_id={{ package.id }}"
-  hx-target="#time-slots"
-  hx-swap="innerHTML transition:true"
-  hx-trigger="{% if location.name == selected_location %}load, click{% else %}click{% endif %}"
-  id="location-{{ location.id }}"
-  data-location-name="{{ location.name }}"
+  class="package-location-wrapper"
+  style="display: flex; flex-direction: column; align-items: center; gap: 1px"
 >
-  <img
-    src="{% static 'images/location_icon_green.png' %}"
-    width="20"
-    height="20"
-  />
-  <span>{{ location.name }}</span>
-</div>
+  <div
+    class="mb-1 location-item {% if location.name == selected_location %}selected{% endif %}"
+    hx-get="{% url 'check_availability' pk=pk week=0 %}?location_id={{ location.id }}&package_id={{ package.id }}"
+    hx-target="#time-slots"
+    hx-swap="innerHTML transition:true"
+    hx-trigger="{% if location.name == selected_location %}load, click{% else %}click{% endif %}"
+    id="location-{{ location.id }}"
+    data-location-name="{{ location.name }}"
+    hx-indicator="#indicator-{{ location.id }}"
+  >
+    <img
+      src="{% static 'images/location_icon_green.png' %}"
+      width="20"
+      height="20"
+    />
+    <span>{{ location.name }}</span>
+  </div>
 
+  <!-- Indicator -->
+  <div id="indicator-{{ location.id }}" class="htmx-indicator">
+    <img
+      src="{% static 'images/Snake.gif' %}"
+      alt="Loading..."
+      width="20"
+      height="20"
+    />
+  </div>
+</div>
 {% endfor %}

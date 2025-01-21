@@ -45,7 +45,10 @@
                 </ul>
                 {% endfor %}
             </div>
-            <div class="location-item mr-4 {% if event.is_accepted %}accepted{% endif %}">
+            <div class="location-item mr-4 {% if event.is_accepted %}accepted{% endif %}"
+                hx-get="{% url 'maps_links' pk=coach.pk %}?event_id={{ event.id }}"
+                hx-target="#maps-links-{{ event.id }}"
+                hx-swap="innerHTML">
                 <img
                     src="{% static 'images/location_icon_green.png' %}"
                     width="20"
@@ -53,6 +56,8 @@
                 />
                 {{ event.location }}
             </div>
+            <!-- Placeholder for Maps Links -->
+            <div id="maps-links-{{ event.id }}" class="maps-links mt-2"></div>
         </div>
         {% if not event.is_accepted %}
             <button 
@@ -157,7 +162,7 @@
                             width="20"
                             height="20"
                         />
-                            {{ package.location_name }}
+                            {{ package.location_name }} <!-- location_name is "Multiple Locations" if > 1 -->
                         </p>
                     </div>
                 </div>

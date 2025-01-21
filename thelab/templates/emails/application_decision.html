@@ -1,0 +1,56 @@
+{% extends "emails/email_container.html" %}
+<!-- prettier-ignore -->
+{% block content %}
+<!-- prettier-ignore -->
+<h1>Welcome, Coach!</h1>
+<p>
+  Thank you for joining The Lab, the future of youth sports development. We're
+  excited to have you on the team! You're only a few simple steps away from
+  booking your first client:
+</p>
+<ul>
+  <li>
+    (1) Add a
+    <strong
+      ><a href="{{ links.page }}" style="color: #4caf50; text-decoration: none"
+        >bio</a
+      ></strong
+    >
+    so clients can get to know you, become familiar with your accomplished
+    career, and learn about your coaching history/operation.
+  </li>
+  <li>
+    (2) Set your
+    <strong
+      ><a
+        href="{{ links.availability }}"
+        style="color: #4caf50; text-decoration: none"
+        >availability</a
+      ></strong
+    >
+    so clients know where and when they can book your services!
+  </li>
+  <li>
+    (3) Add your prices & locations for the
+    <strong
+      ><a
+        href="{{ links.package }}"
+        style="color: #4caf50; text-decoration: none"
+        >services</a
+      ></strong
+    >
+    that you choose to provide!
+  </li>
+  <small class="text-muted">
+    <i
+      >Note: It is the Coach's responsibility to ensure your availability at the
+      locations provided.</i
+    >
+  </small>
+</ul>
+
+<p>
+  And always, if you have any issues, feedback, or special requests... you're
+  always welcome to contact us at the link at the bottom of this email!
+</p>
+{% endblock content %}

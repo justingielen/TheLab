@@ -1,19 +1,9 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from thelab.models import User
-from .models import PageCalendar, Location, CoachLocation, Event
+from .models import Location, CoachLocation, Event
 from django.apps import apps
 from django.utils import timezone
-
-# Create work calendar for coaches
-@receiver(post_save, sender=User)
-def create_page_calendar(sender, instance, **kwargs):
-    if instance.coach == True:
-        # Check if a PageCalendar already exists for the coach's username
-        if not PageCalendar.objects.filter(user=instance).exists():
-            # Create Page Calendar for the Coach if none exist
-            pagecalendar = PageCalendar.objects.create(user=instance)
-            pagecalendar.save()
 
 @receiver(post_save, sender=Location)
 def coach_location(sender, instance, **kwargs):

@@ -856,9 +856,22 @@ blockquote {
   align-items: right;
 }
 
+.package-location-wrapper {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.htmx-indicator {
+  opacity: 0;
+  transition: opacity 200ms ease-in;
+}
+
 .location-item {
   display: flex; /* Place image and text side by side */
   align-items: center; /* Align them vertically */
+  position:relative;
   gap: 8px; /* Space between the image and text */
   background-color: #d7d5d5;
   border-radius: 10px;

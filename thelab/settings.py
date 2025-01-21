@@ -61,16 +61,60 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # all auth
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'crispy_forms',
     'crispy_bootstrap5',
     'debug_toolbar',
     'thelab',
+    'common', # for dealing with deprecation in django-scheduler
     'page',
     'schedule', # Django-scheduler
     'djangobower', # Django-scheduler
     'events',
     'phonenumber_field'
 ]
+
+# Authentication backend configuration
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Allauth settings
+SITE_ID = 1
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False  # Since we'll generate usernames
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
+ACCOUNT_UNIQUE_EMAIL = True
+
+# Identity Platform Settings
+GOOGLE_IDENTITY_PLATFORM = {
+    'PROJECT_ID': env('GOOGLE_CLOUD_PROJECT_ID'),
+    'API_KEY': env('GOOGLE_MAPS_API_KEY'),
+    'AUTH_DOMAIN': env('GOOGLE_AUTH_DOMAIN'),
+}
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': env('GOOGLE_CLIENT_ID'),
+            'secret': env('GOOGLE_CLIENT_SECRET'),
+            'key': ''
+        }
+    }
+}
+
+GOOGLE_REDIRECT_URL = env('GOOGLE_REDIRECT_URI')
+LOGIN_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
 
 PHONENUMBER_DEFAULT_REGION = 'US'
 
@@ -85,7 +129,9 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = 10  # Timeout in seconds
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Defined in .env
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') 
 FROM_EMAIL_JUSTIN = env('FROM_EMAIL_JUSTIN')  # Defined in .env
+DEFAULT_FROM_EMAIL=FROM_EMAIL_JUSTIN # I added this line
 EMAIL_JUSTIN_PASSWORD = env('EMAIL_JUSTIN_PASSWORD')  # Defined in .env
 FROM_EMAIL_ADMIN = env('FROM_EMAIL_ADMIN')  # Defined in .env
 EMAIL_ADMIN_PASSWORD = env('EMAIL_ADMIN_PASSWORD')
@@ -101,6 +147,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware', 
 ]
 
 ROOT_URLCONF = 'thelab.urls'
@@ -212,9 +259,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-
-LOGIN_REDIRECT_URL = 'home'
-LOGIN_URL = 'login'
 
 STRIPE_PUBLIC_KEY = ''
 STRIPE_SECRET_KEY = ''

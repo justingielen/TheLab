@@ -2,8 +2,46 @@ from django.db.models.signals import post_save, post_delete # signal that gets f
 from django.dispatch import receiver # decorator
 from django.conf import settings
 from django.urls import reverse
+from allauth.socialaccount.models import SocialAccount
 from .models import User, Notification, Application
 from page.models import Sport, CoachSport
+
+# emails 
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
+from django.core.mail import send_mail
+import base64
+import os
+
+@receiver(post_save, sender=SocialAccount)
+def create_social_user_profile(sender, instance, created, **kwargs):
+    if created:
+        user = instance.user
+        # Get name from social account
+        first_name = instance.extra_data.get('given_name', '')
+        last_name = instance.extra_data.get('family_name', '')
+        
+        # Update user info
+        user.first_name = first_name
+        user.last_name = last_name
+        
+        # Generate username as per Registration Form
+        base_username = (first_name + last_name).lower()
+        username = base_username
+        
+        # Ensure username uniqueness
+        if User.objects.filter(username=username).exists():
+            n = 2
+            while True:
+                new_username = f"{base_username}{n}"
+                if not User.objects.filter(username=new_username).exists():
+                    username = new_username
+                    break
+                n += 1
+        
+        user.username = username
+        user.save()
 
 @receiver(post_save,sender=Application) 
 def application_notification(sender, instance, **kwargs):
@@ -11,10 +49,53 @@ def application_notification(sender, instance, **kwargs):
         if instance.approved:
             user = instance.user
             page_url = reverse('page_viewing', kwargs={'pk': user.pk})
+            # Create a notification
             message = (
                 f"Congratulations Coach! Your Application has been Approved! "
                 f"If you didn't already, you should have access to a <a class='green-link' href='{page_url}'>Page</a> button on your navigation bar."
             )        
+
+            # For the email: ensuring static files are obtained from the correct root
+            if settings.DJANGO_ENV == 'development':
+                static_root = os.path.join('thelab', 'static')
+            else:
+                static_root = 'staticfiles'
+            logo_path = os.path.join(settings.BASE_DIR, static_root, 'images', 'green_logo.png')
+            with open(logo_path, 'rb') as image_file:
+                encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+            
+            # Ensuring email links point to the right domain
+            if settings.DJANGO_ENV == 'staging':
+                domain = 'https://justingielen.pythonanywhere.com'
+            else:
+                domain = 'http://localhost:8000'
+            links = {
+                'page': str(domain + "/page/" + str(user.pk) + "/viewing"),
+                'availability': str(domain + "/page/set/availability"),
+                'package': str(domain + "/page/create/package")
+            }
+
+            # Constructing welcome email
+            html_message = render_to_string(
+                'emails/application_decision.html',
+                {
+                    'encoded_image': encoded_image,
+                    'links': links,
+                }
+            )
+
+            # Send the email (including both html and plain text versions to avoid being marked as spam)
+            plain_message = strip_tags(html_message)
+            send_mail(
+                subject='Welcome, Coach!',
+                message=plain_message,
+                html_message=html_message,
+                from_email=settings.FROM_EMAIL_JUSTIN,  # From justin email
+                recipient_list=[user.email],
+                auth_user=settings.FROM_EMAIL_JUSTIN,
+                auth_password=settings.EMAIL_JUSTIN_PASSWORD,
+                fail_silently=False,
+            )
         else:
             message = "Your Coach Application has been denied."
         

@@ -1,4 +1,14 @@
-{% extends "main/toolbar.html" %} {% load crispy_forms_tags %}
+{% extends "main/toolbar.html" %} {% load static %}
+<!-- prettier-ignore -->
+{% load crispy_forms_tags %}
+<!-- prettier-ignore -->
+{% load socialaccount %}
+<!-- prettier-ignore -->
+{% block extra_head %}
+<!-- Add Google Identity Platform Script -->
+<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth.js"></script>
+{% endblock %}
 <!-- prettier ignore -->
 {% block content %}
 <div class="create-profile-view">
@@ -9,16 +19,16 @@
     <p><strong>Levels:</strong></p>
     <ul class="mb-1">
       <li class="mb-1">
-        <strong>Everyone:</strong> Every user (athlete, parent, or coach) starts
-        as a basic user.
+        <strong>Everyone:</strong> Every user (parent or coach) starts as a
+        basic user.
       </li>
 
       <li>
         <strong>Coach:</strong> Users can upgrade their profile to coach by
         submitting an application that verifies college-minimum playing or
         coaching experience. Coaches can accept payment for coaching services
-        and schedule them on the same platform, without needing to pay for a
-        subscription.
+        and schedule their coaching events on the same platform, without needing
+        to pay for a subscription.
       </li>
     </ul>
     <!-- Additional Notes -->
@@ -27,8 +37,7 @@
         <small class="text-muted border-top">
           ** Event registration does not require a profile. Attendees simply
           must be named. All registrants must be 18 or older. Parents, you can
-          create accounts for you and your athletes for quick registration and
-          seamless payments.
+          create accounts for quick registration and seamless payments.
         </small>
       </i>
     </p>
@@ -48,18 +57,37 @@
   </div>
   {% endif %}
 
-  <form class="form-container" method="POST" action="{% url 'createprofile' %}">
+  <form
+    class="form-container"
+    id="signupForm"
+    method="POST"
+    action="{% url 'createprofile' %}"
+  >
     {% csrf_token %}<!-- "Cross Site Request Forgery", added security for forms that Django requires-->
     <!-- Form fields-->
     <fieldset class="form-group">
       <!-- Bootstrap class-->
-      <legend class="form-header">Create a Profile!</legend>
+      <legend class="form-header">
+        Create a Profile!
+        <small class="mt-2 text-muted" style="font-size: 0.5em">
+          OR sign up with
+          <!-- Google Sign-Up Button -->
+          <a href="{% provider_login_url 'google' %}" class="ml-0">
+            <img
+              src="{% static 'images/google_logo.png' %}"
+              alt="Button Image"
+              width="40"
+              height="40"
+            />
+          </a>
+        </small>
+      </legend>
       {{ form|crispy }}
     </fieldset>
 
     <div class="form-group">
       <div class="border-bottom pt-3 row">
-        <button class="btn btn-outline-info mb-2 mr-2" type="submit">
+        <button class="btn-primary mb-2 mr-2" type="submit">
           Create Profile
         </button>
         <small class="text-muted float-right">
@@ -100,5 +128,47 @@
       </small>
     </i>
   </p>
-  {% endif %} {% endblock %}
 </div>
+{% endif %}
+<!-- prettier-ignore -->
+<script>
+  // Initialize Firebase
+  const firebaseConfig = {
+      apiKey: "{{ google_config.apiKey }}",
+      authDomain: "{{ google_config.authDomain }}",
+      projectId: "{{ google_config.projectId }}",
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  
+  // Handle Google Sign-In
+  document.getElementById('googleSignIn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+          const result = await firebase.auth().signInWithPopup(provider);
+          const idToken = await result.user.getIdToken();
+          
+          // Send token to your backend
+          const response = await fetch('/auth/google/callback/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ idToken: idToken }),
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+              window.location.href = data.redirect;
+          } else {
+              alert('Authentication failed. Please try again.');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          alert('Authentication failed. Please try again.');
+      }
+  });
+  </script>
+{% endblock %}

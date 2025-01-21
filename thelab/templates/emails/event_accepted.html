@@ -1,0 +1,51 @@
+{% extends "emails/email_container.html" %}
+<!-- prettier-ignore -->
+{% block content %}
+<!-- prettier-ignore -->
+
+<h1>Your event has been accepted!</h1>
+
+<p>The details are as follows:</p>
+<p>
+  <strong>Event: </strong>{{ event.sport }} {{ event.type }}<br />
+  <strong>Location: </strong>{{ event.location.name }}<br />
+  <strong>Scheduled Date: </strong>{{ event.start.date|date:"l, F j, Y" }}<br />
+  <strong>Start Time: </strong>{{ event.start|time:"g:i A" }}<br />
+  <strong>End Time: </strong>{{ event.end|time:"g:i A" }}
+</p>
+
+<!-- add the ADD TO ANOTHER CALENDAR button -->
+
+<p>The following attendees are signed up for this event:</p>
+
+<ul>
+  {% for attendee in attendees %}
+  <li>
+    <strong>{{ attendee.first_name }} {{ attendee.last_name }}</strong>
+  </li>
+  {% empty %}
+  <li>No attendees have signed up yet.</li>
+  {% endfor %}
+</ul>
+
+<p>Need directions?</p>
+<ul>
+  <li>
+    <a
+      href="https://www.google.com/maps/dir/?api=1&destination={{ event.location.latitude }},{{ event.location.longitude }}"
+      target="_blank"
+    >
+      (Google Maps)
+    </a>
+  </li>
+  <li>
+    <a
+      href="http://maps.apple.com/?daddr={{ event.location.latitude }},{{ event.location.longitude }}"
+      target="_blank"
+    >
+      (Apple Maps)
+    </a>
+  </li>
+</ul>
+
+{% endblock content %}

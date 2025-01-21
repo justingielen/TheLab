@@ -133,19 +133,3 @@ class Application(models.Model):
             result = "undecided"
 
         return f"{self.user.first_name} {self.user.last_name} - {self.team} //// {self.sport} ({result})"
-# ----------------------------------------------------------------------------------------------------
-
-# Home Calendar automatically created for Profiles ---------------------------------------------------
-from schedule.models import Calendar as BaseCalendar
-
-class HomeCalendar(BaseCalendar):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
-    def save(self, *args, **kwargs):
-        self.name = f"Home Calendar for {self.user.username}"
-        # Customize slug generation to ensure uniqueness
-        self.slug = f"home_calendar_{self.user.username}"
-        super().save(*args, **kwargs)
-              
-    def __str__(self):
-        return self.name
-# ----------------------------------------------------------------------------------------------------

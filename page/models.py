@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from schedule.models import Event as BaseEvent
-from schedule.models import Calendar as BaseCalendar
 from datetime import datetime, timedelta
 
 # Locations
@@ -13,8 +12,6 @@ from django.core.exceptions import ImproperlyConfigured
 from decimal import Decimal
 import logging
 
-
-    
 class Sport(models.Model):
     sport = models.CharField(max_length=25, unique=True)
 
@@ -27,17 +24,6 @@ class CoachSport(models.Model):
 
     def __str__(self):
         return f"{self.coach} - {self.sport}"
-    
-class PageCalendar(BaseCalendar):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    def save(self, *args, **kwargs):
-        self.name = f"Page Calendar for {self.user.username}"
-        # Customize slug generation to ensure uniqueness
-        self.slug = f"page_calendar_{self.user.username}"
-        super().save(*args, **kwargs)
-              
-    def __str__(self):
-        return self.name
 
 class Location(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -159,10 +145,6 @@ class Location(models.Model):
         except Exception as e:
             print(f"Error calculating travel time: {str(e)}")
             return None
-    
-class LocationSport(models.Model):
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
 
 class CoachLocation(models.Model):
     coach = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -171,7 +153,7 @@ class CoachLocation(models.Model):
     def __str__(self):
         return f"{self.coach} - {self.location}"
     
-days_of_the_week = {
+days_of_the_week = [
         ("Monday", "Monday"),
         ("Tuesday", "Tuesday"),
         ("Wednesday", "Wednesday"),
@@ -179,7 +161,7 @@ days_of_the_week = {
         ("Friday", "Friday"),
         ("Saturday", "Saturday"),
         ("Sunday", "Sunday"),
-    }
+]
 
 class Availability(BaseEvent):
     '''''
@@ -192,14 +174,9 @@ class Availability(BaseEvent):
 
     def __str__(self):
         return f"{self.creator} ({self.day}): {self.start.time()} - {self.end.time()}"
-    
-package_types = {
-        ('Training','Training'),
-        ('P(r)ep Talk','P(r)ep Talk'),
-    }
 
 class Package(models.Model):
-    type = models.CharField(max_length=20, choices=package_types)
+    type = models.CharField(max_length=20)
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
     duration = models.DurationField(default=timedelta(minutes=60))
     athletes = models.IntegerField(default=1)
@@ -239,6 +216,13 @@ class Parent(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+    
+class AttendeeParent(models.Model):
+    attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
+    parent = models.ForeignKey(Parent, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.parent} : {self.attendee}"
 
 class Event(BaseEvent):
     '''''
@@ -246,30 +230,20 @@ class Event(BaseEvent):
 
     start, end, title, description, creator (fk --> django_settings.AUTH_USER_MODEL), created_on, updated_on, rule (fk), end_recurring_period, calendar (fk), 
     '''''
-    EVENT_TYPES = (
-        ('camp', 'Camp'),
-        ('clinic', 'Clinic'),
-        ('training', 'Training'),
-    )
-    type = models.CharField(max_length=255, choices=EVENT_TYPES)
+    type = models.CharField(max_length=255)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, help_text="(Note: locations must be added to your Profile before they can be used in an Event)")
     location_notes = models.CharField(max_length=255,blank=True, help_text="(e.g., 'Field 3', or 'Auxiliary Gym')")
     is_accepted = models.BooleanField(default=True)
     max_attendance = models.IntegerField(default=100)
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True,help_text='(optional)') # maybe IntegerField(1000),null=True,blank=True... in order to deal with Stripe's API better
+    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return f'{self.title} - {self.location} - ({self.price})'
     
     def get_absolute_url(self):
         return reverse('view_event', kwargs={'pk':self.pk})
-    
-class EventSport(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.event.title} - {self.sport}"
     
 class EventAttendee(models.Model):
     attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
@@ -278,10 +252,3 @@ class EventAttendee(models.Model):
 
     def __str__(self):
         return f'{self.attendee} -- {self.event.title}'
-    
-class AttendeeParent(models.Model):
-    attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
-    parent = models.ForeignKey(Parent, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.parent} : {self.attendee}"

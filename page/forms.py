@@ -3,7 +3,7 @@ import calendar
 from django import forms
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from .models import Event, EventSport, Location, Availability, Package, PackageLocation, Attendee, Parent
+from .models import Event, Location, Availability, Package, PackageLocation, Attendee, Parent
 
 
 class LocationForm(forms.ModelForm):
@@ -67,6 +67,19 @@ class AvailabilityForm(forms.ModelForm):
 
 
 class PackageForm(forms.ModelForm):
+    # Place to accumulate popular training service packages
+    TYPE_CHOICES = [
+        ('Training', 'Training'),
+        ('P(r)ep Talk', 'P(r)ep Talk'),
+        ('Other', 'Other'),
+    ]
+    # Place to allow for coaches to enter their own package typw
+    type = forms.ChoiceField(choices=TYPE_CHOICES, widget=forms.Select(attrs={
+        'hx-get': 'custom_type',
+        'hx-target': '#custom-type-container',
+        'hx-swap': 'innerHTML'
+    }))
+
     # Restricting the available sports to those associated with the Coach (passed to this Form through the create_package view)
     def __init__(self, *args, **kwargs):
         sports = kwargs.pop('sports', None)
@@ -112,31 +125,34 @@ class ParentForm(forms.ModelForm):
         model = Parent
         fields = ['first_name','last_name','email']
 
+class EventDetailsForm(forms.ModelForm):
+    EVENT_TYPES = (
+        ('camp', 'Camp'),
+        ('clinic', 'Clinic'),
+        ('training', 'Training'),
+        ('Other', 'Other'),
+    )
 
-class EventSportForm(forms.ModelForm):
-    # Restricting the available sports to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
+    # Place to allow for coaches to enter their own package type
+    type = forms.ChoiceField(choices=EVENT_TYPES, widget=forms.Select(attrs={
+        'hx-get': 'custom_type',
+        'hx-target': '#custom-type-container',
+        'hx-swap': 'innerHTML'
+    }))
+    
+    # Restricting the available locations and sports to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
     def __init__(self, *args, **kwargs):
+        locations = kwargs.pop('locations', None)
         sports = kwargs.pop('sports', None)
         super().__init__(*args, **kwargs)
+        if locations:
+            self.fields['location'].queryset = locations
         if sports:
             self.fields['sport'].queryset = sports
 
     class Meta:
-        model = EventSport
-        fields = ['sport']
-
-class EventDetailsForm(forms.ModelForm):
-    
-    # Restricting the available locations to those associated with the Coach (passed to this Form through the coach_locations variable in the create_event view)
-    def __init__(self, *args, **kwargs):
-        locations = kwargs.pop('locations', None)
-        super().__init__(*args, **kwargs)
-        if locations:
-            self.fields['location'].queryset = locations
-
-    class Meta:
         model = Event
-        fields = ['title','price','location','location_notes','description','type'] # 'price'
+        fields = ['sport','type','title','price','location','location_notes','description']
 
 class EventTimelineForm(forms.ModelForm):
     date = forms.DateField(widget=forms.DateInput(attrs={'type':'date'}))

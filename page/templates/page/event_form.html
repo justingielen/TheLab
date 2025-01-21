@@ -10,6 +10,10 @@
     <fieldset class="form-group">
       <legend class="border-bottom mb-4">Details</legend>
       {{ sports|crispy }} {{ details|crispy }}
+
+      <!-- HTMX container for the custom type field -->
+      <div id="custom-type-container"></div>
+
       <legend class="border-bottom mb-4">
         Timeline <small><i>(For day 1 only if Event is recurring)</i></small>
       </legend>

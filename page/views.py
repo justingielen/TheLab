@@ -6,8 +6,8 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from thelab.models import User, UserRelation, Notification
-from .models import PageCalendar, Sport, CoachSport, Location, CoachLocation, Availability, Package, PackageLocation, Attendee, AttendeeParent, Event, EventAttendee
-from .forms import LocationForm, PackageForm, PackageLocationForm, AvailabilityForm, AttendeeForm, ParentForm, EventSportForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
+from .models import Sport, CoachSport, Location, CoachLocation, Availability, Package, PackageLocation, Attendee, AttendeeParent, Event, EventAttendee
+from .forms import LocationForm, PackageForm, PackageLocationForm, AvailabilityForm, AttendeeForm, ParentForm, EventDetailsForm, EventTimelineForm, EventRecurrenceForm
 from datetime import datetime, timedelta
 import calendar
 from schedule.models import Rule
@@ -19,6 +19,7 @@ from django.utils.html import strip_tags
 from django.conf import settings
 from django.core.mail import send_mail
 import base64
+import os
 
 # for caching travel_times
 from collections import defaultdict
@@ -79,7 +80,7 @@ def page_viewing(request, pk):
     # Filter EventAttendees based on the specific events the coach owns
     event_ids = [event.id for event in all_events]  # Get the IDs of the coach's events
 
-    # Fetch the attendees for only the relevant events
+    # Fetch the attendees for the coach's events
     event_attendees = EventAttendee.objects.filter(event_id__in=event_ids).select_related('attendee')
 
     # Create a mapping of event IDs to their attendees
@@ -123,6 +124,22 @@ def page_viewing(request, pk):
         'package_locations':package_locations,
     }
     return render(request, 'page/viewing.html',context=context)
+
+@login_required
+def maps_links(request, pk):
+    event = Event.objects.get(pk=request.GET.get('event_id'))
+
+    # Assuming the event model has `latitude`, `longitude`, and `location_name`
+    google_maps_link = f"https://www.google.com/maps/dir/?api=1&destination={event.location.latitude},{event.location.longitude}"
+    apple_maps_link = f"http://maps.apple.com/?daddr={event.location.latitude},{event.location.longitude}"
+
+    context = {
+        'google_maps_link': google_maps_link,
+        'apple_maps_link': apple_maps_link,
+        'pk':pk,
+
+    }
+    return render(request, 'page/partials/maps_links.html', context)
 
 @login_required
 def create_location(request):
@@ -190,7 +207,6 @@ def set_availability(request):
             availability = Availability()
             availability.day = availability_form.cleaned_data['day']
             availability.creator = request.user
-            availability.calendar = PageCalendar.objects.filter(user=request.user).first()
             availability.location = availability_form.cleaned_data['location']
 
             # First day
@@ -227,7 +243,10 @@ def remove_availability(request, availability_id):
     messages.success(request, 'Availability removed!')
     return redirect('page_viewing', pk=request.user.pk)
     
-# 
+def custom_type(request):
+    """For packages, serve the custom type field when 'Other' is selected."""
+    return render(request, 'page/partials/custom_type.html')
+
 @login_required
 def create_package(request):
     # Helper function to get the required querysets
@@ -258,9 +277,15 @@ def create_package(request):
             locations=locations_queryset
 
         )
+        custom_type = request.POST.get('custom_package_type', '')
         if package_form.is_valid() and package_location_form.is_valid():
             package = package_form.save(commit=False)
             package.owner = request.user
+
+            # Use custom type if 'Other' is selected
+            if package_form.cleaned_data['type'] == 'Other' and custom_type:
+                package.type = custom_type
+
             package.save()
 
             # Create PackageLocation objects for each selected location
@@ -491,20 +516,17 @@ def signup(request, date, time, week):
             attendees = formset.save()
             parent = parent_form.save()
             
-            # Get coach's calendar
-            page_calendar = PageCalendar.objects.get(user=coach)
-            
             # Create a suggested event (is_accepted = False) that's private (max_attendance = package.athletes)
             event = Event(
                 title=f"{package.sport} {package.type}",
                 location=location,
+                sport=package.sport,
                 start=start_time,
                 end=end_time,
                 type=package.type,
                 creator=coach,
                 is_accepted=False,  # Needs coach approval
                 max_attendance=package.athletes, 
-                calendar=page_calendar
             )
             event.save()
             
@@ -559,7 +581,9 @@ def signup(request, date, time, week):
             else:  # in_person payment
                 messages.success(
                     request, 
-                    'Your session has been requested. We will notify you when your coach has accepted!'
+                    f'Your session has been requested. We will notify you when your coach has accepted!'
+                    f"<br><br>"
+                    f'In the meantime, create an account now to view your upcoming event in The Lab, or for faster payment and easier registration for your next session!'
                 )
                 # Notify coach about new event suggestion
                 notification = Notification(
@@ -615,8 +639,66 @@ def accept_event(request, pk):
     event.is_accepted = True
     event.save()
 
-    # Fetch the attendees for only the relevant events
+    # Fetch the relevant EventAttendees
     event_attendees = EventAttendee.objects.filter(event_id=event.id).select_related('attendee')
+    attendees = []
+    for event_attendee in event_attendees:
+        attendees.append(event_attendee.attendee)
+
+    # Notify Parent(s) of EventAttendee(s)
+    parents = []
+    for event_attendee in event_attendees:
+        # get Attendee(s)'(s) parent(s)
+        attendee = Attendee.objects.get(pk=event_attendee.attendee.pk)
+        parent = AttendeeParent.objects.get(attendee=attendee).parent
+        if parent not in parents:
+            parents.append(parent)
+    # get parents emails
+    emails = []
+    for parent in parents:
+        if parent.email not in emails:
+            emails.append(parent.email)
+
+    # Ensuring static files are obtained from the correct root
+    if settings.DJANGO_ENV == 'development':
+        static_root = os.path.join('thelab', 'static')
+    else:
+        static_root = 'staticfiles'
+    logo_path = os.path.join(settings.BASE_DIR, static_root, 'images', 'green_logo.png')
+    with open(logo_path, 'rb') as image_file:
+        encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+    
+    # Ensuring email links point to the right domain
+    if settings.DJANGO_ENV == 'staging':
+        domain = 'https://justingielen.pythonanywhere.com'
+    else:
+        domain = 'http://localhost:8000'
+    links = {
+        'review': str(domain + "/"),
+    }
+
+    # Constructing welcome email
+    html_message = render_to_string(
+        'emails/event_accepted.html',
+        {
+            'encoded_image': encoded_image,
+            'event':event,
+            'attendees':attendees,
+        }
+    )
+
+    # Sending welcome email (including both html and plain text versions to avoid being marked as spam)
+    plain_message = strip_tags(html_message)
+    send_mail(
+        subject='Your event has been accepted!',
+        message=plain_message,
+        html_message=html_message,
+        from_email=settings.FROM_EMAIL_ADMIN,  # From admin email
+        recipient_list=emails,
+        auth_user=settings.FROM_EMAIL_ADMIN,
+        auth_password=settings.EMAIL_ADMIN_PASSWORD,
+        fail_silently=False,
+    )
 
     coach = User.objects.get(pk=pk)
 
@@ -637,14 +719,16 @@ def create_event(request):
         
         if all([event_details.is_valid(), event_timeline.is_valid(), event_recurrence.is_valid()]):
             event = Event()
-            print(event.calendar)
+
+            # Sport
+            event.sport = event_details.cleaned_data['sport']
 
             # Details
             event.title = event_details.cleaned_data['title']
             event.location = event_details.cleaned_data['location']
             event.description = event_details.cleaned_data['description']
             # event.price = event_details.cleaned_data['price']
-            event.event_type = event_details.cleaned_data['event_type']
+            event.type = event_details.cleaned_data['type']
 
             # Timeline
             event.start = event_timeline.cleaned_data['start_time']
@@ -665,14 +749,11 @@ def create_event(request):
         coach_sports = [profile_sport.sport.id for profile_sport in coach_sport_objects]
         sports_queryset = Sport.objects.filter(pk__in=coach_sports)
 
-        event_sports = EventSportForm(sports=sports_queryset)
-
-        event_details = EventDetailsForm(locations=locations_queryset)
+        event_details = EventDetailsForm(locations=locations_queryset, sports=sports_queryset)
         event_timeline = EventTimelineForm()
         event_recurrence = EventRecurrenceForm()
 
     context= {
-            'sports':event_sports,
             'details':event_details,
             'timeline':event_timeline,
             'recurrence':event_recurrence

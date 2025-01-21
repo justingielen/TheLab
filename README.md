@@ -9,6 +9,7 @@ Welcome to **The Lab**—a dynamic social development platform designed to conne
 **The Lab** hopes to offer a unique space for:
 
 - **Coaches**: Share knowledge through in-person or remote events, as well as instructive video content, and review athlete performance to provide valuable feedback.
+- **Parents**: Find expert coaching services for upgrading your athlete's career! Whether you're looking for training, camps and clinics for your athlete's skills, an experienced coach for elevating your team's practice, or anything in between... The Lab has you covered! Get in The Lab today and upgrade your game!
 - **Athletes**: Participate in personalized training sessions with successful players and coaches, sign up for group events, and practice with expertly designed drills, receiving expert feedback.
 
 **Key Features:**
